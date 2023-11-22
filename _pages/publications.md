@@ -19,7 +19,7 @@ nav_order: 1
 <em> Draft available upon request </em><br>
 <blockquote> 
 <p style="font-size:13px;"> <strong><em> Abstract:</em></strong> Partisanship, veto points, and other traditionally proposeddeterminants of welfare state outcomes have come under increasing scrutiny. In the health area, a growing body of literature argues that healthcare should be viewed as a valence rather than a positional issue. Further, following the electoral turn in welfare state research, the relevance of political institutions for health policy outcomes has come to be questioned. This paper presents a comprehensive analysis of the political determinants of contemporary healthcare legislation in 33 European countries from 1990to 2019, based on a novel datasetthat documents the number of privatization and patient rights measures adopted by country and year. We find strong evidence for the continuing importance of both political partisanship and institutional veto pointsin health politics. Government partisanship is a key predictor not only of the enactment of privatization measures, but also of the enactment of patient rights reforms.However, by distinguishing between economic right-left and social right-left partisanship, we show that economically conservative governments more likely enact privatization reforms, while socially conservative governments are more likely to enact patient rights reforms. Furthermore, when it comes to politically-contested privatization laws, institutional veto points hinder the enactment of legislation. By contrast, no parties attempt to block largely-consensual patient rights reforms by resorting to institutional veto points. Finally we show that the impact of economic right-left partisanship on privatization reforms is moderated by decade, with the 2000s constituting the heyday of privatization. Thus, we show that despite the changing contours of partisan party competition, government partisanship is still germane for health politics. However, the political-institutional frame in which partisan contestation takes place and the changing partisan nature of policy issues are key for understanding the links between partisanship and health policy outcomes. </p>
-<blockquote>
+</blockquote>
 
 
 
@@ -46,7 +46,7 @@ by using more economic frames of migration. In constituencies where the radical 
 successful, centre-left parties put more salience on migration whereas centre-right parties increasingly adopt
 cultural frames of migration. The findings of this article contribute to the literature by emphasizing the importance
 of local party competition in an era of growing party system fragmentation. </p>
-<blockquote>
+</blockquote>
 
 
 <strong>Who should tell them? The effect of social group cues on political persuasion</strong><br>
@@ -71,7 +71,7 @@ politician. Furthermore, the salience individuals put on an issue moderates the 
 by a policy. The more important citizens consider an issue, the less persuasive are politicians affected
 by the proposed policy. Overall, these findings directly speak to our understanding of descriptive representation
 in policy justifications and its potential for strategic manipulation. </p>
-<blockquote>
+</blockquote>
 
 
 <strong>Reminiscing the good old days. How far-right parties deter the female losers of technological change.</strong><br>
@@ -79,7 +79,7 @@ in policy justifications and its potential for strategic manipulation. </p>
 <em> Draft available upon request </em><br>
 <blockquote> 
 <p style="font-size:13px;"> <strong><em> Abstract:</em></strong> 		Being considered the losers of technological change, parts of male industrial workers have become an important vote base for far-right parties. Contrarily, although <em>female</em> routine occupations such as office clerks have also shrunk, female routine workers have not voted for the far-right to the same extent as their male counterparts. The dominating explanation for this gendered voting pattern is a greater societal status loss among male routine workers. Our paper tests an alternative explanation arguing that far-right parties have unequally addressed male and female routine workers. Therefore, we ask the following question: Is the effect of technological change on far-right voting for female workers moderated by far-right parties?  We test our theoretical arguments with a measure of state-level party strategies constructed from politicians’ social media data in Germany. These data are combined with longitudinal GSOEP data and occupation-level measures of technological change. Our findings indicate that women in general and female routine workers in particular refrain from supporting the radical right when it uses traditionalist gender appeals. Instead, they are mobilized by the center-left when it campaigns on a more progressive gender portfolio. Consequently, our results demonstrate the importance of taking supply-demand side interactions into account when studying the political outcomes of technological change and gender differences in political behavior more broadly. </p>
-<blockquote>
+</blockquote>
 
 
 <strong>Are we all in the same boat? The role of multi-level party competition for intra-party cohesion</strong><br>
@@ -87,7 +87,7 @@ in policy justifications and its potential for strategic manipulation. </p>
 <em> Draft available upon request </em><br>
 <blockquote> 
 <p style="font-size:13px;"> <strong><em> Abstract:</em></strong> In federal systems, parties do not only compete for votes on the national but also on the regional level. Thereby, regional party branches are often incentivised to deviate from their national parent party. However, scholars are still debating reasons that lead to more or less intra-party coherence across different levels. We position our article within this gap and aim to answer under which conditions regional party branches feel more incentivesed to deviate from their national parent party. Hypothesising that government status, coalition dynamics, elections as well as performance affect this behaviour, we show which strategies regional party branches apply. We collected data from more than 60,000 press releases from all statewide party fractions that are represented in the German Bundestag or in one of the 16 state parliaments between January 2020 and May 2022. Covering the time period of the Covid-19 pandemic allows us to analyse policies dealing with a highly salient topic across all regions in a unique comparative set-up. To measure party positions and their variation across levels as well as between party branches, we apply Latent Semantic Scaling. The results show that differences in government participation as well as coalition compromises lead regional parties to deviate more from their national counterparts. While upcoming elections do not have a general effect on intra-party dynamics, they lead regional parties to distance themselves from their parent party whenever the latter performs weakly in the polls. Covid-19 related performance measures seem not to affect regional party positioning. Our results provide new insights into the effects of multi-level systems on party behaviour. </p>
-<blockquote>
+</blockquote>
 
 <strong>The Things That Unite Us. Intra-Party Cohesion and Issue Engagement. </strong><br>
 <em> Draft available upon request </em><br>
@@ -103,4 +103,4 @@ does not prevent the Radical Right to engage in welfare-related issues. Furtherm
 analysis indicates that radical right parties use their speeches in parliament strategically to appeal broadly.
 By showing that Green and radical right parties extend their narrow issue set in different internal contexts,
 this article contributes to the understanding of niche parties’ issue diversification.  </p>
-<blockquote>
+</blockquote>
