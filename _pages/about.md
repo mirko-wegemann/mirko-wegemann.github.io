@@ -10,7 +10,7 @@ profile:
   more_info: >
     <p><strong>European University Institute</strong> </p>
     <p>Via dei Roccettini 9 </p>
-    <p>50014 San Domenico di Fiesole, Italy 12345</p>
+    <p>50014 San Domenico di Fiesole, Italy </p>
 
 news: false  # includes a list of news items
 latest_posts: false  # includes a list of the newest posts
