@@ -11,7 +11,7 @@ Undergraduate course, University of Vienna, 2022 <br>
 Lecturer, Comparative Politics, Winter Semester 2022-23 <br> 
 [Teaching Evaluation][1]
 
-[1]:{{ site.url }}/assets/pdf/evaluations_vienna.pdf <br>
+[1]:{{ site.url }}assets/pdf/evaluations_vienna.pdf <br>
 
 <strong>Computational Text Analysis</strong><br>
 Doctoral-level workshop, European University Institute, 2022 <br>
