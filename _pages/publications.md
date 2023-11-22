@@ -50,7 +50,6 @@ of local party competition in an era of growing party system fragmentation. </p>
 
 
 <strong>Who should tell them? The effect of social group cues on political persuasion</strong><br>
-<p style="font-size:13px;"> with <a style="font-size: 13px;" href="https://www.wzb.eu/de/personen/rebecca-kittel">Rebecca Kittel</a></p>
 <em> Draft available upon request </em><br>
 <blockquote> 
 <p style="font-size:13px;"> <strong><em> Abstract:</em></strong> Can parties shape the acceptance of a policy by selecting spokespersons who are presumably affected
