@@ -13,14 +13,6 @@ nav_order: 1
 {% bibliography -f {{ site.scholar.bibliography }} %}
 </div>
 
-<h3> Under Review </h3>
-<strong>Still a century of partisan politics? Partisanship, veto points, and European healthcare legislation, 1988-2019. </strong><br>
-<p style="font-size:13px;"> with <a style="font-size: 13px;" href="https://www.eui.eu/people?id=ellen-margaretha-immergut">Ellen M. Immergut</a>, <a style="font-size: 13px;" href="https://www.alexandrumoise.com/">Alexandru D. Moise</a> and <a style="font-size: 13px;" href="https://tamarapopic.com/">Tamara Popic</a></p> 
-<em> Draft available upon request </em><br>
-<blockquote> 
-<p style="font-size:13px;"> <strong><em> Abstract:</em></strong> Partisanship, veto points, and other traditionally proposeddeterminants of welfare state outcomes have come under increasing scrutiny. In the health area, a growing body of literature argues that healthcare should be viewed as a valence rather than a positional issue. Further, following the electoral turn in welfare state research, the relevance of political institutions for health policy outcomes has come to be questioned. This paper presents a comprehensive analysis of the political determinants of contemporary healthcare legislation in 33 European countries from 1990to 2019, based on a novel datasetthat documents the number of privatization and patient rights measures adopted by country and year. We find strong evidence for the continuing importance of both political partisanship and institutional veto pointsin health politics. Government partisanship is a key predictor not only of the enactment of privatization measures, but also of the enactment of patient rights reforms.However, by distinguishing between economic right-left and social right-left partisanship, we show that economically conservative governments more likely enact privatization reforms, while socially conservative governments are more likely to enact patient rights reforms. Furthermore, when it comes to politically-contested privatization laws, institutional veto points hinder the enactment of legislation. By contrast, no parties attempt to block largely-consensual patient rights reforms by resorting to institutional veto points. Finally we show that the impact of economic right-left partisanship on privatization reforms is moderated by decade, with the 2000s constituting the heyday of privatization. Thus, we show that despite the changing contours of partisan party competition, government partisanship is still germane for health politics. However, the political-institutional frame in which partisan contestation takes place and the changing partisan nature of policy issues are key for understanding the links between partisanship and health policy outcomes. </p>
-</blockquote>
-
 
 
 <h3> Work in Progress </h3>
