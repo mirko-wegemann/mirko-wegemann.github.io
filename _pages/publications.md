@@ -73,13 +73,6 @@ in policy justifications and its potential for strategic manipulation. </p>
 </blockquote>
 
 
-<strong>Are we all in the same boat? The role of multi-level party competition for intra-party cohesion</strong><br>
-<p style="font-size:13px;"> with <a style="font-size: 13px;" href="https://www.wzb.eu/de/personen/rebecca-kittel">Rebecca Kittel</a></p>
-<em> Draft available upon request </em><br>
-<blockquote> 
-<p style="font-size:13px;"> <strong><em> Abstract:</em></strong> In federal systems, parties do not only compete for votes on the national but also on the regional level. Thereby, regional party branches are often incentivised to deviate from their national parent party. However, scholars are still debating reasons that lead to more or less intra-party coherence across different levels. We position our article within this gap and aim to answer under which conditions regional party branches feel more incentivesed to deviate from their national parent party. Hypothesising that government status, coalition dynamics, elections as well as performance affect this behaviour, we show which strategies regional party branches apply. We collected data from more than 60,000 press releases from all statewide party fractions that are represented in the German Bundestag or in one of the 16 state parliaments between January 2020 and May 2022. Covering the time period of the Covid-19 pandemic allows us to analyse policies dealing with a highly salient topic across all regions in a unique comparative set-up. To measure party positions and their variation across levels as well as between party branches, we apply Latent Semantic Scaling. The results show that differences in government participation as well as coalition compromises lead regional parties to deviate more from their national counterparts. While upcoming elections do not have a general effect on intra-party dynamics, they lead regional parties to distance themselves from their parent party whenever the latter performs weakly in the polls. Covid-19 related performance measures seem not to affect regional party positioning. Our results provide new insights into the effects of multi-level systems on party behaviour. </p>
-</blockquote>
-
 <strong>The Things That Unite Us. Intra-Party Cohesion and Issue Engagement. </strong><br>
 <em> Draft available upon request </em><br>
 <blockquote> 
