@@ -1,0 +1,100 @@
+---
+title: "GPT in R - a guide"
+author: "Mirko Wegemann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('gptstudio')) install.packages("gptstudio") # use gpt in R
+if (!require('TheOpenAIR')) install.packages("TheOpenAIR") # another package to use openAI functions
+library(car)
+
+# configure gpt
+require(usethis)
+# edit_r_environ() # put your API in the environment; format: OPENAI_API_KEY="YOUR_KEY"
+
+```
+
+
+# GPT for coding
+```{r}
+data(mtcars)
+head(mtcars)
+
+# write your task, select it, click on Addins -> GPT in Source -> let the magic begin
+# "Please add code to return the mean, median and standard deviation of mtcars['mpg'].")
+# Calculate the mean of mtcars['mpg']
+mean(mtcars['mpg'])
+
+# Calculate the median of mtcars['mpg']
+median(mtcars['mpg'])
+
+# Calculate the standard deviation of mtcars['mpg']
+sd(mtcars['mpg'])
+
+```
+
+
+# GPT for classification
+```{r}
+df <- readRDS("./data_marpor/prep/data_prep.RDS")
+df <- subset(df, issue!="NA")
+prompt <- paste0("Please classify whether the statement is about the national way of life or the economy. Please only return 'economy' or 'migration'. This is the corresponding text: ", df$sentence_context[4])
+gpt_prompt <- gptstudio::openai_create_chat_completion(prompt, model="gpt-3.5-turbo") # more recent: gpt-4-turbo but also more expensive
+(category <- gpt_prompt$choices[[1]]$message$content)
+```
+
+
+Usually, we do not want to classify one but many statements. We can easily achieve that by writing a loop (or function).
+```{r}
+n_tokens <- c()
+category <- c()
+for(i in 2:6){      # let's do it for the first five statements, if you want to classify for all, you can use "1:length(df)" but be careful, it costs money, and there are more efficient ways to handle that
+  prompt <- paste0("Please classify whether the statement is about the national way of life or the economy. Please only return 'economy' or 'migration'. This is the corresponding text: ", df$sentence_context[i])
+gpt_prompt <- gptstudio::openai_create_chat_completion(prompt, model="gpt-3.5-turbo") # more recent: gpt-4-turbo but also more expensive
+category[i] <- gpt_prompt$choices[[1]]$message$content
+n_tokens[i] <- gpt_prompt$usage$total_tokens
+
+}
+
+# usage? 
+sum(n_tokens, na.rm=T)
+# validation: 
+category
+df$issue[1:6]
+```
+
+We pay GPT on a token basis. Our prompt counts, so the longer the instructions in a prompt, the more we pay for each request just because of the instructions. Therefore, for a longer codebook, it may make sense to collapse several messages into one prompt. Then, we send out the instructions only once and save money. 
+How to do that? 
+```{r}
+# first collapse statements (here from row 2 to 6), separate by information on statements
+statements <- c("")
+for(i in 2:6){
+  statements <- paste(statements, paste0("Statement ", i, ": "),  df$sentence_context[i])
+}
+statements
+
+# now, create prompt
+prompt <- paste0("Please classify each statement into 'national way of life' or the 'economy'. Please only return 'economy' or 'migration' with the statement's number (e.g., 1: category, 2: category). These are the corresponding statements: ", statements)
+gpt_prompt <- gptstudio::openai_create_chat_completion(prompt, model="gpt-3.5-turbo") # more recent: gpt-4-turbo but also more expensive
+category <- gpt_prompt$choices[[1]]$message$content
+n_tokens2 <- gpt_prompt$usage$total_tokens
+
+# usage? 
+sum(n_tokens2, na.rm=T)
+
+sum(n_tokens, na.rm=T) # a difference of 100 tokens! (this may look tiny but we only included 5 statements!)
+
+# validation: 
+category
+df$issue[1:6]
+```
+
+Keep in mind, openAI only allows a specific number of tokens for their models. In gpt-3.5.-turbo, it's 16k; in gpt-4-turbo, it's up to 128k. If we design a prompt, we need to ensure that it stays below that number. Keep in mind that the output tokens (the reply) also count, so be generous with remaining tokens. 
+
+To check the number of tokens, we can use count_tokens by *TheOpenAir*
+```{r}
+TheOpenAIR::count_tokens(prompt)
+```

@@ -1,0 +1,750 @@
+---
+title: "Word embeddings"
+author: "Mirko Wegemann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+#py_install("keras")
+if (!require('tidyverse')) install.packages("tidyverse") # data wrangling
+if (!require('text2vec')) install.packages("text2vec") # word embeddings
+if (!require('uwot')) install.packages("uwot") # dimensionality reduction
+if (!require('umap')) install.packages("umap") # visualization
+if (!require('conText')) install.packages("conText") # context-specific description and embedding regression
+if (!require('quanteda')) install.packages("quanteda") # some useful functions for text processing
+if (!require('tensorflow')) install.packages("tensorflow") # deep learning in R
+#install_tensorflow()
+if (!require('keras')) install.packages("keras") # deep learning in R
+if (!require('torch')) install.packages("torch") # machine learning framework (based on pytorch)
+
+if (!require('devtools')) install.packages("devtools") 
+if (!require('gptstudio')) install.packages("gptstudio") # use gpt in R
+require(usethis)
+
+#install_keras(tensorflow = "gpu")
+#reticulate::py_config() 
+#reticulate::py_module_available("keras")
+```
+
+
+# Word embeddings and party manifestos
+## 1. Tidying text
+This is an essential task for word embeddings as well since reducing the number of tokens increase computational efficiency and gives us more meaningful relationships between words. 
+
+```{r}
+df <- readRDS("./data_prep.RDS")
+df <- subset(df, issue!="NA")
+df$id <- 1:nrow(df)
+
+# pre-process text: remove punctuation, numbering, superfluous whitespace, linebreaks 
+df$text_prep <- tolower(df$sentence_context) %>% 
+  paste0(" ", .) %>%
+  str_replace_all(., "-", " ") %>% 
+  str_replace_all(., "[[:punct:]]", " ") %>% 
+  str_replace_all(., "[0-9]", " ") %>%  
+  str_replace_all(., "\\s{2,}", " ") %>%
+  str_replace_all(., "\n", " ") 
+
+# tokenize corpus into unigrams
+toks <- tokens(df$text_prep) %>% tokens_remove(quanteda::stopwords(language="en"))
+toks[[1]][1:5]
+
+
+# further pruning of vocabulary -> only terms that appear at least 5 times 
+# first dfm transformation to extract those features before removing others from tokenized object
+features <- dfm(toks, verbose = FALSE) %>% dfm_trim(min_termfreq = 5) %>% featnames()
+
+toks_sub <- tokens_select(toks, features, padding=T)
+toks_sub[[1]][1:5]
+
+
+# add meta information to dfm 
+docvars(toks_sub, "text_id") <- df$id
+docvars(toks_sub, "country") <- df$country
+docvars(toks_sub, "issue") <- df$issue
+docvars(toks_sub, "parfam") <- df$parfam_n
+docvars(toks_sub, "year") <- df$year
+```
+
+## 2. Load pre-trained embeddings 
+
+With embeddings, there are two different options. First, we create our own embeddings locally. Here, we infer from the data we have how different words relate to each other. The main advantage of this approach is that our embeddings have in-domain knowledge. This may play a role, for instance, if some terms are used differently in other contexts. However, embeddings are most accurate if they are trained on large instances of data. This takes a lot of time and often requires much data. Therefore, we follow a second approach. Here, we download pre-trained embeddings from (https://nlp.stanford.edu/projects/glove/) and retrieve them for our text.
+```{r}
+#path <- "./glove.6B/glove.6B.100d.txt" # use this on a less powerful machine
+path <- "./glove.42B.300d/glove.42B.300d.txt"
+glove_wts <- data.table::fread(path, quote = "", data.table = FALSE) %>% 
+  as_tibble()
+
+dim(glove_wts)
+head(glove_wts)
+```
+Every word in this embedding model is represented by a vector of 100 dimensions, other dimensionalities are available, too.
+
+
+Do pre-trained embeddings contain all words of our MARPOR corpus?
+
+Let us first tokenize the data. It's a bit different from before. We first tokenize but then create an iterator that goes through all tokens and stores them in a vocabulary object.
+```{r}
+# tokenize (use text2vec tokenizer here to create correct object type)
+tokens <- word_tokenizer(df$text_prep)
+# Create vocabulary. Terms will be unigrams (simple words).
+it <- itoken(tokens)
+vocab <- create_vocabulary(it)
+```
+
+Now, let's check which tokens are not part of pre-trained embeddings
+```{r}
+not_in_glove <- vocab %>%
+  filter(!term %in% glove_wts$V1)
+
+print(paste0(nrow(not_in_glove), " words of our MARPOR corpus are not represented in the pre-trained embeddings."))
+not_in_glove <- not_in_glove[order(not_in_glove$term_count, decreasing=T),]
+
+print(paste0("The most frequently used words which are not captured by the pre-trained embeddings are ", paste0(head(not_in_glove$term), collapse=", ")))
+```
+
+As some of the terms are not represented in pre-trained corpus, we need to create our own matrix only with those terms that are represented.
+```{r}
+# fill matrix with embeddings -> embeddings that are not available, remain 0 in the matrix
+# store V1 (terms) as row names
+row_names <- glove_wts %>%
+  filter(V1 %in% vocab$term)  %>%
+  select(V1)
+
+# filter the embeddings to terms of our corpus
+embeddings <- glove_wts %>%
+  filter(V1 %in% vocab$term) %>%
+  select(-V1) %>%
+  as.matrix()
+
+# set terms as rownames
+rownames(embeddings) <- row_names$V1
+
+# add those words which GloVe does not have with a 0
+embeddings_na <- matrix(data = 0, nrow = nrow(not_in_glove), ncol = 300)
+
+# set terms as rownames
+rownames(embeddings_na) <- not_in_glove$term
+
+# row bind available and not available embeddings
+embeddings <- rbind(embeddings, embeddings_na)
+
+saveRDS(embeddings, "./embeddings_mat.RDS")
+```
+
+
+# Exploratory analysis 
+
+Now that we have embeddings, we can use them what they are made for: explore there nearest neighbours. Which words have close embeddings to economy, which to migrants?
+```{r}
+embeddings <- readRDS("./embeddings_mat.RDS")
+
+
+# which are close words to the term "migrants"?
+find_nns(embeddings['migrants',], pre_trained = embeddings, N = 10)
+
+# and which terms are close to "economy"?
+find_nns(embeddings['economy',], pre_trained = embeddings, N = 10)
+```
+
+We can also look at which words are most often used in vicinity to a key term. For this purpose, we first create a so-called feature context matrix
+```{r}
+# how are specific words used in these contexts?
+# 1. create a feature context matrix
+toks_fcm <- fcm(toks_sub, context = "window", window = 10, count = "frequency", tri = FALSE) # important to set tri = FALSE
+
+# 2. create a transformation matrix (this gives important terms a high weight, terms like stopwords a low weight)
+trans_mat <- compute_transform(x = toks_fcm, pre_trained = embeddings, weighting=500) # as weighting, set a high number
+
+# 3. Let's further zero in on how the word "economy" is used usually
+toks_context <- tokens_context(x = toks_sub, pattern = "economic", window = 5L)
+
+# 4. transform to document frequency matrix
+context_dfm <- dfm(toks_context)
+
+# 5. create document embedding matrix
+context_dem <- dem(x = context_dfm, pre_trained = embeddings, transform = TRUE, transform_matrix = trans_mat, verbose = TRUE)
+
+# 6. now, we have several embeddings for a term; to get a single estimate, aggregate column
+context_wv <- colMeans(context_dem)
+
+# 7. nearest neighbours
+find_nns(context_wv, pre_trained = embeddings, N = 10, candidates = context_dem@features)
+```
+
+
+We can also scrutinize how are different actors talking about a keyword of interest.
+```{r}
+context_wv_parfam <- dem_group(context_dem, groups = context_dem@docvars$parfam)
+dim(context_wv_parfam) # 5 different party families
+
+
+# nearest neighbours for different party families
+context_nns <- nns(context_wv_parfam, pre_trained = embeddings, N = 10, candidates = context_wv_parfam@features, as_list = TRUE)
+context_nns
+```
+That gives us a very nice descriptive idea of how different actors talk differently about a subject. The rad left is talking more about values like "equality" or "unity", whereas the mainstream right emphasizes "growth" or "momentum". The Greens stress the environmental aspect. 
+
+Let's compute one more descriptive statistic before moving on.
+```{r}
+# nearest contexts
+immig_ncs <- ncs(x = context_wv_parfam, contexts_dem = context_dem, contexts = toks_sub, N = 5, as_list = TRUE)
+immig_ncs
+```
+
+
+# visualization
+Let's visualize relationships between words. As our embedding matrix has 300 dimensions, we first need to reduce dimensionality before we can visualize anything in a two-dimensional space. 
+
+```{r}
+# let's find the 50 nearest neighbors surrounding our target word
+words <- find_nns(context_wv, pre_trained = embeddings, N = 50, candidates = context_dem@features)
+
+# filter our vocabulary by these terms
+vocab_sub <- vocab %>%
+  filter(term %in% c(words)) 
+
+# create data frame of embedding matrix
+emb_df <- data.frame(embeddings)
+
+# row names to column
+emb_df <- emb_df %>% rownames_to_column()
+
+# filter by 100 most frequent terms
+emb_df_sub <- subset(emb_df, rowname %in% vocab_sub$term)
+
+# convert back to matrix
+emb_df_sub2 <- emb_df_sub %>% remove_rownames() %>% column_to_rownames("rowname") %>% as.matrix()
+
+
+# now finally: visualizing
+# reducing dimensionality 
+visualization <- umap(emb_df_sub2, n_neighbors = 15, n_threads = 2) 
+
+
+df_visualization  <- data.frame(word = rownames(emb_df_sub2),  
+                  xpos = gsub(".+//", "", rownames(emb_df_sub2)),  
+                  x = visualization$layout[, 1], y = visualization$layout[, 2],  
+                  stringsAsFactors = FALSE) 
+
+df_visualization %>%
+  ggplot(aes(x,y, label=word)) + 
+  geom_point() + geom_text(hjust=0, vjust=0) + theme_light()
+
+
+```
+
+# Embedding regression
+Sometimes, we want to make inference about the different usage of a word by specific groups. Following the example above, we know which terms different parties use when talking about the economy. But we do not know yet, whether there are substantial and significant differences in the words parties use. To get this single parameter, embedding regression breaks down the embeddings towards a focal word (here economy) to a single number and compares whether there are statistically significant difference. For instance, do the Greens use a significantly differnt vocabulary on the economy compared to the mainstream right? 
+
+We've got all the ingredients we need already, let's feed them into conText, developed by Rodrigues et al. 2021. 
+
+```{r}
+set.seed(510)
+model1 <- conText(formula = family ~ parfam,
+                 data = toks_sub,
+                 pre_trained = embeddings,
+                 transform = TRUE, transform_matrix = trans_mat,
+                 bootstrap = TRUE,
+                 num_bootstraps = 100,
+                 confidence_level = 0.95,
+                 stratify = FALSE,
+                 permute = TRUE, num_permutations = 10,
+                 window = 10, case_insensitive = TRUE,
+                 verbose = T)
+
+
+rownames(model1)
+# (normed) coefficient table
+model1@normed_coefficients
+
+```
+
+
+```{r}
+Greens_wv <- model1['(Intercept)',] # (D)emocrat - (F)emale 
+MR_wv <- model1['(Intercept)',] + model1['parfam_Mainstream Right',] # (D)emocrat - (M)ale 
+RL_wv <- model1['(Intercept)',] + model1['parfam_Radical Left',]  
+
+# nearest neighbors
+nns(rbind(MR_wv,RL_wv), N = 20, pre_trained = embeddings, candidates = model1@features)
+```
+
+
+
+
+# Supervised classification with embeddings
+
+We are moving closer to a more accurate representation of text. In principle, we've got more information, so this should also help us in the predicting task we have started on Friday. Does it? 
+
+Don't be afraid if you cannot follow every step here. This is meant to be a showcase session. At home, go through it line by line. Most of it will be easy to understand. 
+
+The first part is just to ensure that we use exactly the same sample as yesterday. For your own application, this is not really important.
+```{r}
+embeddings <- readRDS("./embeddings_mat.RDS")
+
+# Classification of so many categories is difficult, let's start simply. We want to distinguish statements on welfare from statements on the national way of life (immigration, patriotism, etc.)
+df_sub <- subset(df, issue %in% c("504", "505", "601", "602"))
+
+# for comparison, let's take the exact same ids as on Friday
+df_sub2 <- readRDS("pred_df.RDS")  
+
+df_sub <- subset(df_sub, id %in% df_sub2$id)
+```
+
+
+As our dataset is a subset now, let's create a new vocabulary object with only the terms still included. Then, tokenize into sequences (a sequence is a statement in our case)
+```{r}
+tokens <- space_tokenizer(df_sub$text_prep)
+it <- itoken(tokens)
+vocab <- create_vocabulary(it)
+
+# create a tokenizer
+tokenizer <- text_tokenizer(num_words = nrow(vocab)) %>% 
+  fit_text_tokenizer(df_sub$text_prep)
+
+# transform to a sequence of numeric vectors
+sequences <- texts_to_sequences(tokenizer, df_sub$text_prep)
+```
+
+
+Now this is new: every sequence needs to be of the exact same lengths. There are two scenarios: either we take the longest sequence as our default length or we take a length informed by summary measures (like the mean or median) as a benchmark. We decide for the latter since taking the longest sequence makes computation much slower. But be aware: this is a feature we could/should tweak if we want to improve performance.
+```{r}
+# take a closer look on summary statistics
+l_seq <- NA
+for(i in 1:length(sequences)){
+  l_seq <- append(l_seq,length(sequences[[i]]))
+}
+hist(l_seq)
+summary(l_seq) # how long are sequences? 
+
+
+# on the basis of summary statistics, we need to decide how to prune sequences to n number of vectors -> here, we use the mean length of sequences but this is arbitrary and a potential hyperparameter
+max_len <- round(mean(l_seq,na.rm=T))
+features <- pad_sequences(sequences, maxlen = max_len)
+```
+
+
+In machine learning, we want to train a model based on annotated data and evaluate its performance on test data. We always need to split our data into two subsets. 
+
+**Note**: The best way is actually to split into three subsets: train, test and validation (left out) because train and test data can be mixed in the repeated training sequence.
+
+```{r}
+# create training data (let's use same IDs as on Friday)
+#set.seed(651)
+#index <- 1:nrow(features)
+#index_train <- sample(index, size=0.8*nrow(features))
+#index_test <- index[!index %in% index_train]
+index_train <- readRDS("./train_ids.RDS") %>% as.numeric
+index_test <- readRDS("./test_ids.RDS")  %>% as.numeric
+
+# extract features and labels (topics)
+row_names_train <- as.numeric(row.names(df_sub)[with(df_sub, id %in% index_train)])
+row_names_test <- as.numeric(row.names(df_sub)[with(df_sub, id %in% index_test)])
+
+x_train <- features[row_names_train, ]
+x_test <- features[row_names_test, ]
+
+# define the labels of interest. Here, distinguish statements on welfare state from migration
+df_sub$labels <- ifelse(df_sub$issue %in% c("504", "505"), 1, 0)
+y_train <- subset(df_sub, id %in% index_train) 
+y_train <- unlist(y_train[,"labels"])
+y_test <- subset(df_sub, id %in% index_test) 
+y_test <- unlist(y_test[,"labels"])
+```
+
+
+Let's save the data for later usage (the transformer model).
+```{r}
+train <- data.frame(text_prepared = df_sub[df_sub$id %in% index_train,7], labels = y_train)
+train$labels_text <- ifelse(train$labels==0, "migration", "welfare")
+write.csv(train, "./data_transformers/training.csv")
+test <- data.frame(text_prepared = df_sub[df_sub$id %in% index_test,7], labels = y_test)
+test$labels_text <- ifelse(test$labels==0, "migration", "welfare")
+write.csv(test, "./data_transformers/test.csv")
+```
+
+
+Now, we are at the point to define our model, to compile it, and to run it! 
+```{r}
+# define model
+model <- keras_model_sequential() %>%
+  layer_embedding(
+    input_dim = dim(embeddings)[1],  # Assuming the number of words in your vocabulary matches the rows of t_mat
+    input_length = max_len,
+    output_dim = dim(embeddings)[2],  # Assuming the dimensionality of your embeddings
+    weights = list(embeddings),
+    trainable = T
+  ) %>%
+  layer_flatten() %>% 
+  layer_dense(units = 256, activation = "relu") %>% # for dense layers between input and output, we often rely on "rectified linear units" that are non-linear and do not lead to vanishing gradient (weights become too small)
+  layer_dropout(rate = 0.4) %>%  # dropout to reduce overfitting (nodes are randomly held out)
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(rate = 0.4) %>% 
+  layer_dense(units = 1, activation = "sigmoid")  
+
+summary(model)
+
+# Step 4: Compile your model
+model %>% compile(
+  loss = "binary_crossentropy",
+  optimizer = optimizer_adam(learning_rate=0.0005),
+  metrics = c("accuracy")
+)
+
+
+# Step 5: Train your model
+history <- model %>% fit(
+  x = x_train,
+  y = y_train,
+  epochs = 5,
+  batch_size = 128,
+  validation_data = list(x_test, y_test)
+)
+
+print(paste0("Our best epoch is epoch ", (best_epoch <- which(history$metrics$val_loss == min(history$metrics$val_loss)))))
+print(paste0("The smallest loss in our validation set is ", (loss <- history$metrics$val_loss[best_epoch] %>% round(3))))
+print(paste0("The accuracy in our validation set is ", acc <- history$metrics$val_acc[best_epoch] %>% round(3)))
+#saveRDS(model, "./model_e7b16d300.RDS")
+```
+
+Why did we do this? Ultimately, our goal is to predict out-of-sample. Optimally, we would have created three objects. Train, eval and test!
+```{r}
+# now predict probability for every speech
+pred_results <- as.data.frame(predict(model, x_test))
+```
+
+Our accuracy was great. Is that enough validation? No. Think about the number of cases we have in both classes. As there is a great imbalance, simply by predicting class 0, our model is mostly right. 
+So, let's do a bit more thorough validation by looking at a confusion matrix
+```{r}
+# transform probability into label: <0.5 -> 0, >0.5=1
+pred_results$pred <- ifelse(pred_results$V1>=0.5, 1, 0)
+
+# add true category, text and party
+pred_results$true <- y_test
+pred_results$issue_cmp <- df_sub$issue[index_test]
+pred_results$sentence <- df_sub$sentence[index_test]
+pred_results$party <- df_sub$partyname[index_test]
+
+(confusion_matrix <- table(pred_results$pred, pred_results$true))
+```
+
+
+```{r}
+print(paste0("There are ", confusion_matrix[2] + confusion_matrix[3], " wrong predictions"))
+```
+
+Not that good anymore. We predicted most of the instances which do not belong to our target class. But we were also often wrong in predicting our target class.
+
+There are some more numbers which are often used to evaluate the validity. Let's calculate them.
+```{r}
+TP <- confusion_matrix[2,2] # True Positives
+FP <- confusion_matrix[1,2] # False Positives
+FN <- confusion_matrix[2,1] # False Negatives
+TN <- confusion_matrix[1,1] # True Negatives
+ 
+#Accuracy: What % of all predictions are correct?
+Accuracy = (TP+TN)/(TP+FP+FN+TN)
+cat('\n Accuracy:   ', scales::percent(Accuracy),' of all Michelin/non-Michelin review predictions are correct')
+ 
+#Precision: What % of predicted Michelin reviews are actually Michelin reviews? 
+Precision = (TP)/(TP+FP)
+cat('\n Precision:  ', scales::percent(Precision),' of predicted Michelin reviews are actually Michelin reviews')
+ 
+#Recall/Sensitivity: What % of all actual Michelin reviews are predicted as such? 
+Recall = (TP)/(TP+FN)
+cat('\n Recall:     ', scales::percent(Recall),' of all actual Michelin reviews are predicted as such')
+ 
+#F1.Score = weighted average of Precision and Recall
+F1.Score = 2*(Recall * Precision) / (Recall + Precision)
+cat('\n F1 score:  ', round(F1.Score,2),' is the weighted average of Precision and Recall')
+```
+
+
+# Multi-class prediction 
+```{r}
+# create training data
+set.seed(651)
+index <- 1:nrow(features)
+index_train <- sample(index, size=0.8*nrow(features))
+index_test <- index[!index %in% index_train]
+
+# extract features and labels (topics)
+x_train <- features[index_train, ]
+x_test <- features[index_test, ]
+
+# define the labels of interest. Let's start with a straightforward task. Distinguish all of the sentences on economy from other categories
+labels <- rep(504, nrow(df_sub))    # welfare state expansion
+labels[df_sub$issue=="505"] <- 505     # welfare state limitation
+labels[df_sub$issue=="601"] <- 601     # national way of life (positive)
+labels[df_sub$issue=="602"] <- 602     # national way of life (negative)
+
+y_train <- to_categorical(labels[index_train])
+#head(y_train,20)
+y_test <- to_categorical(labels[index_test])
+
+# define model
+model6 <- keras_model_sequential() %>%
+  layer_embedding(
+    input_dim = dim(t_mat)[1],  # Assuming the number of words in your vocabulary matches the rows of t_mat
+    input_length = max_len,
+    output_dim = dim(t_mat)[2],  # Assuming the dimensionality of your embeddings
+    weights = list(t_mat),
+    trainable = T
+  ) %>%
+  layer_flatten() %>% 
+  layer_dense(units = 128, activation = "relu") %>% # for dense layers between input and output, we often rely on "rectified linear units" that are non-linear and do not lead to vanishing gradient (weights become too small)
+  layer_dropout(rate = 0.4) %>%  # dropout to reduce overfitting (nodes are randomly held out)
+  layer_dense(units = 32, activation = "relu") %>%
+  layer_dropout(rate = 0.4) %>% 
+  layer_dense(units = 4, activation = "softmax")  # this is the decisive parameter for multiclass prediction; often softmax is used as activation, the number of units must equal the number of categories
+
+summary(model)
+
+# Step 4: Compile your model
+model6 %>% compile(
+  loss = "categorical_crossentropy", # for multiclass, we need to set a different loss function
+  optimizer = optimizer_adam(learning_rate=0.0001),
+  metrics = c("accuracy")
+)
+
+# Step 5: Train your model
+history <- model6 %>% fit(
+  x = x_train,
+  y = y_train,
+  epochs = 15,
+  batch_size = 256,
+  validation_data = list(x_test, y_test)
+)
+
+print(paste0("Our best epoch is epoch ", (best_epoch <- which(history$metrics$val_loss == min(history$metrics$val_loss)))))
+print(paste0("The smallest loss in our validation set is ", (loss <- history$metrics$val_loss[best_epoch] %>% round(3))))
+print(paste0("The accuracy in our validation set is ", acc <- history$metrics$val_acc[best_epoch] %>% round(3)))
+```
+
+```{r}
+# now predict probability for every speech
+pred_results2 <- as.data.frame(predict(model, x_test))
+colnames(pred_results2) <- c("504", "505", "601", "602")
+pred_results2$pred <- colnames(pred_results2)[apply(pred_results2,1,which.max)]
+
+# add true category, text and party
+pred_results2$true <- labels[index_test]
+pred_results2$issue_cmp <- df_sub$issue[index_test]
+pred_results2$sentence <- df_sub$sentence[index_test]
+pred_results2$party <- df_sub$partyname[index_test]
+
+(confusion_matrix <- table(pred_results2$pred, pred_results2$true))
+```
+
+
+Don't give up. Manifesto's are more difficult to predict since some categories are actually quite similar to each other. We'd need much more of a priori classification for that task. Let's do something more fun - predicting which thesis at EUI has been written in which department - solely on the basis of its abstracts.
+
+```{r}
+load("theses.RData")
+
+# As we are classifying, we remove those items with an NA (these were not coded by humans)
+df_sub <- subset(theses, !is.na(department))
+
+# Create iterator over tokens
+tokens <- space_tokenizer(df_sub$abstract)
+# Create vocabulary. Terms will be unigrams (simple words).
+it <- itoken(tokens)
+vocab <- create_vocabulary(it)
+
+tokenizer <- text_tokenizer(num_words = nrow(vocab)) %>% 
+  fit_text_tokenizer(df_sub$abstract)
+
+# first: transform to a sequence of numeric vectors
+sequences <- texts_to_sequences(tokenizer, df_sub$abstract)
+
+# take a closer look on summary statistics
+l_seq <- NA
+for(i in 1:length(sequences)){
+  l_seq <- append(l_seq,length(sequences[[i]]))
+}
+hist(l_seq)
+summary(l_seq) # how long are sequences? 
+
+
+# the theses abstract are quite long, for simplicity, we prune them a bit more than before (to a length of 100 instead of the mean of 183)
+max_len <- 80
+features <- pad_sequences(sequences, maxlen = max_len)
+
+
+# create training data
+set.seed(651)
+index <- 1:nrow(features)
+index_train <- sample(index, size=0.8*nrow(features))
+index_test <- index[!index %in% index_train]
+
+# extract features and labels (topics)
+x_train <- features[index_train, ]
+x_test <- features[index_test, ]
+
+# define the labels of interest. Here, distinguish statements on welfare state from other categories
+labels <- ifelse(df_sub$deparment=="sps_theses", 1, 0)
+y_train <- labels[index_train]
+y_test <- labels[index_test]
+
+# define model
+model <- keras_model_sequential() %>%
+  layer_embedding(
+    input_dim = nrow(vocab), # we did not run an embedding task before, so let's train them on the run
+    input_length = max_len,
+    output_dim = nrow(vocab),  # Assuming the dimensionality of your embeddings
+    trainable = T
+  ) %>%
+  layer_flatten() %>% 
+  layer_dense(units = 1, activation = "sigmoid")  
+
+summary(model)
+
+# Step 4: Compile your model
+model %>% compile(
+  loss = "binary_crossentropy",
+  optimizer = optimizer_adam(learning_rate=0.0001),
+  metrics = c("accuracy")
+)
+
+
+# Step 5: Train your model
+history <- model %>% fit(
+  x = x_train,
+  y = y_train,
+  epochs = 5,
+  batch_size = 8, # abstracts are quite long, let's reduce the batch size not to run into memory issues
+  validation_data = list(x_test, y_test)
+)
+
+print(paste0("Our best epoch is epoch ", (best_epoch <- which(history$metrics$val_loss == min(history$metrics$val_loss)))))
+print(paste0("The smallest loss in our validation set is ", (loss <- history$metrics$val_loss[best_epoch] %>% round(3))))
+print(paste0("The accuracy in our validation set is ", acc <- history$metrics$val_acc[best_epoch] %>% round(3)))
+```
+
+
+
+
+
+
+# create an iterator to iterate over terms 
+iter <- itoken(tokens)
+
+# create data frame containing a row for each word, its total occurrence and its document occurrence
+vocab <- create_vocabulary(iter)
+
+# many words are quite rarely used, we can (and should) prune if we want to boost efficiency
+# prune to words that occur at least 5 times
+vocab_sub <- prune_vocabulary(vocab, term_count_min = 5L)
+
+# now we can actually start to transform our tokens into vector representations
+vectorizer <- vocab_vectorizer(vocab_sub) # defines a function for vectorization
+
+# define the term-co-occurrence matrix
+## this step is crucial: we define the context window: the larger the window, the more context is captured (but the more computationally intense the process is)
+tcm <- create_tcm(iter, vectorizer, skip_grams_window = 10L)
+
+
+# Fit GloVe model ####
+
+# 300 dimensions
+# check the maximum number of co-occurrences (GloVe paper, p. 4)
+glove = GlobalVectors$new(rank = 300, x_max = 10) 
+wv_main <- glove$fit_transform(tcm, n_iter = 100, convergence_tol = 0.01)
+
+
+# model learns two sets of word vectors - main and context -> main are the vectors for our target word whereas context are vectors for all words in context window (here n=10)
+# both can be used as result, but it usually better (idea from GloVe paper) 
+# to average or take a sum of main and context vector
+dim(wv_main)
+wv_context <- glove$components
+dim(wv_context)
+word_vectors = wv_main + t(wv_context)
+
+
+# similarity of words of interest
+# which words appear often in relation to Europe?
+europe = word_vectors["europe", , drop = F]
+cos_sim_europe = sim2(x = word_vectors, y = europe, method = "cosine", norm = "l2")
+head(sort(cos_sim_europe[,1], decreasing = T), 10)
+
+
+# which words appear often in relation to peace?
+peace = word_vectors["peace", , drop = F]
+cos_sim_peace = sim2(x = word_vectors, y = peace, method = "cosine", norm = "l2")
+head(sort(cos_sim_peace[,1], decreasing = T), 10)
+
+
+# which words appear often in relation to Putin?
+putin = word_vectors["putin", , drop = F]
+cos_sim_putin = sim2(x = word_vectors, y = putin, method = "cosine", norm = "l2")
+head(sort(cos_sim_putin[,1], decreasing = T), 10)
+
+
+### using pre-trained embeddings
+
+
+
+### old
+
+### Preparation of UN Speeches Corpus
+```{r pressure, echo=FALSE}
+load("./un_speeches/docs.RData")
+load("./un_speeches/docs_meta.RData")
+
+# prepare merge between speeches and meta data
+# create id variable to merge 
+raw_docs$id <- 1:nrow(raw_docs)
+meta_speeches$id <- 1:nrow(meta_speeches)
+
+# merge with meta information on session
+df <- left_join(raw_docs, meta_speeches, by=c("id"))
+
+# glimpse into data
+# number of topics
+length(unique(df$topic))
+
+# how often certain topics are debated
+#table(df$topic2)
+
+# how often which regions are debated
+df$agenda_item1 <- ifelse(is.na(df$agenda_item1), "Not available", df$agenda_item1)
+table(df$agenda_item1)
+
+# region of origin? 
+df$s_region <- countrycode(df$country, origin="country.name", destination="continent")
+df$s_region <- ifelse(is.na(df$s_region), "Non-country actor", df$s_region)
+table(df$s_region)
+```
+
+
+
+# train own embeddings 
+# train our own embeddings
+# 1. step: create feature co-occurrence matrix -> here, we capture the context next to a feature [crucial parameter: window size]
+toks_fcm <- fcm(toks, context = "window", window = 10, count = "frequency", tri = FALSE) # important to set tri = FALSE
+
+# 2. step: estimate glove model [crucial parameter: learning_rate, n_iter, convergence_tol]
+glove <- GlobalVectors$new(rank = 300, 
+                           x_max = 10,
+                           learning_rate = 0.0001)
+wv_main <- glove$fit_transform(toks_fcm, n_iter = 10,
+                               convergence_tol = 1e-3, 
+                               n_threads = parallel::detectCores()) # parallelization uses all available cores here (note: your machine won't be able to do anything else, if you need more resources try detectCores()-1)
+
+wv_context <- glove$components
+local_glove <- wv_main + t(wv_context) # word vectors
+
+# check
+# nearest neighbors: which words are closest to europe?
+find_nns(local_glove['europe',], pre_trained = local_glove, N = 10, candidates = features)
+
+# which words appear often in relation to peace?
+find_nns(local_glove['peace',], pre_trained = local_glove, N = 10, candidates = features)
+
+# which words appear often in relation to Putin?
+find_nns(local_glove['putin',], pre_trained = local_glove, N = 10, candidates = features)
+```

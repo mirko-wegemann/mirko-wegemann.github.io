@@ -60,8 +60,8 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
     <td>
 	  <a href="{{ site.url }}assets/code/bow_repl.zip">Replication code</a><br>
       <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
-      <a href="{{ site.url }}assets/data/stm_marpor.RDS">Basic STM</a>      
-	  <a href="{{ site.url }}assets/data/stm_marpor.RDS">STM with covariates</a>
+      <a href="{{ site.url }}assets/data/stm_marpor.RDS">Basic STM</a>  <br>    
+	  <a href="{{ site.url }}assets/data/stm_marpor_parfam.RDS">STM with covariates</a>
 
 		</td>
     <td></td>
@@ -77,6 +77,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td>for R: <br> 
+		  <a href="{{ site.url }}assets/data/embeddings.zip">Replication code</a><br>
 	      <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
 
 	for Python: <br>

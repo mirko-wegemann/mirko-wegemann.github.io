@@ -22,7 +22,7 @@ Let's load our input data. For the tutorial today and tomorrow, we are using dat
 
 In an additional script, I downloaded the quasi-sentences of all English-speaking countries, and transformed it into a data frame. Let's load it into our environment.
 ```{r}
-df <- readRDS("./data_marpor/prep/data_prep.RDS")
+df <- readRDS("./data_prep.RDS")
 
 # let us remove texts without an issue
 df <- subset(df, issue!="NA")
@@ -291,7 +291,8 @@ m_dfm2 <- dfm_subset(m_dfm2, ntoken(m_dfm2)>0)
 
 
 
-First, wordfish
+First, let's start with wordfish.
+
 ```{r}
 m_wordfish <- textmodel_wordfish(m_dfm2) 
 summary(m_wordfish)
