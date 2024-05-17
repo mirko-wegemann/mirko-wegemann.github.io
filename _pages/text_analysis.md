@@ -44,10 +44,11 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   </tr>
   <tr>
     <td></td>
-    <td><a href="{{ site.url }}assets/code/scraping.RMD">Replication code</a><br> </td>
+    <td><a href="{{ site.url }}assets/code/scraping.Rmd">Replication code</a><br> </td>
     <td></td>
   </tr>
-  
+ </table>
+ 
 <h4>Session 2: Bag-of-words</h4>
 <table style="width:100%; text-align:center;">
   <tr>
@@ -66,6 +67,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 		</td>
     <td></td>
   </tr>
+</table>
 
 <h4>Session 3: Embeddings and machine learning</h4>
 <table style="width:100%; text-align:center;">
@@ -77,7 +79,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td>for R: <br> 
-		  <a href="{{ site.url }}assets/data/embeddings.RMD">Replication code</a><br>
+		  <a href="{{ site.url }}assets/data/embeddings.Rmd">Replication code</a><br>
 	      <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
 
 	for Python: <br>
@@ -85,3 +87,4 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
+</table>
