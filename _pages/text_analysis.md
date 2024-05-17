@@ -38,31 +38,28 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 <h4>Session 1: Scraping</h4>
 <table style="width:100%; text-align:center;">
   <tr>
-    <th style="width:45%;">Slides</th>
-    <th style="width:45%;">Replication code</th>
-	<th style="width:45%;">Lab sessions</th>
+    <th style="width:33%;">Slides</th>
+    <th style="width:33%;">Replication code</th>
+	<th style="width:33%;">Lab sessions</th>
   </tr>
   <tr>
     <td></td>
-    <td>[Replication (Scraping)][2]
-[2]:{{ site.url }}assets/code/scraping_repl.zip</td>
+    <td>	  <a href="{{ site.url }}/assets/code/scraping_repl.zip">Replication code</a><br> </td>
     <td></td>
   </tr>
 <h4>Session 2: Bag-of-words</h4>
 <table style="width:100%; text-align:center;">
   <tr>
-    <th style="width:45%;">Slides</th>
-    <th style="width:45%;">Replication code</th>
-	<th style="width:45%;">Lab sessions</th>
+    <th style="width:33%;">Slides</th>
+    <th style="width:33%;">Replication code</th>
+	<th style="width:33%;">Lab sessions</th>
   </tr>
   <tr>
     <td></td>
-    <td>[Replication code (Bag-of-words)][3]
-[3]:{{ site.url }}assets/code/bow_repl.zip 
-		[Data (Bag of words)][4]
-[4]:{{ site.url }}assets/data/data_marpor 
-		[STM (Bag of words)][5]
-[5]:{{ site.url }}assets/data/stm.zip
+    <td>
+	  <a href="{{ site.url }}/assets/code/bow_repl.zip">Replication code</a><br>
+      <a href="{{ site.url }}/assets/data/data_marpor">Data</a><br>
+      <a href="{{ site.url }}/assets/data/stm.zip">STM</a>
 		</td>
     <td></td>
   </tr>
@@ -70,12 +67,14 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 <h4>Session 3: Embeddings and machine learning</h4>
 <table style="width:100%; text-align:center;">
   <tr>
-    <th style="width:45%;">Slides</th>
-    <th style="width:45%;">Replication code</th>
-	<th style="width:45%;">Lab sessions</th>
+    <th style="width:33%;">Slides</th>
+    <th style="width:33%;">Replication code</th>
+	<th style="width:33%;">Lab sessions</th>
   </tr>
   <tr>
     <td></td>
-    <td></td>
+    <td>for Python: <br>
+	  <a href="{{ site.url }}/assets/data/train.csv">Training data</a><br>	  
+	  <a href="{{ site.url }}/assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
