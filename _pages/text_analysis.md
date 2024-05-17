@@ -16,19 +16,19 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
     <th style="width:45%;">Lab session</th>
   </tr>
   <tr>
-    <td>30/05/2024, 10-12am (SR 3)</td>
-    <td>30/05/2024, 13-15pm (SR 3)</td>
+    <td>30/05/2024, 10:00-12:00 (SR 3)</td>
+    <td>30/05/2024, 13:00-15:00 (SR 3)</td>
   </tr>
   <tr>
-    <td>31/05/2024, 10-12am (SR 2)</td>
-    <td>31/05/2024, 13-15pm (SR 2)</td>
+    <td>31/05/2024, 10:00-12:00 (SR 2)</td>
+    <td>31/05/2024, 13:00-15:00 (SR 2)</td>
   </tr>
   <tr>
-    <td>03/06/2024, 10-12am (SR 3)</td>
-    <td>03/06/2024, 13-15pm (SR 3)</td>
+    <td>03/06/2024, 10:00-12:00 (SR 3)</td>
+    <td>03/06/2024, 13:00-15:00 (SR 3)</td>
   </tr>
   <tr>
-    <td>04/06/2024, 10-13am (SR 3)</td>
+    <td>04/06/2024, 10:00-13:00 (SR 3)</td>
     <td>No lab session (but longer input!)</td>
   </tr>
 </table>
@@ -57,8 +57,13 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   </tr>
   <tr>
     <td></td>
-    <td>[Replication (Bag-of-words)][2]
-[2]:{{ site.url }}assets/code/bow_repl.zip</td>
+    <td>[Replication code (Bag-of-words)][3]
+[3]:{{ site.url }}assets/code/bow_repl.zip 
+		[Data (Bag of words)][4]
+[4]:{{ site.url }}assets/data/data_marpor 
+		[STM (Bag of words)][5]
+[5]:{{ site.url }}assets/data/stm.zip
+		</td>
     <td></td>
   </tr>
 
