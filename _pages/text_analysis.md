@@ -79,7 +79,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td>for R: <br> 
-		  <a href="{{ site.url }}assets/data/embeddings.Rmd">Replication code</a><br>
+		  <a href="{{ site.url }}assets/code/embeddings.RMD">Replication code</a><br>
 	      <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
 
 	for Python: <br>
