@@ -9,7 +9,7 @@ nav: false
 Instructors: Mirko Wegemann (he/him), Dr. Eva Krejcova (she/her) <br>
 Teaching Assistant: Sara Dybesland (she/her) <br>
 
-<h3>Schedule</strong></h3>
+<h3>Schedule</h3>
 <table style="width:100%; text-align:center;">
   <tr>
     <th style="width:45%;">Input session</th>
@@ -33,16 +33,44 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   </tr>
 </table>
 
-<h3>Materials</h3><br><br>
+<h3>Materials</h3>
 
-<h4>Session 1:</h4>
+<h4>Session 1: Scraping</h4>
+<table style="width:100%; text-align:center;">
+  <tr>
+    <th style="width:45%;">Slides</th>
+    <th style="width:45%;">Replication code</th>
+	<th style="width:45%;">Lab sessions</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>[Replication (Scraping)][2]
+[2]:{{ site.url }}assets/code/scraping_repl.zip</td>
+    <td></td>
+  </tr>
+<h4>Session 2: Bag-of-words</h4>
+<table style="width:100%; text-align:center;">
+  <tr>
+    <th style="width:45%;">Slides</th>
+    <th style="width:45%;">Replication code</th>
+	<th style="width:45%;">Lab sessions</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td>[Replication (Bag-of-words)][2]
+[2]:{{ site.url }}assets/code/bow_repl.zip</td>
+    <td></td>
+  </tr>
 
-[1]:{{ site.url }}assets/pdf/evaluations_vienna.pdf
-
-<strong>Computational Text Analysis</strong><br>
-Doctoral-level workshop, European University Institute, 2022 <br>
-Teaching Assistant, Computational Text Analysis (taught by Prof. Dr. Theresa Gessler), April 2023 <br> 
-
-<strong>Intermediate Quantitative Methods</strong><br>
-Doctoral-level course, European University Institute, 2021 <br>
-Teaching Assistant, Computational Text Analysis (taught by Prof. Dr. Juho Härkönen and Prof. Dr. Arnout van de Rijt), April 2023 <br> <br>
+<h4>Session 3: Embeddings and machine learning</h4>
+<table style="width:100%; text-align:center;">
+  <tr>
+    <th style="width:45%;">Slides</th>
+    <th style="width:45%;">Replication code</th>
+	<th style="width:45%;">Lab sessions</th>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
