@@ -39,20 +39,21 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 <table style="width:100%; text-align:center;">
   <tr>
     <th style="width:33%;">Slides</th>
-    <th style="width:33%;">Replication code</th>
-	<th style="width:33%;">Lab sessions</th>
+    <th style="width:33%;">Input session</th>
+	<th style="width:33%;">Lab session</th>
   </tr>
   <tr>
     <td></td>
-    <td>	  <a href="{{ site.url }}assets/code/scraping_repl.zip">Replication code</a><br> </td>
+    <td><a href="{{ site.url }}assets/code/scraping_repl.zip">Replication code</a><br> </td>
     <td></td>
   </tr>
+  
 <h4>Session 2: Bag-of-words</h4>
 <table style="width:100%; text-align:center;">
   <tr>
     <th style="width:33%;">Slides</th>
-    <th style="width:33%;">Replication code</th>
-	<th style="width:33%;">Lab sessions</th>
+    <th style="width:33%;">Input session</th>
+	<th style="width:33%;">Lab session</th>
   </tr>
   <tr>
     <td></td>
@@ -68,13 +69,13 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 <table style="width:100%; text-align:center;">
   <tr>
     <th style="width:33%;">Slides</th>
-    <th style="width:33%;">Replication code</th>
-	<th style="width:33%;">Lab sessions</th>
+    <th style="width:33%;">Input session</th>
+	<th style="width:33%;">Lab session</th>
   </tr>
   <tr>
     <td></td>
     <td>for Python: <br>
-	  <a href="{{ site.url }}assets/data/train.csv">Training data</a><br>	  
+	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
