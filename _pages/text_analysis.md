@@ -44,7 +44,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   </tr>
   <tr>
     <td></td>
-    <td>	  <a href="{{ site.url }}/assets/code/scraping_repl.zip">Replication code</a><br> </td>
+    <td>	  <a href="{{ site.url }}assets/code/scraping_repl.zip">Replication code</a><br> </td>
     <td></td>
   </tr>
 <h4>Session 2: Bag-of-words</h4>
@@ -57,9 +57,9 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td>
-	  <a href="{{ site.url }}/assets/code/bow_repl.zip">Replication code</a><br>
-      <a href="{{ site.url }}/assets/data/data_marpor">Data</a><br>
-      <a href="{{ site.url }}/assets/data/stm.zip">STM</a>
+	  <a href="{{ site.url }}assets/code/bow_repl.zip">Replication code</a><br>
+      <a href="{{ site.url }}assets/data/data_marpor">Data</a><br>
+      <a href="{{ site.url }}assets/data/stm.zip">STM</a>
 		</td>
     <td></td>
   </tr>
@@ -74,7 +74,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td>for Python: <br>
-	  <a href="{{ site.url }}/assets/data/train.csv">Training data</a><br>	  
-	  <a href="{{ site.url }}/assets/data/test.csv">Test data</a><br> </td>
+	  <a href="{{ site.url }}assets/data/train.csv">Training data</a><br>	  
+	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
