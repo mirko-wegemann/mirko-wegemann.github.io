@@ -1,3 +1,10 @@
+---
+title: "Bags-of-words"
+author: "Mirko Wegemann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -5,6 +12,7 @@ library(quanteda)
 library(quanteda.textstats)
 library(quanteda.textplots)
 library(quanteda.textmodels)
+library(caret)
 library(stm)
 library(LSX) 
 ```
@@ -377,14 +385,27 @@ These terms are still a bit messy, but some of them tell us a bit more about ide
 # Topic models
 Unsupervised scaling works mediocre, after all it's a very simplistic approach. We will later learn better approaches to predict the positions of a text. Bear with me, let's move to something else. A very common approach of CTA is to get a better idea which topics a text covers. 
 
+Let's do a topic model on a small subset of text first (5% of the text). This still takes 3 minutes.
 ```{r}
-stm1 <- stm(m_dfm, K = 20, seed=421, emtol=0.001)
-saveRDS(stm1, "./stm_marpor.RDS")
+start <- Sys.time()
+set.seed(3145)
+m_dfm_sub <- dfm_sample(m_dfm, size=0.05*ndoc(corp))
+
+# drop empty features 
+m_dfm_sub <- dfm_trim(m_dfm_sub, min_termfreq = 1)
+
+# estimate stm
+stm_sub <- stm(m_dfm_sub, K = 20, seed=421, emtol=0.001)
+end <- Sys.time()
+end-start
 ```
 
+
+## Interpretation
+I've estimated a topic model with the full amount of data, if you want load it and compare to your own findings
 ```{r}
 stm1 <- readRDS("./stm_marpor.RDS")
-
+labelTopics(stm_sub)
 labelTopics(stm1)
 ```
 
@@ -467,6 +488,36 @@ labelTopics(stm2)
 In this case, results are rather poor. The covariate words are a bit informative with the Radical Left using the term "neoliberal" more often while the Greens talk more about tax deduction. But the interactions between topics and terms lead to very specific keywords. 
 
 
+## Validation
+
+For the technical validation, we could try out different numbers of k to evaluate which lead to the lowest error.
+To do this, we can use the function searchK which requires documents and vocabulary as inputs. This is only stored in a stm object. However, we can transform our dfm object into stm. 
+
+
+(takes more than 6 minutes)
+```{r}
+start <- Sys.time()
+set.seed(145)
+# convert dfm to stm
+m_stm_sub <- convert(m_dfm_sub,"stm")
+
+# create vector with different numbers for k (here, 5, 10 and 15)
+K<- c(5,10,15) 
+
+# run validation
+best_k <- searchK(m_stm_sub$documents, m_stm_sub$vocab, K)
+end <- Sys.time()
+end-start
+saveRDS(best_k, "./searchK.RDS")
+```
+
+Let's plot to see which number of topics is best.
+```{r}
+plot(best_k)
+```
+Based on the metrics, we should select K with high likehlihood (the closer to zero, the better), high semantic coherence, high lower bound and low residuals. It's (always) a tough choice, ultimately rather depending on theoretical considerations. Semantic coherence is usually high when number of topics is low, residuals rather decrease with more topics. 
+
+
 # Semi-supervised scaling
 In the chunks above, we have already tried out wordfish to scale the positions of political parties. These results were very poor. Wordfish is agnostic about any distribution of terms. As social scientists, we might have certain expectations of how parties from the Left and Right communicate. We can use these expectations as priors and feed them into a model that's called Latent Semantic Scaling, developed by Watanabe. 
 
@@ -544,9 +595,8 @@ These results look a bit more plausible. The jumps are still a bit dubious. Gene
 
 The unsupervised task has given us more information on the content of our corpus. We know however already quite a lot about this since it has been coded by humans. 
 
-
+Preparation  of our data frame. Let's create a binary classification task in which we predict whether a text is about the welfare state (per504 or per505) or migration (per601 or per602). After this, we need to subset our data frame to align it with our dfm. 
 ```{r}
-# let's create a binary classification task in which we predict whether a text is about the welfare state (per504 or per505) or migration (per601 or per602) 
 df_sub <- subset(df, issue %in% c("504", "505", "601", "602"))
 
 df_sub$label <- ifelse(df_sub$issue %in% c("504", "505"), 1, 0)
@@ -558,7 +608,11 @@ m_dfm_sub <- dfm_subset(m_dfm, text_id %in% keep)
 
 # assign label as docvar to dfm
 docvars(m_dfm_sub, "label") <- df_sub$label
+```
 
+
+Split the data into training and test data. The ratio is up to you, often people choose 80 (training)/20 (test) splits. 
+```{r}
 # make a test training split (this involves taking a random sample, for reproducibility, use a seed!)
 set.seed(250)
 
@@ -572,20 +626,20 @@ test <- dfm_subset(m_dfm_sub,
 ```
 
 
-Now, we've got two dfms. It's possible that they have different document frequency matrices. Let's match them.
-
+Now, we've got two dfms. As we sampled only some texts from these, some features (words) can be dropped from the dfm. Morevoer, it's possible that they have different document frequency matrices. Let's match them.
 ```{r}
+train <- train %>% dfm_trim(1)
 test <- dfm_match(test, featnames(train))
 ```
 
 
-
+We are ready to use the classification algorithms to fit our data. 
+We follow a Naive Bayes approach first. It follows Bayes Theorem - given a word w in a text, how likely is it that it belongs to category A or B. It's very straightforward and extremely fast. 
 ```{r}
 start <- Sys.time()
 
 # Model
-nb_model<-textmodel_nb(train,docvars(train,
-  "label"))
+nb_model<-textmodel_nb(train,docvars(train, "label"))
 nb_model
 
 end <- Sys.time()
@@ -594,16 +648,35 @@ end-start
 
 Predicting test
 ```{r}
-test_predictions<-predict(nb_model,
-  newdata=test)
+test_predictions<-predict(nb_model, newdata=test)
 
 head(test_predictions,5)
-table(docvars(test,"label"),test_predictions)
+(eval_mat <- table(docvars(test,"label"),test_predictions))
 ```
 
 How did we perform?
 ```{r}
-print(paste0("There are ", 181 + 71, " wrong predictions"))
+print(paste0("There are ", eval_mat[[2]] + eval_mat[[3]], " wrong predictions"))
+```
+
+With caret, we can also show more sophisticated evaluation measures
+```{r}
+confusionMatrix(test_predictions, as.factor(docvars(test,"label")))
+```
+
+How predictive are certain features of a class?
+```{r}
+coefs_nb <- coef(nb_model) %>% 
+  data.frame() %>%
+  mutate(feature=rownames(.))
+
+# words that are more predictive of migration
+coefs_nb[coefs_nb$feature=="migration",]
+coefs_nb[coefs_nb$feature=="asylum",]
+
+# words that are more predictive of welfare
+coefs_nb[coefs_nb$feature=="pension",]
+coefs_nb[coefs_nb$feature=="health",]
 ```
 
 Ok, that's not too bad. To have a better comparison for other supervised tasks we will do next week, let's keep the train test ids.
@@ -634,15 +707,10 @@ test_predictions<-predict(nb_model,
   newdata=test)
 
 head(test_predictions,5)
-table(docvars(test,"label"),test_predictions)
+(eval_mat2 <- table(docvars(test,"label"),test_predictions))
 ```
-
-
-
-# Additional pre-processing
-
-Sometimes, features are different weighted to account for their importance. A common weighting procedure is the term frequency-inverse document frequency (tf-idf) procedure. Its basic idea is to give those features a higher weight that are better able to distinguish between documents, i.e., that occur in fewer documents. It based on the idea that "[t]he specificity of a term can be quantified as an inverse function of the number of documents in which it occurs" (Jones 1972).
 ```{r}
-m_dfm_tfidf <- dfm_tfidf(m_dfm)
-topfeatures(m_dfm_tfidf)
+print(paste0("There are ", eval_mat[[2]] + eval_mat[[3]], " wrong predictions"))
 ```
+
+That's already an improvement, and that concludes our session. 
