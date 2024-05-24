@@ -45,7 +45,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
   <tr>
     <td></td>
     <td><a href="{{ site.url }}assets/code/scraping.Rmd">Replication code</a><br> </td>
-    <td></td>
+    <td><a href="{{ site.url }}assets/code/scraping_exercises_empty.Rmd">Exercises</a></td>
   </tr>
  </table>
  
