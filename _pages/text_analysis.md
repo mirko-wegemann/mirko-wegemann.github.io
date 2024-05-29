@@ -81,8 +81,8 @@ The API key needs to be stored in a .txt-file in your directory.
 	  <a href="{{ site.url }}assets/data/searchK.RDS">Results (searchK)</a> 
 
 		</td>
-    <td><a href="{{ site.url }}assets/code/bow_exercises_blank.rmd">Exercises</a><br>
-		<a href="{{ site.url }}assets/code/theses_eui_complete.RDS">EUI Theses (Data)</a><br>
+    <td><a href="{{ site.url }}assets/code/exercises_bow_blank.rmd">Exercises</a><br>
+		<a href="{{ site.url }}assets/data/theses_eui_complete.RDS">EUI Theses (Data)</a><br>
 
 </td>
   </tr>
