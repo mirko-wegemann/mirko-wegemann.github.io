@@ -1,0 +1,107 @@
+```{r setup,warning=F,message=F}
+library(tidyverse)
+library(quanteda)
+library(quanteda.textmodels)
+library(stm)
+library(caret)
+```
+
+
+The credits for the second exercise goes to Theresa Gessler!
+
+
+For these exercises, we will analyse the theses' abstracts we downloaded yesterday. I downloaded all the abstracts, so please use the file *theses_eui_complete.RDS*. 
+There are a few theses for which the Department was wrongly retrieved. Others do not have any abstract. Let's drop these.
+```{r}
+df <- readRDS("./theses_eui_complete.RDS")
+
+df <- df %>%
+  filter(dept %in% c("ECO", "SPS", "LAW", "HEC")) %>%
+  filter(!is.na(abstract))
+```
+
+
+
+
+In a first step, do all the pre-processing steps you think are important. Also add the dept variable as a docvar to our dfm. 
+```{r}
+
+```
+
+
+
+## Running a topic model
+Next, it would be nice to know more about the different topics the theses cover. Run a structured topic model. Choose as many topics k you think are appropriate. Don't forget to set a seed to replicate your results later! It may take a while. So during waiting time, you can continue writing the syntax for labeling the topics and showing plotting a graph
+```{r}
+```
+
+
+So, now show the words which are associated to each topic. 
+```{r}
+```
+
+
+
+Please briefly think of the topics - do they make sense? What could you do to improve them? 
+
+
+
+Then, pick one topic and plot one corresponding abstract. 
+```{r}
+
+```
+
+
+Are you happy with the model? 
+
+
+
+*Advanced*
+
+This takes time!
+If you want, use the searchK algorithm to try out different numbers of k. Use the best model according to these technical stats, estimate it and compare it to your initial model (be careful, don't overwrite the original model, use new variable names!)
+```{r}
+
+```
+
+
+
+
+Now, if you chose your favorite model, it would be interesting to actually know which topic is most prevalent in which Department. Use stm's prevalence covariate function to estimate a new topic model. 
+```{r}
+
+```
+
+
+
+Choose one topic which interests you and compare the prevalence within the Departments.
+```{r}
+
+```
+
+
+## Training the classifier
+If you want, you can also try to classify these abstracts into different Departments.
+
+So, first: set a seed and divide the thesis into a training and test split. Make sure the dfm are of the same length. 
+```{r}
+
+```
+
+
+Using the `dept` document variable, train a Naive Bayes and a SVM model to predict the department based on an abstract.
+```{r}
+
+```
+
+
+Now, predict the test data with the models you just trained. 
+```{r}
+
+```
+
+How well does the prediction perform? 
+```{r}
+
+```
+Based on the results, which classifier performs better?

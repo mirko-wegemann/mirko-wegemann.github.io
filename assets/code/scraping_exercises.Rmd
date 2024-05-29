@@ -1,0 +1,141 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+## Exercises
+There are two options for you to work on during the lab session. 
+  1. gather data from a website of your choice
+	2. gather data on theses from https://cadmus.eui.eu/handle/1814/7088/recent-submissions
+
+For the first exercise, just choose your own approach. Access information you need and try to create a loop for several links. 
+
+For the second approach, we will go through the exercise step-by-step.
+
+First, visit the webpage and parse the html, store it into an object called "html"
+```{r}
+url <- "https://cadmus.eui.eu/handle/1814/7088/recent-submissions"
+html <- read_html(url)
+```
+
+Now, use the SelectorGadget or manually select the CSS selector to retrieve title, author, date, abstract, and department of all theses on the webpage.
+```{r}
+title <- html %>% html_elements(".content:nth-child(2) a") %>% html_text()
+author <- html %>% html_elements(".Z3988~ .content a:nth-child(1)") %>% html_text()
+date <- html %>% html_elements(".content:nth-child(7)") %>% html_text()
+abstract <- html %>% html_elements(".odd:nth-child(1) .content:nth-child(15) , .even .content:nth-child(15) , .content:nth-child(17) , .odd:nth-child(5) .content:nth-child(15)") %>% html_text()
+dept <- html %>% html_elements(".content:nth-child(15) span , .content:nth-child(13) span") %>% html_text()
+```
+
+
+*Challenge*
+If you look at the content of dept, you will see that there is some noise in the data. We just want the abbreviation of the Departments stored in the vector. Try to extract only this information by using regular expressions. 
+```{r}
+# either with lookarounds and lookaheads
+dept2 <- str_extract(dept, "(?<=EUI; ).*(?=; PhD Thesis)") 
+
+# alternatively, define patterns
+dept2 <- str_extract(dept, "(HEC|SPS|ECO|LAW)")
+```
+
+
+This gave you the first five results. Let's create a loop that goes through the first twenty results. 
+
+What's the structure of the pagination? 
+https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=0, https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=5, https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=10, etc...
+
+Create a loop to scrape the links to each thesis
+```{r}
+pages <- seq(0,3505,5)
+links <- c()
+for(i in 1:4){
+  url <- paste0("https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=", pages[[i]])
+  html <- read_html(url)
+  urls <- html %>% html_elements(".content:nth-child(2) a") %>% html_attr("href") %>% paste0("https://cadmus.eui.eu", .)
+  links <- append(links, urls)
+}
+```
+
+
+*Challenge*
+Do the same in a function
+```{r}
+url_scrape <- function(i){
+  url <- paste0("https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=", i)
+  html <- read_html(url)
+  urls <- html %>% html_elements(".content:nth-child(2) a") %>% html_attr("href") %>% paste0("https://cadmus.eui.eu", .)
+  return(urls)
+}
+
+links <- sapply(seq(0,20,5), url_scrape)
+```
+
+
+Now, navigate to each page, scrape the title, author name, the full abstract, the Department, type (thesis, defense, presentation etc.), defense date and the full-text link. Return a data frame. Remove content that is not a thesis.
+```{r}
+content_scrape <- function(link){
+  html <- read_html(link)
+  title <- html %>% html_element(".item-view-heading-title") %>% html_text()
+  author <- html %>% html_element(".simple-item-view-authors a:nth-child(1)") %>% html_text()
+  date <- html %>% html_element(".simple-item-view-description div") %>% html_text() %>% str_extract(., "\\d{1,}.+?\\d{4}")
+  abstract <- html %>% html_element(".simple-item-view-description-abstract div") %>% html_text()
+  dept <- html %>% html_element("span span:nth-child(2)") %>% html_text()
+  type <- html %>% html_element(".simple-item-view-other span:nth-child(3)") %>% html_text()
+  doi <- html %>% html_element("span span a") %>% html_text()
+  
+  cbind(title, author, date, abstract, dept, type, doi)
+}
+
+results <- sapply(links, content_scrape)
+df <- data.frame(t(results))
+colnames(df) <- c("title", "author", "date", "abstract", "dept", "type","doi")
+
+df <- subset(df, type == "PhD Thesis")
+saveRDS("./df_thesis_small.RDS")
+```
+
+
+Great, you made it! 
+
+
+```{r}
+start <- Sys.time()
+
+content_scrape <- function(link){
+  tryCatch({
+    html <- read_html(link)
+  title <- html %>% html_element(".item-view-heading-title") %>% html_text()
+  author <- html %>% html_element(".simple-item-view-authors a:nth-child(1)") %>% html_text()
+  date <- html %>% html_element(".simple-item-view-description div") %>% html_text() %>% str_extract(., "\\d{1,}.+?\\d{4}")
+  abstract <- html %>% html_element(".simple-item-view-description-abstract div") %>% html_text()
+  dept <- html %>% html_element("span span:nth-child(2)") %>% html_text()
+  type <- html %>% html_element(".simple-item-view-other span:nth-child(3)") %>% html_text()
+  doi <- html %>% html_element("span span a") %>% html_text()
+  
+  data <- cbind(title, author, date, abstract, dept, type, doi)
+  }, warning = function(w) {
+        # comment out the next print statement for a silent warning
+        print(paste0("warning with link number", n))
+    }, error = function(e) {
+        # comment out the next print statement for a silent error
+        print(paste0("error with link number", n))
+    }, finally = {
+        # cleanup
+    })
+  return(data)
+  }
+
+plan(multisession(workers = 15))
+results <- future_map(links2, content_scrape)
+end <- Sys.time()
+results2 <- flatten(results)
+df <- do.call(rbind, lapply(results, as.data.frame, stringsAsFactors=FALSE))
+df <- subset(df, type == "PhD Thesis")
+saveRDS(df, "theses_eui_complete.RDS")
+```

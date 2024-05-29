@@ -1,0 +1,97 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('manifestoR')) install.packages("manifestoR") # ManifestoR
+if (!require('tidyverse')) install.packages("tidyverse") # data wrangling
+```
+
+Here, we download data from the Manifesto Project. The Manifesto Project classifies party programmes in 67 democracies around the world from 1945-2022 into different categories. These categories are further structured along seven different policy domains (e.g. external relations, freedom and democracy, economy). The codes are humanly coded which is considered the gold standard in natural language processing. 
+
+We will use these data as training data to showcase the advantages of word embeddings in a supervised classification task. 
+
+```{r}
+mp_setapikey("./manifesto_apikey.txt") # you need to store your API key (which you can get for free upon registration at https://manifesto-project.wzb.eu/) in a separate file to use manifestoR, the R package of the manifesto project
+
+# first, we build a function that allows us to download the quasi-sentences of different issue domains 
+
+# go through every document and retrieve quasi-sentences for national way of life as well as multiculturalism both negative and positive
+# go through every document and retrieve quasi-sentences for national way of life as well as multiculturalism both negative and positive
+marpor_download <- function(index){ # index = number of countries
+    corpus <- mp_corpus(countryname == c_list[index] & edate > as.Date("1945-01-01"))   # access the manifesto corpus for country X
+    doc_names <- names(corpus)                                                          # retrieve all the names of manifestos in country X
+    text <- code <- party_id <- year <- n_text <- c()                         # create empty vectors to store sentences and meta information
+    for(i in 1:length(doc_names)){                                                      # loop through documents (manifestos)
+      doc <- corpus[[doc_names[i]]]
+      party_id[i] <- doc$meta$party
+      year[i] <- doc$meta$date %>% str_extract("\\d{4}") %>% as.numeric()
+    
+      n_text[i] <- length(doc)
+      text[i] <- doc[[1]]
+      code[i] <- paste0(doc$content[[2]], collapse=" ")
+    }
+    text <- unlist(text)
+    code <- unlist(strsplit(code, " "))
+    party_id <- rep(party_id, times=n_text)                                                                  # multiply party id by number of sentences by that party 
+    year <- rep(year, times=n_text) 
+    content <- data.frame(sentence = text, party_id = party_id, year = year, issue = code)                                 # create data frame for issue1
+    # add context to sentence (before and after)
+    content <- content %>%
+      mutate(sentence_before = lag(sentence),
+             sentence_before = ifelse(is.na(sentence_before), "", sentence_before),
+             sentence_after = lead(sentence),
+             sentence_after = ifelse(is.na(sentence_after), "", sentence_after),
+             sentence_context = paste(sentence_before, sentence, sentence_after, sep=" "))
+    
+    content$id <- 1:nrow(content)
+    content$country <- c_list[index]
+    
+    saveRDS(content, paste0("./data_marpor/marpor_" , c_list[index], ".RDS"))  # write results into .RDS file
+  
+}
+
+# define parameters within function
+c_list <- c("United Kingdom", "United States", "Canada", "Australia", "New Zealand", "Ireland", "South Africa")   # countries
+l_list <- rep("en", length(c_list))                                                                               # language
+
+
+# execute function
+sapply(1:length(c_list), marpor_download)
+
+# load data
+df <- list.files("./data_marpor/", full.names = T, pattern=".RDS") %>%              # load all country-specific data frames and bind into one 
+  map_dfr(readRDS)
+
+
+# now add some more party information (party family and name) using marpor meta information 
+marpor <- mp_maindataset()
+marpor <- marpor[,c("countryname", "party", "partyname", "parfam")]
+
+# merge with textual data
+df <- merge(df, marpor, by.x=c("party_id"), by.y=c("party"))
+
+# add label to party family
+df <- df %>%
+  mutate(parfam_n = case_when(parfam %in% c(30) ~ "Mainstream Left",
+                              parfam == 20 ~ "Radical Left",
+                              parfam %in% c(40, 50, 60, 80) ~ "Mainstream Right", 
+                              parfam %in% c(110) ~ "Radical Right",
+                              parfam==10 ~ "Green Parties",
+                              !parfam %in% c(20,30,40,50,60,80,110) ~ "Others"))
+table(df$parfam_n)
+table(df$country)
+
+df <- df %>%
+  group_by(country, id) %>%
+  slice(1)
+
+table(df$country)
+
+# drop the French in Canada
+table(df$partyname[df$countryname=="Canada"])
+df$french <- str_detect(df$sentence, " fédéral | de | chez | et ")
+
+df <- df %>%
+  filter(partyname!="Quebec Bloc", 
+         french!=T)
+
+saveRDS(df, "./data_marpor/prep/data_prep.RDS")
+```
