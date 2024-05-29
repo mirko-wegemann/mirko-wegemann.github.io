@@ -74,15 +74,15 @@ The API key needs to be stored in a .txt-file in your directory.
   <tr>
     <td><a href="{{ site.url }}assets/pdf/bags_words.pdf">Slides</a></td>
     <td>
-	  <!a href="{{ site.url }}assets/code/bow.RMD">Replication code</a><br>
+	  <a href="{{ site.url }}assets/code/bow.RMD">Replication code</a><br>
       <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
       <a href="{{ site.url }}assets/data/stm_marpor.RDS">Basic STM</a>  <br>    
 	  <a href="{{ site.url }}assets/data/stm_marpor_parfam.RDS">STM with covariates</a> <br> 
 	  <a href="{{ site.url }}assets/data/searchK.RDS">Results (searchK)</a> 
 
 		</td>
-    <td><!a href="{{ site.url }}assets/code/bow_exercises_blank.rmd">Exercises</a><br>
-		<!a href="{{ site.url }}assets/code/theses_eui_complete.RDS">EUI Theses (Data)</a><br>
+    <td><a href="{{ site.url }}assets/code/bow_exercises_blank.rmd">Exercises</a><br>
+		<a href="{{ site.url }}assets/code/theses_eui_complete.RDS">EUI Theses (Data)</a><br>
 
 </td>
   </tr>
