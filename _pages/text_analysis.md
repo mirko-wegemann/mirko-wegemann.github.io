@@ -84,7 +84,7 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
 
 	for Python: <br>
 	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
-	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>-->
+	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> --></td>
     <td></td>
   </tr>
 </table>
