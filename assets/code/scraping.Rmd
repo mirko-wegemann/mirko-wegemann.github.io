@@ -69,7 +69,17 @@ On the page above, try to retrieve another parameter of interest.
 
 As you see, with few commands you can gather a lot of information quite easily. On this main page, we are however quite limited in the information we can get. It would be much nicer to access all of these webpages separately, and to download the whole text of the press releases. 
 
+
+
+### Extracting all paragraphs
+```{r}
+(paragraphs <- read_html(url) %>% html_elements("p") %>% html_text())
+```
+
+
+
 Of course, we do not want to click through all of these releases individually. Therefore, we first need to gather the link to these releases.
+
 
 ## Extracting links
 Fortunately, extracting links is not that much different from extracting text. We follow a very similar pipeline. 
@@ -128,6 +138,71 @@ df <- data.frame(id=id_pr1, date=date_pr1, headline=headline_pr1, text=text_pr1)
 df
 ```
 
+
+# Other objects of interest
+We've achieved a lot already but there are some other functions which may be helpful for your studies. For instance, you may want to download structures like tables and figures. 
+
+## Tables
+Tables are pretty easy to download. 
+
+```{r}
+url2 <- "https://en.wikipedia.org/wiki/List_of_members_of_the_Italian_Senate,_2022%E2%80%93"
+html <- read_html(url2)
+table <- html %>% html_element(".wikitable:nth-child(4)") %>% html_table()
+table
+
+# if you want, do some post-processing
+table2 <- table[-1,]
+table2
+```
+
+## Images
+Next week, Eva will show you how to use images as data. If you want to do that yourself, you might be interested in downloading these images first. 
+
+First, let's check whether there are any images on the main page 
+```{r}
+images <- read_html(url) %>% html_nodes("img") 
+```
+
+Yes, there are. But how to download them? 
+It works similar to extracting links and visiting new sub-directories of a webpage. 
+
+We first retrieve the source of an image.
+```{r}
+(images_src <- read_html(url) %>% html_nodes("img") %>% html_attr("src"))
+```
+  
+...before connecting it to the root url. 
+```{r}
+images_src2 <- paste0(root_url, images_src)
+
+# let's try to access the first link of these image source files
+browseURL(images_src2[[1]])
+```
+
+...and finally, download it to your project directory.
+```{r}
+download.file(images_src2[[1]], destfile = getwd())
+```
+Oops, permission denied! That won't work. 
+
+What we have to do instead is to start an actual browsing session before we start downloading images. For this, the RPackage *httr2* (hitter) is useful. The package is often used if you want to access an API for downloading data (which we won't cover here) but can help us in this instance as well. 
+
+```{r}
+session <- session(url)
+
+# access links for image sources
+imgsrc <- session %>% read_html() %>% html_nodes("img") %>% html_attr("src")
+
+# access page of source image (only retrieve the first image here)
+img <- session_jump_to(session, paste0(root_url, imgsrc[[1]]))
+
+# write to our project's directory
+writeBin(img$response$content, basename(imgsrc[1]))
+```
+
+
+
 # Automation
 
 We have downloaded all the information needed for our text-as-data task. But only for one page. In practice, we want to automatize this task. 
@@ -139,8 +214,22 @@ We can do this in different ways.
 - You can write a function that scrapes the content of all the links
     - you can `apply()` the function to a vector - this is the fastest variant but takes some getting used to
 
+
 Let us start with the for loop, this is usually easier to follow.
 In a for-loop, you go through all the k-elements of a vector x. In our case, we go through our list of urls, and download the information we need. 
+
+Example of a for loop automation:
+```{r}
+urls <- c("https://www.eui.eu/en/home", "https://www.ceu.edu/")
+links <- c()
+for(i in 1:length(urls)){
+    html <- read_html(urls[[i]])
+    links[i] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+links
+```
 
 Before automatizing, write down the code and think about which part of the code will vary.
 
@@ -185,6 +274,21 @@ df2 <- data.frame(id, date, headline, text)
 That worked pretty well! 
 
 ## in a function
+Example of a function
+```{r}
+urls <- c("https://www.eui.eu/en/home", "https://www.ceu.edu/")
+
+h1_scrape <- function(url){
+  html <- read_html(urls[[url]])
+    links[url] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+
+links <- sapply(1:length(urls), h1_scrape)
+```
+
+
 ```{r}
 start <- Sys.time()
 scrape_un <- function(urls){
@@ -331,71 +435,6 @@ length(text)
 ```
 
 
-# Other objects of interest
-We've achieved a lot already but there are some other functions which may be helpful for your studies. For instance, you may want to download structures like tables and figures. 
-
-## Tables
-Tables are pretty easy to download. 
-
-```{r}
-url2 <- "https://en.wikipedia.org/wiki/List_of_members_of_the_Italian_Senate,_2022%E2%80%93"
-html <- read_html(url)
-table <- html %>% html_element(".wikitable:nth-child(4)") %>% html_table()
-table
-
-# if you want, do some post-processing
-table2 <- table[-1,]
-table2
-```
-
-## Images
-Next week, Eva will show you how to use images as data. If you want to do that yourself, you might be interested in downloading these images first. 
-
-First, let's check whether there are any images on the main page 
-```{r}
-images <- read_html(url) %>% html_nodes("img") 
-```
-
-Yes, there are. But how to download them? 
-It works similar to extracting links and visiting new sub-directories of a webpage. 
-
-We first retrieve the source of an image.
-```{r}
-(images_src <- read_html(url) %>% html_nodes("img") %>% html_attr("src"))
-```
-  
-...before connecting it to the root url. 
-```{r}
-images_src2 <- paste0(root_url, images_src)
-
-# let's try to access the first link of these image source files
-browseURL(images_src2[[1]])
-```
-
-...and finally, download it to your project directory.
-```{r}
-download.file(images_src2[[1]], destfile = getwd())
-```
-Oops, permission denied! That won't work. 
-
-What we have to do instead is to start an actual browsing session before we start downloading images. For this, the RPackage *httr2* (hitter) is useful. The package is often used if you want to access an API for downloading data (which we won't cover here) but can help us in this instance as well. 
-
-```{r}
-session <- session(url)
-
-# access links for image sources
-imgsrc <- session %>% read_html() %>% html_nodes("img") %>% html_attr("src")
-
-# access page of source image (only retrieve the first image here)
-img <- session_jump_to(session, paste0(root_url, imgsrc[[1]]))
-
-# write to our project's directory
-writeBin(img$response$content, basename(imgsrc[1]))
-```
-
-
-
-
 # Dynamic webpages
 Automation works fine with *rvest* if the web pages we try to scrape are static. What does that mean? Above, you could access the webpage without actually opening it, and could access all links since they do have a certain pattern (above, it was <page=>).
 That's not always the case. Imagine we have enough of UN and want to gather data from the European Parliament.
@@ -414,7 +453,8 @@ url <- "https://www.europarl.europa.eu/news/en"
 
 rd <- rsDriver(browser = "firefox",
                chromever = NULL, 
-               port = sample(1:65535, 1))  # port number can only be used once, pick a random one to prevent errors
+               port = sample(1:65535, 1), 
+               verbose = FALSE)  # port number can only be used once, pick a random one to prevent errors
 
 browser <- rd[["client"]]
 browser$navigate(url)
@@ -429,6 +469,23 @@ cookies$clickElement() # let the magic begin
 ```
 
 So now, we can actually do what we planned to do. Click on the <Load more> button to gather all the links.
+
+***Your Turn***
+Try it on your own (it follows the same logic as the cookies button above).
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+*Solution*
 ```{r}
 more <- browser$findElement(using = 'css selector', value="#continuesLoading_button .ep_name") 
 more$clickElement()
