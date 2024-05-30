@@ -1,0 +1,241 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+## Exercises
+There are two options for you to work on during the lab session. 
+  1. gather data from a website of your choice
+	2. gather data on theses from https://cadmus.eui.eu/handle/1814/7088/recent-submissions
+
+For the first exercise, just choose your own approach. Access information you need and try to create a loop for several links. 
+
+For the second approach, we will go through the exercise step-by-step.
+
+First, visit the webpage and parse the html, store it into an object called "html"
+```{r}
+# We visit the webpage 
+browseURL("https://cadmus.eui.eu/handle/1814/7088/recent-submissions")
+```
+
+```{r}
+# We read the html from the URL and store it in object "Html" 
+html<- read_html("https://cadmus.eui.eu/handle/1814/7088/recent-submissions")
+print(html)
+```
+
+Now, use the SelectorGadget or manually select the CSS selector to retrieve title, author, date, abstract, and department of all theses on the webpage.
+
+```{r}
+ # With SelectorGadget 
+
+title <- html %>% html_elements(".content:nth-child(2) a") %>% html_text() # Title 
+
+author <- html %>% html_elements(".Z3988~ .content a:nth-child(1)") %>% html_text() # Author
+
+date <- html %>% html_elements(".content:nth-child(7)") %>% html_text() # Date
+
+abstract<- html %>% html_elements(".even:nth-child(2) .content:nth-child(15) , .content:nth-child(17) , .odd .content:nth-child(15)") %>% html_text() #  Abstract
+
+department <- html %>% html_elements(".content:nth-child(15) span , .content:nth-child(13) span") %>% html_text() # Department
+
+```
+
+
+```{r}
+# OR With CSS selector
+
+title <- html %>% html_elements(".bold:contains('Title:') + .content a") %>%  html_text() # Title 
+
+author <- html %>% html_elements(".bold:contains('Author(s):') + .content a:nth-child(1)") %>% html_text() # Author
+
+date <- html%>% html_elements(".bold:contains('Date:') + .content") %>% html_text() # Date
+
+abstract <- html %>% html_elements(".bold:contains('Abstract:') + .content") %>% html_text() # Abstract 
+
+department <- html %>% html_elements(".bold:contains('Series/Number:') + .content") %>% html_text() # Department
+```
+
+
+
+*Challenge*
+If you look at the content of dept, you will see that there is some noise in the data. We just want the abbreviation of the Departments stored in the vector. Try to extract only this information by using regular expressions. 
+Cheat sheet for regular expressions and stringr: https://evoldyn.gitlab.io/evomics-2018/ref-sheets/R_strings.pdf  
+
+```{r}
+department <- str_extract(department, "\\b(HEC|SPS|ECO|LAW)\\b") 
+print(department)
+```
+
+
+We can put the vectors together in a data frame with this code: 
+```{r}
+cadmus_data <-  data.frame(title, author, date, abstract, department)
+# view(cadmus_data)
+```
+
+
+This gave you the first five results. Let's create a loop that goes through the first twenty results. 
+
+What's the structure of the pagination? 
+https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=0, https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=5, https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=10, etc...
+
+Create a loop to scrape the links to each thesis. 
+
+```{r}
+# FIRST: add page number to URLs so it scrapes links beyond first five results 
+offsets <- seq(0, 15, by = 5)
+urls_cadmus <- paste0("https://cadmus.eui.eu/handle/1814/7088/recent-submissions?offset=", offsets)
+#print(urls_cadmus)
+browseURL(urls_cadmus[4])
+```
+
+
+```{r}
+# Now the loop: 
+
+# Create list to store results temporarily
+thesis_list <- list()
+
+# Loop through all the links collected
+for (link in seq_along(urls_cadmus)) {
+  html <- read_html(urls_cadmus[link])  # Read the HTML content of the URL
+
+  # Extract thesis URLs
+  thesis_links_temp <- html %>% html_elements(".content:nth-child(2) a") %>% html_attr("href")
+
+  # Store the results in the list
+  thesis_list[[link]] <- thesis_links_temp
+}
+
+# Flatten the list into a single vector
+thesis_links <- unlist(thesis_list)
+#print(thesis_links)
+```
+
+Let's add root URL
+```{r}
+# Prepend the root URL
+root_url <- "https://cadmus.eui.eu/"
+thesis_links <- paste0(root_url, thesis_links)
+print(thesis_links)
+```
+
+*Challenge*
+Do the same in a function
+```{r}
+# Now the function: 
+scrape_cadmus <- function(urls) {
+  thesis_list <- list()
+  
+  for (link in seq_along(urls)) {
+    html <- read_html(urls[link])  # Read the HTML content of the URL
+
+    # Extract thesis URLs
+    thesis_links_temp <- html %>% html_elements(".content:nth-child(2) a") %>% html_attr("href")
+
+    # Store the results in the list
+    thesis_list[[link]] <- thesis_links_temp
+  }
+  
+  # Flatten the list into a single vector
+  thesis_links <- unlist(thesis_list)
+  
+  return(thesis_links)
+}
+
+# Use the function
+thesis_links <- scrape_cadmus(urls_cadmus)
+# print(thesis_links)
+```
+
+Let's add root URL
+```{r}
+# Prepend the root URL
+root_url <- "https://cadmus.eui.eu/"
+thesis_links <- paste0(root_url, thesis_links)
+print(thesis_links)
+```
+
+Let's check if the links work! 
+```{r}
+# Browse one of the links (example)
+browseURL(thesis_links[6])
+```
+
+Now, navigate to each page, scrape the title, author name, the full abstract, the Department, type (thesis, defense, presentation etc.), defense date and the full-text link. Return a data frame. Remove content that is not a thesis.
+
+```{r}
+full_info <- "?show=full"
+thesis_details <- paste0(thesis_links, full_info)
+#browseURL(thesis_details[3])
+
+# Create an empty data frame
+theses_df <- data.frame(
+  title = character(),
+  author = character(),
+  abstract = character(),
+  department = character(),
+  type = character(),
+  defence_date = character(),
+  full_text_link = character(),
+  stringsAsFactors = FALSE
+)
+
+# Loop through each URL
+for (link in seq_along(thesis_details)) {
+  html <- read_html(thesis_details[link])
+  
+  title <- html %>% html_elements("meta[name='DC.title']") %>% html_attr("content")
+  author <- html %>% html_elements("meta[name='DC.creator']") %>% html_attr("content")
+  abstract <- html %>% html_elements("meta[name='DCTERMS.abstract']") %>% html_attr("content")
+  department <- html %>% html_elements("meta[name='DC.relation']") %>% html_attr("content")
+  department <- department[2]
+  
+  type <- html %>% html_elements("meta[name='DC.type']") %>% html_attr("content")
+  defence_date <- html %>% html_elements("meta[name='DC.description']") %>% html_attr("content")
+  defence_date <- defence_date[1]
+  defence_date <- str_extract(defence_date, "\\d{2} \\w+ \\d{4}")
+  full_text_link <- html %>%
+    html_nodes(xpath = '//a[text()="Download"]') %>%
+    html_attr('href')
+  
+  full_text_link <- paste0("https://cadmus.eui.eu/", full_text_link)
+  
+  # Create a new row of data
+  new_row <- data.frame(
+    title = title,
+    author = author,
+    abstract = abstract,
+    department = department,
+    type = type,
+    defence_date = defence_date,
+    full_text_link = full_text_link,
+    stringsAsFactors = FALSE
+  )
+  
+  # Append the new row to the data frame
+  theses_df <- bind_rows(theses_df, new_row)
+}
+
+# View the data frame
+view(theses_df)
+```
+
+Finally, removing content that is not a thesis.
+
+```{r}
+theses_df <- theses_df %>% filter(type == "Thesis")
+view(theses_df)
+```
+
+Great, you made it! 
+
+
+

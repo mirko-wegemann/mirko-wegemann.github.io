@@ -60,7 +60,8 @@ The API key needs to be stored in a .txt-file in your directory.
   <tr>
     <td><a href="{{ site.url }}assets/pdf/scraping.pdf">Slides</a><br></td>
     <td><a href="{{ site.url }}assets/code/scraping.Rmd">Replication code</a><br> </td>
-    <td><a href="{{ site.url }}assets/code/scraping_exercises_empty.Rmd">Exercises</a></td>
+    <td><a href="{{ site.url }}assets/code/scraping_exercises_empty.Rmd">Exercises</a> <br>
+	<a href="{{ site.url }}assets/code/solution_scraping_exercises.Rmd">Solution</a></td>
   </tr>
  </table>
  
