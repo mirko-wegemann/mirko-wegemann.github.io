@@ -112,7 +112,7 @@ For session 3, you need a local installation of Python and GloVe embeddings you 
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
+  </table>
   
- <h3>Credits</h4>
+  <h3>Credits</h3>
  A big thanks to <strong>Theresa Gessler</strong> for her course materials on CTA which can be accessed via this <a href="http://theresagessler.eu/eui_cta/">link</a> and <strong>Moritz Laurer</strong> for his <a href="https://github.com/MoritzLaurer/transformers-workshop-comptext-2023/tree/master">course</a> on Transformer Models at COMPTEXT. 
-</table>
