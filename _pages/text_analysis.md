@@ -90,6 +90,8 @@ The API key needs to be stored in a .txt-file in your directory.
 </table>
 
 <h4>Session 3: Embeddings and machine learning</h4>
+
+For session 3, you need a local installation of Python and GloVe embeddings you can download <a href="https://nlp.stanford.edu/projects/glove/">here</a> <br>
 <table style="width:100%; text-align:center;">
   <tr>
     <th style="width:33%;">Slides</th>
@@ -97,14 +99,20 @@ The API key needs to be stored in a .txt-file in your directory.
 	<th style="width:33%;">Lab session</th>
   </tr>
   <tr>
-    <td></td>
-    <td><!--for R: <br> 
+    <td><a href="{{ site.url }}assets/pdf/transformers.pdf">Slides</a></td>
+    <td>for <strong>R:</strong> <br> 
 		  <a href="{{ site.url }}assets/code/embeddings.RMD">Replication code</a><br>
 	      <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
+		  <a href="{{ site.url }}assets/data/embeddings_mat.RDS">Embeddings Matrix</a><br>
+		  <a href="{{ site.url }}assets/code/gpt_in_r.Rmd">Addition: How to use GPT in R</a><br>
 
-	for Python: <br>
+	for <strong>Python:</strong> <br>
+	<a href="{{ site.url }}assets/code/intro_transformers.ipynb">Transformers (Colab)</a> <br>
 	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
-	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> --></td>
+	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
   </tr>
+  
+ <h3>Credits</h4>
+ A big thanks to <strong>Theresa Gessler</strong> for her course materials on CTA which can be accessed via this <a href="http://theresagessler.eu/eui_cta/">link</a> and <strong>Moritz Laurer</strong> for his <a href="https://github.com/MoritzLaurer/transformers-workshop-comptext-2023/tree/master">course</a> on Transformer Models at COMPTEXT. 
 </table>
