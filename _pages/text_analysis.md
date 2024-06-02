@@ -107,7 +107,7 @@ For session 3, you need a local installation of Python and GloVe embeddings you 
 		  <a href="{{ site.url }}assets/code/gpt_in_r.Rmd">Addition: How to use GPT in R</a><br>
 
 	for <strong>Python:</strong> <br>
-	<a href="{{ site.url }}assets/code/intro_transformers.ipynb">Transformers (Colab)</a> <br>
+	Transformers (Colab) <a href="https://github.com/mirko-wegemann/mirko-wegemann.github.io/blob/master/assets/code/intro_transformers.ipynb">Download raw file here and open in Colab</a> <br>
 	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td></td>
