@@ -39,6 +39,7 @@ how to make use of these data? </p>
 preparing the raw material for analysis, (3) acquiring techniques to analyse the data and (4)
 understanding recent trends in text- and images-as-data. Thereby, the workshop is structured
 alongside four input sessions and 2-3 practical sessions.</p>
+You can download the syllabus <a href="{{ site.url }}assets/pdf/cta_syllabus.pdf">here</a>.
 
 <h3>People</h3><br>
 Instructors: Mirko Wegemann (he/him), Dr. Eva Krejcova (she/her) <br>
