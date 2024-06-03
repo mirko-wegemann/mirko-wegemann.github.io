@@ -5,6 +5,31 @@ title: Workshop on Computational Text Analysis
 description: 
 nav: false
 ---
+<head>
+<style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+</style>
+</head>
+
+<body>
 <h3>Content</h3><br>
 <p>In contemporary social science, we are faced with an era of big data. Political actors regularly justify
 their decisions on various communication channels, institutions publish policy reports, and
@@ -110,9 +135,11 @@ For session 3, you need a local installation of Python and GloVe embeddings you 
 	Transformers (Colab) <a href="https://github.com/mirko-wegemann/mirko-wegemann.github.io/blob/master/assets/code/intro_transformers.ipynb">Download raw file here and open in Colab</a> <br>
 	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
-    <td></td>
+    <td><a href="{{ site.url }}assets/code/Lab3_keyATM.Rmd">Script (keyATM)</a> <br>
+	<a href="{{ site.url }}assets/data/uk_sample_speeches.RData">UK Speech Corpus</a></td>
   </tr>
   </table>
   
   <h3>Credits</h3>
  A big thanks to <strong>Theresa Gessler</strong> for her course materials on CTA which can be accessed via this <a href="http://theresagessler.eu/eui_cta/">link</a> and <strong>Moritz Laurer</strong> for his <a href="https://github.com/MoritzLaurer/transformers-workshop-comptext-2023/tree/master">course</a> on Transformer Models at COMPTEXT. 
+</body>

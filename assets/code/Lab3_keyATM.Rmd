@@ -1,0 +1,236 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(keyATM)
+library(quanteda)
+library(magrittr)
+library(textstem)
+library(tm)
+library(readtext)
+```
+
+Here, you can analyse speeches from the UK House of Commons with the semi-supervised topic model KeyATM! 
+Most is filled out, but you need to test with different keywords and stopwords.. 
+
+**Data from: ** Rauh, Christian; Schwalbach, Jan, 2020, "The ParlSpeech V2 data set: Full-text corpora of 6.3 million parliamentary speeches in the key legislative chambers of nine representative democracies", https://doi.org/10.7910/DVN/L4OAKN, Harvard Dataverse, V1 
+
+I have made a small subset of the data available, but it can be downloaded from the website above. 
+Here, there is also data from Austria, the Czech Republic, Germany, Denmark, the Netherlands, New Zealand, Spain, and Sweden. 
+
+
+I have used this code to create a smaller sample, visit the data source page, as cited above, to get the full data. 
+```{r eval=FALSE, include=FALSE}
+# Corp_HouseOfCommons_V2 <- readRDS("~/Documents/Workshops/text-as-data/Corp_HouseOfCommons_V2.rds")
+
+# Selecting variables and filtering out years and party 
+#Corp_HouseOfCommons_V2 <- Corp_HouseOfCommons_V2 %>%
+#  select(date, agenda, speaker, party, text) %>% 
+#  filter(date > 2011 & (party == "Lab" | party == "Con"))
+
+# Converting the date column to year
+#Corp_HouseOfCommons_V2 <- Corp_HouseOfCommons_V2 %>%
+#  mutate(year = as.numeric(format(as.Date(date), "%Y")))
+
+# Sampling 2000 random observations for each year. 
+# ...to not spend a whole day in the lab ;) 
+
+#set.seed(123)  # For reproducibility
+
+#uk_sampled_speeches <- Corp_HouseOfCommons_V2 %>%
+#  group_by(year) %>%
+#  sample_n(1000, replace = FALSE)
+
+#uk_sampled_speeches  <- uk_sampled_speeches  %>% 
+#  select(year, agenda, speaker, party, text)
+
+#save(uk_sampled_speeches , file = "uk_sample_speeches.Rdata")
+```
+
+Load the data and create a corpus, with the variable "text" as text variable. 
+```{r}
+load("uk_sample_speeches.Rdata")
+head(uk_sampled_speeches)
+```
+
+
+```{r}
+
+uk_corpus <- corpus(uk_sampled_speeches, text_field = "text")
+
+domain_specific_stop_words <- c(
+  "hon", "member", "friend"
+) # add more. 
+
+# Tokenize the corpus and apply transformations
+uk_tokens <- quanteda::tokens(uk_corpus,
+                              remove_numbers = TRUE,
+                              remove_punct = TRUE,
+                              remove_symbols = TRUE,
+                              remove_separators = TRUE,
+                              split_hyphens = TRUE,
+                              include_docvars = TRUE) %>%
+  tokens_tolower() %>%
+  tokens_remove(c(stopwords("english"), domain_specific_stop_words)) %>%
+  tokens_select(min_nchar = 3)
+
+# Print the first few tokens to check the result
+uk_sampled_speeches$text[35]
+uk_tokens[35]
+
+
+```
+
+```{r}
+# Create a Document-Feature Matrix (DFM) from the tokenized data
+uk_dfm <- dfm(uk_tokens) %>%
+  
+# Remove terms that appear less than 5 times or in less than 2 docs in the DFM
+dfm_trim(min_termfreq = 5, min_docfreq = 2)
+
+# Subset the DFM to include only documents with more than 0 tokens
+uk_dfm <- dfm_subset(uk_dfm, ntoken(uk_dfm) > 0)
+
+```
+
+```{r}
+# Create a data frame from the corpus with necessary document variables
+  vars <- data.frame(
+  doc_id = docnames(uk_corpus),
+  party = docvars(uk_corpus, "party"),
+  year = docvars(uk_corpus, "year")
+)
+```
+
+```{r}
+# Subset the DFM for Labour Party (Lab) speeches
+uk_dfm_lab <- dfm_subset(uk_dfm, party == "Lab")
+# Read the Labour Party DFM into the keyATM format
+keyATM_docs_lab <- keyATM_read(texts = uk_dfm_lab)
+
+
+# Convert to tibble and filter to keep only records where party is Labour
+lab_vars <- vars %>%
+  as_tibble() %>%
+  filter(party == "Lab")
+
+# Create a period variable and filter the records based on docnames in uk_dfm_lab
+lab_vars_period <- lab_vars %>%
+  dplyr::mutate(period = as.numeric(factor(year))) %>%
+  filter(doc_id %in% docnames(uk_dfm_lab)) %>%
+  select(year, period)
+```
+
+```{r}
+# Subset the DFM for Conservative Party (Con) speeches
+uk_dfm_con <- dfm_subset(uk_dfm, party == "Con")
+
+# Read the Conservative Party DFM into the keyATM format
+keyATM_docs_con <- keyATM_read(texts = uk_dfm_con)
+
+# Convert to tibble and filter to keep only records where party is Labour
+con_vars <- vars %>%
+  as_tibble() %>%
+  filter(party == "Con")
+
+# Create a period variable and filter the records based on docnames in uk_dfm_lab
+con_vars_period <- con_vars %>%
+  dplyr::mutate(period = as.integer(factor(year))) %>%
+  filter(doc_id %in% docnames(uk_dfm_con)) %>%
+  select(year, period)
+```
+
+
+```{r}
+# Add a more keywords that you think is suitable for each category!
+
+keywords <- list(
+  Health      = c("health"),
+  Immigration = c("immigration"),
+  Crime       = c("crime"), 
+  Economy     = c("economy"),
+  Tax         = c("tax"),
+  Pensions    = c("pension"), 
+  Education   = c("education"), 
+  Family      = c("family" ), 
+  Housing     = c("housing"), 
+  Environment = c("environment"), 
+  EU          = c("european", "union"), 
+  Transport   = c("transport"), 
+  Welfare     = c("welfare"), 
+  Defence     = c("defence"), 
+  Terrorism   = c("terrorism"), 
+  Afghanistan = c("afghanistan")
+)
+
+```
+
+Keywords should appear reasonable times (typically more than 0.1% of the corpus) in the documents. The visualize_keywords() function plots the frequency of keywords by topic.
+```{r}
+key_viz_lab <- visualize_keywords(docs = keyATM_docs_lab, keywords = keywords)
+key_viz_lab
+```
+
+```{r}
+key_viz_con <- visualize_keywords(docs = keyATM_docs_lab, keywords = keywords)
+key_viz_con
+# values_fig(key_viz_con)
+```
+
+
+```{r}
+lab_mod <- keyATM(
+  docs              = keyATM_docs_lab,
+  no_keyword_topics = 2,
+  keywords          = keywords,
+  model             = "dynamic",
+  model_settings    = list(time_index = lab_vars_period$period,
+                           num_states = 9),
+  options           = list(seed = 250)
+)
+
+save(lab_mod, file = "lab_mod.RData")
+# Topic-word distribution 
+top_words(lab_mod)
+
+# Document-topic distribution 
+fig_timetrend_lab <- plot_timetrend(lab_mod, time_index_label = lab_vars_period$year, xlab = "year")
+fig_timetrend_lab # Remember, this is a very small random subset of the speeches. 
+```
+
+```{r}
+con_mod <- keyATM(
+  docs              = keyATM_docs_con,
+  no_keyword_topics = 2,
+  keywords          = keywords,
+  model             = "dynamic",
+  model_settings    = list(time_index = con_vars_period$period,
+                           num_states = 9),
+  options           = list(seed = 250)
+)
+
+save(con_mod, file = "con_mod.RData")
+
+# Topic-word distribution 
+top_words(con_mod)
+
+# Document-topic distribution
+fig_timetrend_con <- plot_timetrend(con_mod, time_index_label = con_vars_period$year, xlab = "year")
+fig_timetrend_con # Again, Remember that this is a very small subset. 
+```
+
+```{r}
+topic_prop_lab <- values_fig(fig_timetrend_lab)
+topic_prop_lab <- topic_prop_lab %>%
+  select(time_index, Topic, Proportion) %>%
+  mutate(Party = "Labour")
+
+topic_prop_con <- values_fig(fig_timetrend_con)
+topic_prop_con <- topic_prop_con %>%
+  select(time_index, Topic, Proportion) %>%
+  mutate(Party = "Conservative")
+
+topic_prop_speech <- rbind(topic_prop_con, topic_prop_lab)
+
+```
+
+Now you can combine this data whith other data that you find interesting! 
