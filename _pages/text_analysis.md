@@ -136,7 +136,7 @@ For session 3, you need a local installation of Python and GloVe embeddings you 
 	  <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
 	  <a href="{{ site.url }}assets/data/test.csv">Test data</a><br> </td>
     <td><a href="{{ site.url }}assets/code/Lab3_keyATM.Rmd">Script (keyATM)</a> <br>
-	<a href="{{ site.url }}assets/data/uk_sample_speeches.RData">UK Speech Corpus</a></td>
+	<a href="{{ site.url }}assets/data/uk_sample_speeches.Rdata">UK Speech Corpus</a></td>
   </tr>
   </table>
   
