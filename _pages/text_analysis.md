@@ -1,3 +1,11 @@
+---
+layout: page
+permalink: /teaching/cta24
+title: Workshop on Computational Text Analysis
+description: 
+nav: false
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
