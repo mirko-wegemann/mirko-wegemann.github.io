@@ -6,27 +6,42 @@ description:
 nav: false
 ---
 <head>
-<style>
-        table {
+<title>Fancy Table</title>
+    <style>
+        .fancy-table {
             width: 100%;
             border-collapse: collapse;
-            text-align: center;
+            text-align: left;
+			vertical-align: top;
         }
-        th, td {
+        .fancy-table th, .fancy-table td {
             padding: 12px;
             border: 1px solid #ddd;
+			            text-align: left;
+		    vertical-align: top;
         }
-        th {
+        .fancy-table th {
             background-color: #f4f4f4;
             font-weight: bold;
         }
-        tr:nth-child(even) {
+        .fancy-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
-        tr:hover {
+        .fancy-table tr:hover {
             background-color: #f1f1f1;
         }
-</style>
+        
+        .plain-table {
+            width: 100%;
+            text-align: left;
+		    vertical-align: top;
+
+        }
+        .plain-table th, .plain-table td {
+            padding: 12px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -40,13 +55,28 @@ preparing the raw material for analysis, (3) acquiring techniques to analyse the
 understanding recent trends in text- and images-as-data. Thereby, the workshop is structured
 alongside four input sessions and 2-3 practical sessions.</p>
 You can download the syllabus <a href="{{ site.url }}assets/pdf/cta_syllabus.pdf">here</a>.
+<br>
 
 <h3>People</h3><br>
-Instructors: Mirko Wegemann (he/him), Dr. Eva Krejcova (she/her) <br>
-Teaching Assistant: Sara Dybesland (she/her) <br>
+<table class="plain-table">
+<tr>
+    <td>Instructors</td>
+	<td>Mirko Wegemann (he/him)</td>
+	</tr>
+<tr>
+    <td></td>
+	<td><a href="https://www.eui.eu/people?id=eva-krejcova">Dr. Eva Krejcova (she/her)</a></td>
+</tr>
+<tr>
+    <td>Teaching Assistant</td>
+	<td><a href="https://www.eui.eu/people?id=sara-dybesland">Sara Dybesland (she/her)</a></td>
+	</tr>
+<tr>
+</table>
+<br>
 
 <h3>Schedule</h3>
-<table style="width:100%; text-align:center;">
+<table class="fancy-table"; style="width:100%; text-align:center;">
   <tr>
     <th style="width:45%;">Input session</th>
     <th style="width:45%;">Lab session</th>
@@ -68,16 +98,16 @@ Teaching Assistant: Sara Dybesland (she/her) <br>
     <td>No lab session (but longer input!)</td>
   </tr>
 </table>
-
+<br>
 <h3>Materials</h3>
 Please download the files, put them in one directory and create a .Rproj in that directory. <br>
 
 To download the MARPOR data on your own, you can use this <a href="{{ site.url }}assets/code/download_marpor.Rmd">script</a>. You need to register for API access at <a href="https://manifesto-project.wzb.eu/information/documents/api">Manifesto Project</a> before.
-The API key needs to be stored in a .txt-file in your directory. 
+The API key needs to be stored in a .txt-file in your directory. <br>
 
 
 <h4>Session 1: Scraping</h4>
-<table style="width:100%; text-align:center;">
+<table class="fancy-table"; style="width:100%; text-align:left; vertical-align:top;">
   <tr>
     <th style="width:33%;">Slides</th>
     <th style="width:33%;">Input session</th>
@@ -90,9 +120,9 @@ The API key needs to be stored in a .txt-file in your directory.
 	<a href="{{ site.url }}assets/code/solution_scraping_exercises.Rmd">Solution</a></td>
   </tr>
  </table>
- 
+ <br>
 <h4>Session 2: Bags-of-words</h4>
-<table style="width:100%; text-align:center;">
+<table class="fancy-table"; style="width:100%; text-align:left; vertical-align:top;">
   <tr>
     <th style="width:33%;">Slides</th>
     <th style="width:33%;">Input session</th>
@@ -114,11 +144,11 @@ The API key needs to be stored in a .txt-file in your directory.
 </td>
   </tr>
 </table>
-
+<br>
 <h4>Session 3: Embeddings and machine learning</h4>
 
 For session 3, you need a local installation of Python and GloVe embeddings you can download <a href="https://nlp.stanford.edu/projects/glove/">here</a> <br>
-<table style="width:100%; text-align:center;">
+<table class="fancy-table"; style="width:100%; text-align:left; vertical-align:top;">
   <tr>
     <th style="width:33%;">Slides</th>
     <th style="width:33%;">Input session</th>
@@ -140,7 +170,7 @@ For session 3, you need a local installation of Python and GloVe embeddings you 
 	<a href="{{ site.url }}assets/data/uk_sample_speeches.Rdata">UK Speech Corpus</a></td>
   </tr>
   </table>
-  
+  <br>
   <h3>Credits</h3>
  A big thanks to <strong>Theresa Gessler</strong> for her course materials on CTA which can be accessed via this <a href="http://theresagessler.eu/eui_cta/">link</a> and <strong>Moritz Laurer</strong> for his <a href="https://github.com/MoritzLaurer/transformers-workshop-comptext-2023/tree/master">course</a> on Transformer Models at COMPTEXT. 
 </body>
