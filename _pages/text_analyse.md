@@ -47,32 +47,18 @@ nav: false
 </head>
 <body>
     <h3>Inhalt</h3><br>
-    <p>Wir leben in einer Welt von "big data", welche auch vor unserer Arbeit als Politikwissenschaftler\*innen nicht Halt macht. Jeden Tag begründen politische Akteur\*innen ihre Entscheidungen auf verschiedenen Kommunikationskanälen, Institutionen veröffentlichen Policy Reports, und Bürger\*innen äußern ihre Meinung in sozialen Medien und in den Kommentarbereichen von Zeitungen. Doch wie können wir diese Datenmengen sinnvoll nutzen? </p>
-    <p>Dieses Methodenseminar gibt einen Einblick in die quantitative Textanalyse, eine Art der Inhaltsanalyse, welche Texte anhand von numerischen Gemeinsamkeiten untersucht. Dabei werden die Student\*innen im Laufe des Seminars lernen, (1) Textdaten von öffentlich zugänglichen Webseiten zu sammeln, (2) das Rohmaterial für verschiedene Analysen vorzubereiten sowie (3) verschiedene Techniken der quantitativen Textanalyse anzuwenden. Dabei werden die Studierenden auch ein Basisverständnis von neueren Entwicklungen der Textanalyse (wie von Transformer oder Large Language Modellen entwickeln). Die einzelnen Sitzungen werden dabei sehr praxisorientiert sein und Studierenden die Möglichkeit geben, ein eigenes Projekt im Rahmen des Seminars zu realisieren. Hierbei werden sie eine eigene Forschungsfrage entwickeln, theoretische Erwartungen formulieren, Forschungsdaten erschließen und eine passende Methode der quantitativen Textanalyse anwenden. </p>
+    <p>Wir leben in einer Welt von "big data", welche auch vor unserer Arbeit als Politikwissenschaftler*innen nicht Halt macht. Jeden Tag begründen politische Akteur*innen ihre Entscheidungen auf verschiedenen Kommunikationskanälen, Institutionen veröffentlichen Policy Reports, und Bürger*innen äußern ihre Meinung in sozialen Medien und in den Kommentarbereichen von Zeitungen. Doch wie können wir diese Datenmengen sinnvoll nutzen? </p>
+    <p>Dieses Methodenseminar gibt einen Einblick in die quantitative Textanalyse, eine Art der Inhaltsanalyse, welche Texte anhand von numerischen Gemeinsamkeiten untersucht. Dabei werden die Student*innen im Laufe des Seminars lernen, (1) Textdaten von öffentlich zugänglichen Webseiten zu sammeln, (2) das Rohmaterial für verschiedene Analysen vorzubereiten sowie (3) verschiedene Techniken der quantitativen Textanalyse anzuwenden. Dabei werden die Studierenden auch ein Basisverständnis von neueren Entwicklungen der Textanalyse (wie von Transformer oder Large Language Modellen entwickeln). Die einzelnen Sitzungen werden dabei sehr praxisorientiert sein und Studierenden die Möglichkeit geben, ein eigenes Projekt im Rahmen des Seminars zu realisieren. Hierbei werden sie eine eigene Forschungsfrage entwickeln, theoretische Erwartungen formulieren, Forschungsdaten erschließen und eine passende Methode der quantitativen Textanalyse anwenden. </p>
     Der Syllabus lässt sich <a href="{{ site.url }}assets/pdf/qta_syllabus.pdf">hier</a> herunterladen.
     <br>
 
-	Das Seminar findet wöchentlich am Mittwoch zwischen 16-18 Uhr im Seminarraum SCH 100.107 statt. Student\*innen werden gebeten, ihre Laptops mitzubringen. 
+	Das Seminar findet wöchentlich am Mittwoch zwischen 16-18 Uhr im Seminarraum SCH 100.107 statt. Student*innen werden gebeten, ihre Laptops mitzubringen. 
     <br>
     <h3>Materialien</h3>
     Um den Beispielcode durchlaufen lassen zu könenn, sollten zuerst die Dateien lokal gespeichert werden und in derselben Dateistruktur ein .Rproj-Datei erstellt werden. Über einen Doppelklick auf das .Rproj-File öffnet sich RStudio, über das das .RMD-File geöffnet werden kann. Eine Kurzanleitung lässt sich bspw. <a href="https://intro2r.com/rsprojs.html">hier</a> finden. <br>
 	<br>
 	
-    <h4>Sitzung 1: Organisatorisches </h4>
+    <h4>Sitzung 1: Organisatorisches </h4> <br>
 	<strong> Slides: a href="{{ site.url }}assets/pdf/intro_qta.pdf">Slides</a> </strong>	
-	<! -- 
-	<table class="fancy-table">
-        <tr>
-            <th style="width:33%;">Slides</th>
-            <th style="width:33%;">Literatur</th>
-            <th style="width:33%;">Code</th>
-        </tr>
-        <tr>
-            <td><a href="{{ site.url }}assets/pdf/scraping.pdf">Slides</a><br></td>
-            <td><a href="{{ site.url }}assets/code/scraping.Rmd">Replication code</a><br> </td>
-            <td><a href="{{ site.url }}assets/code/scraping_exercises_empty.Rmd">Exercises</a> <br>
-                <a href="{{ site.url }}assets/code/solution_scraping_exercises.Rmd">Solution</a></td>
-        </tr>
-    </table>
-	-->
+	
 </html>
