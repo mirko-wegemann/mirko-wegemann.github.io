@@ -9,7 +9,7 @@ profile:
   image_circular: false # crops the image to make it circular
   more_info: >
     <p><strong>University of Muenster</strong> </p>
-	<p>Institute for Political Science</p>
+    <p>Institute for Political Science</p>
     <p> Scharnhorststraße 100 </p>
     <p> 48151 Muenster </p>
 
