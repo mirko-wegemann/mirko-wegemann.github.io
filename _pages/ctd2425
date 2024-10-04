@@ -1,0 +1,56 @@
+---
+layout: page
+permalink: /teaching/ctd2425
+title: Challenges to Democracy (Winter term 24/25)
+description: 
+nav: false
+---
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Table</title>
+    <style>
+        .fancy-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            vertical-align: top;
+        }
+        .fancy-table th, .fancy-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top;
+        }
+        .fancy-table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        .fancy-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .fancy-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .plain-table {
+            width: 100%;
+            text-align: left;
+            vertical-align: top;
+        }
+        .plain-table th, .plain-table td {
+            padding: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h3>Inhalt</h3><br>
+    <p>The seminar seeks to analyse the current challenges democratic regimes face. It is structured along three blocks. In the first block, we will learn about the essential features of a democracy and discover what shapes the quality of democracy. In a second block, we will engage with different empirical analyses of the current state of democratization and democratic systems. We will zero in on how institutions are sidelined; how actors, such as far-right parties, challenge democracies; and how democracy is threatened by crises. In the third block, we will look at potential solutions and scenarios of how democracy could cope with the current challenges. </p>
+    You can download the most recent version of the syllabus <a href="{{ site.url }}assets/pdf/ctd_syllabus.pdf">here</a>.
+    <br>
+
+	The seminar takes place weekly, on Wednesday (4-6pm) in seminar room SCH 100.107 statt.  
+    <br>	
+</html>
