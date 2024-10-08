@@ -56,3 +56,5 @@ nav: false
     <h3>Materialien</h3>
     Um den Beispielcode durchlaufen lassen zu können, sollten zuerst die Dateien lokal gespeichert werden und in derselben Dateistruktur ein .Rproj-Datei erstellt werden. Über einen Doppelklick auf das .Rproj-File öffnet sich RStudio, über das das .RMD-File geöffnet werden kann. Eine Kurzanleitung lässt sich bspw. <a href="https://intro2r.com/rsprojs.html">hier</a> finden. <br>
 	<br>
+	<h4>1. Woche: Einführung</h4>
+	<a href="{{ site.url }}assets/pdf/qta/introduction.pdf">Slides</a>
