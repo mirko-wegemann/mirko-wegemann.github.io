@@ -58,3 +58,22 @@ nav: false
 	<br>
 	<h4>1. Woche: Einführung</h4>
 	<a href="{{ site.url }}assets/pdf/qta/introduction.pdf">Slides</a>
+	<br>
+	<h4>2. Woche: Crashkurs in R</h4>
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/qta/crashkurs.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/tutorial_empty.RMD">Tutorial</a><br>
+            </td>
+            <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
+                <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
+				<a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
+				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 
+				</td>
+        </tr>
+    </table>
