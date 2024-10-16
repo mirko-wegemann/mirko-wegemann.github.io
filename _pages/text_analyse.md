@@ -68,7 +68,7 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.Rmd">Einführung</a><br>
+            <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung</a><br>
 			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
             <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
