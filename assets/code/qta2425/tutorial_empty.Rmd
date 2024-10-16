@@ -1,1 +1,186 @@
-```{r setup, include=FALSE} knitr::opts_chunk$set(echo = TRUE) library(tidyverse) ``` # Tutorial - 1. Aufgabenset Zuallererst schauen wir mal, was wir in R ganz ohne importierte Datensätze machen können. ## 1. Schritt - Numerische Vektoren Generiert zwei Vektoren. Der erste soll aus drei Zahlen bestehen (sucht euch aus, welche). Der zweite soll die gleichen Zahlen, multipliziert mit 2 enthalten. ```{r} ``` ## 2. Schritt - Additionen Nun addiert die beiden Vektoren und speichert sie in einem dritten Vektor. ```{r} ``` ## 3. Schritt - Zahlenreihen Generiert eine Zahlenreihe von 0 bis 100 und speichert sie in einem Vektor ab. ```{r} ``` Nun kreiert eine ähnliche Zahlenreihe, aber so, dass sie nur gerade Zahlen enthält. ```{r} ``` ## 4. Schritt - String-Variablen Wir haben uns bisher nur mit numerischen Vektoren beschäftigt. Wir können allerdings auch Buchstaben oder Wörter in sogenannten String-Variablen abspeichern. Generiert solch einen Vektor mit eurem Wunschinhalt. ```{r} ``` Verbindet den ersten numerischen Vektor, den ihr im ersten Schritt erstellt habt, mit der String-Variable zu einem neuen Objekt. ```{r} ``` ## 5. Schritt - Objekttyp Manchmal sind numerische Vektoren als String-Variablen abgespeichert. In R können wir uns immer den Typ eines Objekts anschauen. Wisst ihr, wie? ```{r} ``` Wie wandeln wir Daten in ein Format um? Erstellt euch eine String-Variable mit Zahlen. Nutzt die Funktion as.numeric(), um sie in einen numerischen Vektor umzuwandeln. ```{r} ``` # Tutorial - 2. Aufgabenset ## 1. Schritt - Import der Textdatei Ladet den (reduzierten) Korpus der britischen Parlamentsreden von meiner Website herunter, speichert ihn korrekt ab und importiert ihn in die R-Umgebung. ```{r} ``` ## 2. Schritt - Dateineinblick Wie oft hat welche Partei in den letzten Jahren im britischen Unterhaus gesprochen? Lasst euch die Anzahl der Redebeiträge tabullarisch anzeigen. ```{r} ``` ...und gibt es einen Gender Gap? ```{r} ``` ## 3. Schritt - Deskriptiver Einblick in den Text Nun sucht nach dem Wort "Brexit" und lasst Euch anzeigen, wie häufig es in den letzten Jahren in Reden um den Brexit ging. ```{r} ``` !!! CHALLENGE Gibt es einen zeitlichen Trend? Lasst euch die Entwicklung in der Häufigkeit von Reden über den Brexit grafisch visualisieren. ```{r} ``` Worum geht es in den Reden, die sich um den Brexit kreisen? ```{r} ``` # Tutorial - 3. Aufgabenset ## 1. Schritt Besucht die Website der German Longitudinal Election Study und ladet euch die Pre-Post Umfrage 2021 herunter. Dafür müsst ihr euch eventuell bei der Gesis anmelden. Ladet auch die notwendige Dokumentation herunter und speichert alles in das Verzeichnis aus dem ihr arbeitet. ## 2. Schritt Ladet den Datensatz in die R-Umgebung. Importiert im Zweifel des notwendige Paket. ```{r} ``` ## 3. Schritt Lasst Euch den Datensatz zusammenfassen. Wie viele Variablen, wie viele Befragte hat er? ```{r} ``` ## 4. Schritt Lasst euch tabellarisch anzeigen, was Leute von der AfD halten. ```{r} ``` Lasst euch auch den Mittelwert dieser Variablen anzeigen. Achtung: eventuell müsst ihr die Variable in ein numerisches Format umwandeln und einige Werte davor umwandeln, sodass diese einer Zahl entsprechen. ```{r} ``` Personen haben eher eine negative Einstellung über die AfD. Im nächsten Schritt schauen wir mal, wer eher der AfD etwas abgewinnen kann und wer nicht. Sucht euch eine mögliche Variable und zeigt euch den Zusammenhang mit der Zustimmung zur AfD an. ```{r} ``` Wir sehen, dass es eine mittlere/hohe Korrelation zwischen Einstellungen zur Migration und AfD-Sympathie gibt. Was bedeutet das substantiell? ## 5. Schritt: Visualisierung Nun zeigt die Korrelation zwischen den Variablen grafisch an. ```{r} ``` ## 6. Schritt: Regressionsanalysen Überlegt euch weitere mögliche Variablen, welche die Sympathie zur AfD beeinflussen können. Bereitet diese auf, wenn nötig. Schätzt daraufhin ein multivariates Regressionsmodell. ```{r} ``` Und nun das Regressionsmodell: ```{r} ``` Was lässt sich eurer Meinung nach über die Wähler*innen der AfD sagen?
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Tutorial - 1. Aufgabenset
+Zuallererst schauen wir mal, was wir in R ganz ohne importierte Datensätze machen können. 
+
+## 1. Schritt - Numerische Vektoren
+Generiert zwei Vektoren. Der erste soll aus drei Zahlen bestehen (sucht euch aus, welche). Der zweite soll die gleichen Zahlen, multipliziert mit 2 enthalten. 
+
+```{r}
+
+```
+
+
+## 2. Schritt - Additionen
+Nun addiert die beiden Vektoren und speichert sie in einem dritten Vektor.
+
+```{r}
+
+```
+
+## 3. Schritt - Zahlenreihen 
+Generiert eine Zahlenreihe von 0 bis 100 und speichert sie in einem Vektor ab. 
+
+```{r}
+
+```
+
+Nun kreiert eine ähnliche Zahlenreihe, aber so, dass sie nur gerade Zahlen enthält.
+
+```{r}
+
+```
+
+
+## 4. Schritt - String-Variablen
+Wir haben uns bisher nur mit numerischen Vektoren beschäftigt. Wir können allerdings auch Buchstaben oder Wörter in sogenannten String-Variablen abspeichern. Generiert solch einen Vektor mit eurem Wunschinhalt.
+
+```{r}
+
+```
+
+
+Verbindet den ersten numerischen Vektor, den ihr im ersten Schritt erstellt habt, mit der String-Variable zu einem neuen Objekt. 
+```{r}
+
+```
+
+
+## 5. Schritt - Objekttyp
+Manchmal sind numerische Vektoren als String-Variablen abgespeichert. In R können wir uns immer den Typ eines Objekts anschauen. Wisst ihr, wie? 
+
+```{r}
+
+```
+Wie wandeln wir Daten in ein Format um? Erstellt euch eine String-Variable mit Zahlen. Nutzt die Funktion as.numeric(), um sie in einen numerischen Vektor umzuwandeln. 
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+# Tutorial - 2. Aufgabenset
+
+## 1. Schritt - Import der Textdatei 
+Ladet den (reduzierten) Korpus der britischen Parlamentsreden von meiner Website herunter, speichert ihn korrekt ab und importiert ihn in die R-Umgebung. 
+
+```{r}
+
+```
+
+
+## 2. Schritt - Dateineinblick
+Wie oft hat welche Partei in den letzten Jahren im britischen Unterhaus gesprochen? Lasst euch die Anzahl der Redebeiträge tabullarisch anzeigen. 
+
+```{r}
+
+```
+
+...und gibt es einen Gender Gap?
+
+```{r}
+
+```
+
+
+## 3. Schritt - Deskriptiver Einblick in den Text
+Nun sucht nach dem Wort "Brexit" und lasst Euch anzeigen, wie häufig es in den letzten Jahren in Reden um den Brexit ging.
+
+```{r}
+
+```
+
+!!! CHALLENGE
+Gibt es einen zeitlichen Trend? Lasst euch die Entwicklung in der Häufigkeit von Reden über den Brexit grafisch visualisieren.  
+
+```{r}
+
+```
+
+
+Worum geht es in den Reden, die sich um den Brexit kreisen? 
+
+```{r}
+
+```
+
+
+
+
+
+
+
+# Tutorial - 3. Aufgabenset
+
+## 1. Schritt
+Besucht die Website der German Longitudinal Election Study und ladet euch die Pre-Post Umfrage 2021 herunter. Dafür müsst ihr euch eventuell bei der Gesis anmelden. Ladet auch die notwendige Dokumentation herunter und speichert alles in das Verzeichnis aus dem ihr arbeitet. 
+
+## 2. Schritt
+Ladet den Datensatz in die R-Umgebung. Importiert im Zweifel des notwendige Paket. 
+
+```{r}
+
+```
+
+## 3. Schritt
+Lasst Euch den Datensatz zusammenfassen. Wie viele Variablen, wie viele Befragte hat er? 
+
+```{r}
+
+```
+
+## 4. Schritt
+Lasst euch tabellarisch anzeigen, was Leute von der AfD halten.
+
+```{r}
+
+```
+
+Lasst euch auch den Mittelwert dieser Variablen anzeigen. Achtung: eventuell müsst ihr die Variable in ein numerisches Format umwandeln und einige Werte davor umwandeln, sodass diese einer Zahl entsprechen. 
+
+```{r}
+
+```
+
+Personen haben eher eine negative Einstellung über die AfD. Im nächsten Schritt schauen wir mal, wer eher der AfD etwas abgewinnen kann und wer nicht. 
+
+Sucht euch eine mögliche Variable und zeigt euch den Zusammenhang mit der Zustimmung zur AfD an. 
+
+```{r}
+
+```
+Wir sehen, dass es eine mittlere/hohe Korrelation zwischen Einstellungen zur Migration und AfD-Sympathie gibt. 
+Was bedeutet das substantiell?
+
+
+## 5. Schritt: Visualisierung
+Nun zeigt die Korrelation zwischen den Variablen grafisch an. 
+
+```{r}
+
+```
+
+
+## 6. Schritt: Regressionsanalysen
+Überlegt euch weitere mögliche Variablen, welche die Sympathie zur AfD beeinflussen können. Bereitet diese auf, wenn nötig. Schätzt daraufhin ein multivariates Regressionsmodell. 
+
+```{r}
+
+```
+
+Und nun das Regressionsmodell: 
+
+```{r}
+
+```
+
+Was lässt sich eurer Meinung nach über die Wähler*innen der AfD sagen?
