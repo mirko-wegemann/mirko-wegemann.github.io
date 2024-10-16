@@ -48,7 +48,7 @@ nav: false
     <h3>Inhalt</h3><br>
     <p>Wir leben in einer Welt von "big data", welche auch vor unserer Arbeit als Politikwissenschaftler*innen nicht Halt macht. Jeden Tag begründen politische Akteur*innen ihre Entscheidungen auf verschiedenen Kommunikationskanälen, Institutionen veröffentlichen Policy Reports, und Bürger*innen äußern ihre Meinung in sozialen Medien und in den Kommentarbereichen von Zeitungen. Doch wie können wir diese Datenmengen sinnvoll nutzen? </p>
     <p>Dieses Methodenseminar gibt einen Einblick in die quantitative Textanalyse, eine Art der Inhaltsanalyse, welche Texte anhand von numerischen Gemeinsamkeiten untersucht. Dabei werden die Student*innen im Laufe des Seminars lernen, (1) Textdaten von öffentlich zugänglichen Webseiten zu sammeln, (2) das Rohmaterial für verschiedene Analysen vorzubereiten sowie (3) verschiedene Techniken der quantitativen Textanalyse anzuwenden. Dabei werden die Studierenden auch ein Basisverständnis von neueren Entwicklungen der Textanalyse (wie von Transformer oder Large Language Modellen entwickeln). Die einzelnen Sitzungen werden dabei sehr praxisorientiert sein und Studierenden die Möglichkeit geben, ein eigenes Projekt im Rahmen des Seminars zu realisieren. Hierbei werden sie eine eigene Forschungsfrage entwickeln, theoretische Erwartungen formulieren, Forschungsdaten erschließen und eine passende Methode der quantitativen Textanalyse anwenden. </p>
-    Der Syllabus lässt sich <a href="{{ site.url }}assets/pdf/qta_syllabus.pdf">hier</a> herunterladen.
+    Der Syllabus lässt sich <a href="{{ site.url }}assets/pdf/qta/qta_syllabus.pdf">hier</a> herunterladen.
     <br>
 
 	Das Seminar findet wöchentlich am Mittwoch zwischen 16-18 Uhr im Seminarraum SCH 100.107 statt. Student*innen werden gebeten, ihre Laptops mitzubringen. 
@@ -68,7 +68,8 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
+            <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.Rmd">Einführung</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
             <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
                 <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
