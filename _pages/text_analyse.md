@@ -59,7 +59,7 @@ nav: false
 	<h4>1. Woche: Einführung</h4>
 	<a href="{{ site.url }}assets/pdf/qta/introduction.pdf">Slides</a>
 	<br>
-	<h4>2. Woche: Crashkurs in R</h4>
+	<h4>2. und 3. Woche: Crashkurs in R</h4>
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
@@ -67,7 +67,8 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a><<br>
+			<a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung</a><br>
 			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
