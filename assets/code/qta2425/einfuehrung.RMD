@@ -217,6 +217,30 @@ df4 %>%
 
 
 ### Regular Expressions
+Bevor wir uns ein echtes Beispiel anschauen und Datenmanipulationen mit R durchführen, schauen wir uns die Funktionsweise von RegEx mithilfe der Funktion *str_view()* an. Diese Funktion ist sehr hilfreich, insbesondere, wenn wir unsere Patterns testen wollen.
+
+```{r}
+words <- c("Parlament", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "[a-z]")
+```
+
+Mit dem obigen Befehl würden wir jeden Buchstaben einzeln extrahieren, d.h., wenn wir diese in einen Vektor schreiben, besteht dieser aus n-Buchstaben. Wenn wir ganze Wörter ansteuern wollen, benötigen wir einen Quantifier:
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "[a-z]+")
+```
+
+```{r}
+str_view(words, "[^a-z]+")
+```
+
+Mit dem logischen "Oder" können wir verschiedene Muster definieren. 
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "Bundestag|Wahlperiode")
+```
+
+
 Wir haben vorhin den Syllabus importiert und dabei bemerkt, dass nicht alle Zeichen so wie wir es gerne hätten importiert worden sind. Beispielsweise gibt es viele Zeilenumbrüche, die lediglich als "\n" markiert sind. Um Text zu bereinigen, sind Regular Expressions sehr hilfreich. Regular Expressions sind Funktionen, welche Text in einer abstrakten Form betrachten. 
 
 Beispielsweise könnten wir alle Zahlen aus dem Syllabus durch den Ausdruck \\d exportieren. 
@@ -244,6 +268,12 @@ Wenn wir die Zeilenumbrüche entfernen, verlieren wir teils die Trennung zwische
 ```{r}
 syllabus2 <- str_replace_all(syllabus, "\n", " ")
 syllabus2[1]
+```
+
+Wir können Muster in runde Klammern schreiben, um diese einzeln zu erfassen. So können wir beispielsweise die Reihenfolge von Wörtern in einem String verändern.
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_replace(words, "(\\w+) (\\w+)", "\\2 \\1")
 ```
 
 Wir haben auch bemerkt, dass unser Dokument in einen Character-Vektor mit 9 Elementen importiert wird. Wenn wir die Seiten wieder zusammenfügen wollen, nutzen wir den folgenden Code.

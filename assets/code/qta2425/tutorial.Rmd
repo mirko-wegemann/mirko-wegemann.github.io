@@ -8,30 +8,27 @@ Zuallererst schauen wir mal, was wir in R ganz ohne importierte Datensätze mach
 
 ## 1. Schritt - Numerische Vektoren
 Generiert zwei Vektoren. Der erste soll aus drei Zahlen bestehen (sucht euch aus, welche). Der zweite soll die gleichen Zahlen, multipliziert mit 2 enthalten. 
-
 ```{r}
-
+x <- c(2,4,6)
+y <- 2*x
 ```
 
 
 ## 2. Schritt - Additionen
 Nun addiert die beiden Vektoren und speichert sie in einem dritten Vektor.
-
 ```{r}
-
+z <- x+y
 ```
 
 ## 3. Schritt - Zahlenreihen 
 Generiert eine Zahlenreihe von 0 bis 100 und speichert sie in einem Vektor ab. 
-
 ```{r}
-
+a <- 0:100
 ```
 
 Nun kreiert eine ähnliche Zahlenreihe, aber so, dass sie nur gerade Zahlen enthält.
-
 ```{r}
-
+b <- seq(0,100,2)
 ```
 
 
@@ -39,33 +36,26 @@ Nun kreiert eine ähnliche Zahlenreihe, aber so, dass sie nur gerade Zahlen enth
 Wir haben uns bisher nur mit numerischen Vektoren beschäftigt. Wir können allerdings auch Buchstaben oder Wörter in sogenannten String-Variablen abspeichern. Generiert solch einen Vektor mit eurem Wunschinhalt.
 
 ```{r}
-
+c <- c("apple", "banana", "peach")
 ```
 
 
 Verbindet den ersten numerischen Vektor, den ihr im ersten Schritt erstellt habt, mit der String-Variable zu einem neuen Objekt. 
 ```{r}
-
+d <- paste(x, c)
 ```
 
 
 ## 5. Schritt - Objekttyp
 Manchmal sind numerische Vektoren als String-Variablen abgespeichert. In R können wir uns immer den Typ eines Objekts anschauen. Wisst ihr, wie? 
-
 ```{r}
-
+typeof(c)
 ```
 Wie wandeln wir Daten in ein Format um? Erstellt euch eine String-Variable mit Zahlen. Nutzt die Funktion as.numeric(), um sie in einen numerischen Vektor umzuwandeln. 
-
 ```{r}
-
+e <- c("2", "4", "6")
+f <- as.numeric(e)
 ```
-
-
-
-
-
-
 
 
 # Tutorial - 2. Aufgabenset
@@ -73,60 +63,64 @@ Wie wandeln wir Daten in ein Format um? Erstellt euch eine String-Variable mit Z
 
 ### 1. Schritt
 Ladet die Datei "mdb_data.RDS" von meiner Website herunter, speichert sie in das korrekte Verzeichnis und importiert sie. 
-
 ```{r}
-
+mdb_data <- readRDS("mdb_data.RDS")
 ```
 
 ### 2. Schritt
 Wie viele der Parlamentarier*innen haben mindestens ein "x" in ihrem Nachnamen? 
-
 ```{r}
-
+mdb_data %>%
+  mutate(names_with_x = str_count(last_name, "x")) %>%
+  filter(names_with_x>0) %>%
+  summarise(n())
 ```
-
 ### 3. Schritt
 Was ist der häufigste Vorname im Bundestag?
-
 ```{r}
-
+mdb_data %>%
+  group_by(first_name) %>%
+  summarise(occurence = n()) %>%
+  arrange(desc(occurence))
 ```
 
 ### 4. Schritt
-
 Gab es mehr Männer mit dem Namen Wolfgang und Hans im Parlament als Frauen insgesamt?
-
 ```{r}
+mdb_data %>%
+  mutate(hans_wolfgang = str_count(first_name, "Hans|Wolfgang")) %>%
+  filter(hans_wolfgang>0) %>%
+  summarise(n())
 
+table(mdb_data$gender)
 ```
+Gott sei Dank nicht.
 
 ### 5. Schritt
 Erstellt eine Variable, welche das Geburtsjahr der Parlamentarier*innen enthält. Welcher Abgeordnete wurde als erstes geboren?
-
 ```{r}
-
+mdb_data %>%
+  mutate(yob = str_extract(date_birth, "\\d{4}")) %>%
+  select(yob, full_name) %>%
+  arrange(-desc(yob))
 ```
 
 ## 2. Teil des Aufgabensets
 ### 6. Schritt - Import der Textdatei 
 Ladet den (reduzierten) Korpus der britischen Parlamentsreden von meiner Website herunter, speichert ihn korrekt ab und importiert ihn in die R-Umgebung. 
-
 ```{r}
-
+df <- readRDS("parlamint_gb_sub.RDS")
 ```
 
-
-### 7. Schritt - Dateineinblick
+### 7. Schritt - Dateneinblick
 Wie oft hat welche Partei in den letzten Jahren im britischen Unterhaus gesprochen? Lasst euch die Anzahl der Redebeiträge tabullarisch anzeigen. 
-
 ```{r}
-
+table(df$org_name)
 ```
 
 ...und gibt es einen Gender Gap?
-
 ```{r}
-
+table(df$sex)
 ```
 
 
@@ -134,27 +128,36 @@ Wie oft hat welche Partei in den letzten Jahren im britischen Unterhaus gesproch
 Nun sucht nach dem Wort "Brexit" und lasst Euch anzeigen, wie häufig es in den letzten Jahren in Reden um den Brexit ging.
 
 ```{r}
+df <- df %>%
+  mutate(brexit = str_detect(speeches, "brexit|Brexit"))
 
+table(df$brexit)
 ```
 
 !!! CHALLENGE
 Gibt es einen zeitlichen Trend? Lasst euch die Entwicklung in der Häufigkeit von Reden über den Brexit grafisch visualisieren.  
-
 ```{r}
-
+df %>% 
+  mutate(year = str_extract(date, "\\d{4}")) %>%
+  filter(brexit == T) %>%
+  group_by(year) %>%
+  summarise(brexit_n = n()) %>%
+  ggplot(aes(year, brexit_n)) + 
+  geom_col() + xlab("Number of Brexit being mentioned") + ylab("Count") + theme_light()
 ```
 
 
 Worum geht es in den Reden, die sich um den Brexit kreisen? 
-
 ```{r}
+# entweder: 
+df %>% 
+  filter(brexit == T) %>% 
+  select(speeches)
 
+# oder: (mehr dazu in den kommenden Wochen)
+library(quanteda)
+kwic(df$speeches, "brexit")
 ```
-
-
-
-
-
 
 
 # Tutorial - 3. Aufgabenset
@@ -164,29 +167,40 @@ Besucht die Website der German Longitudinal Election Study und ladet euch die Pr
 
 ## 2. Schritt
 Ladet den Datensatz in die R-Umgebung. Importiert im Zweifel des notwendige Paket. 
-
 ```{r}
-
+library(readstata13)
+df <- read.dta13("./gles21.dta")
 ```
 
 ## 3. Schritt
 Lasst Euch den Datensatz zusammenfassen. Wie viele Variablen, wie viele Befragte hat er? 
-
 ```{r}
-
+nrow(df)
+ncol(df)
 ```
 
 ## 4. Schritt
 Lasst euch tabellarisch anzeigen, was Leute von der AfD halten.
-
 ```{r}
-
+summary(df$q17h)
 ```
 
 Lasst euch auch den Mittelwert dieser Variablen anzeigen. Achtung: eventuell müsst ihr die Variable in ein numerisches Format umwandeln und einige Werte davor umwandeln, sodass diese einer Zahl entsprechen. 
-
 ```{r}
+df <- df %>%
+  mutate(afd_symp = as.numeric(case_when(q17h == "-5 halte nichts von dieser Partei" ~ -5, 
+                          q17h == "-4" ~ -4, 
+                          q17h == "-3" ~ -3, 
+                          q17h == "-2" ~ -2, 
+                          q17h == "-1" ~ -1, 
+                          q17h == "0" ~ 0, 
+                          q17h == "+1" ~ 1, 
+                          q17h == "+2" ~ 2,
+                          q17h == "+3" ~ 3,
+                          q17h == "+4" ~ 4,
+                          q17h == "+5 halte sehr viel von dieser Partei" ~ 5)))
 
+mean(df$afd_symp, na.rm=T)
 ```
 
 Personen haben eher eine negative Einstellung über die AfD. Im nächsten Schritt schauen wir mal, wer eher der AfD etwas abgewinnen kann und wer nicht. 
@@ -194,7 +208,19 @@ Personen haben eher eine negative Einstellung über die AfD. Im nächsten Schrit
 Sucht euch eine mögliche Variable und zeigt euch den Zusammenhang mit der Zustimmung zur AfD an. 
 
 ```{r}
+table(df$q43)
+df <- df %>%
+  mutate(immig_pos = as.numeric(case_when(q43 =="1 Zuzug von Auslaendern erleichtern" ~ "1",
+                               q43 =="11 Zuzug von Auslaendern einschraenken" ~ "11",
+                               TRUE ~ q43)))
+table(df$immig_pos)
 
+cor(df$afd_symp[!is.na(df$afd_symp) & !is.na(df$immig_pos)], df$immig_pos[!is.na(df$afd_symp) & !is.na(df$immig_pos)])
+
+# oder
+df %>%
+  filter(!is.na(afd_symp) & !is.na(immig_pos)) %>%
+  summarise(cor(afd_symp, immig_pos))
 ```
 Wir sehen, dass es eine mittlere/hohe Korrelation zwischen Einstellungen zur Migration und AfD-Sympathie gibt. 
 Was bedeutet das substantiell?
@@ -202,23 +228,40 @@ Was bedeutet das substantiell?
 
 ## 5. Schritt: Visualisierung
 Nun zeigt die Korrelation zwischen den Variablen grafisch an. 
-
 ```{r}
-
+df %>%
+  ggplot(aes(afd_symp, immig_pos)) +
+  geom_point() + geom_jitter() + geom_smooth() + xlab("Sympathie zur AfD") + ylab("Zuwanderung begrenzen") + 
+  theme_light()
 ```
 
 
 ## 6. Schritt: Regressionsanalysen
 Überlegt euch weitere mögliche Variablen, welche die Sympathie zur AfD beeinflussen können. Bereitet diese auf, wenn nötig. Schätzt daraufhin ein multivariates Regressionsmodell. 
-
 ```{r}
+table(df$ostwest) # Wohnort Ost/West
+table(df$d1)      # Geschlecht
+table(df$d2a)     # Geburtsjahr
+table(df$q23)     # wirtschaftl. Lage
+table(df$d63)     # Haushaltsnettoeinkommen
+table(df$d7)      # Bildung
 
+df <- df %>%
+  mutate(alter = as.numeric(d2a)-as.numeric(intyear),
+         sex = ifelse(d1 == "keine Angabe", NA, d1),
+         econ_sit = case_when(q23 == "sehr gut" ~ 5,
+                              q23 == "gut" ~ 4,
+                              q23 == "teils/teils" ~ 3,
+                              q23 == "schlecht" ~ 2,
+                              q23 == "sehr schlecht" ~ 1),
+         hhinc = ifelse(d63 %in% c("keine Angabe", "weiss nicht", "Interview abgebrochen", "Mehrfachnennungen"), NA, d63),
+         educ = ifelse(d7 %in% c("keine Angabe", "Interview abgebrochen", "Mehrfachnennungen"), NA, d7))
 ```
 
 Und nun das Regressionsmodell: 
-
 ```{r}
-
+m1 <- lm(afd_symp ~ alter + sex + econ_sit + hhinc + educ, df)
+summary(m1)
 ```
 
 Was lässt sich eurer Meinung nach über die Wähler*innen der AfD sagen?
