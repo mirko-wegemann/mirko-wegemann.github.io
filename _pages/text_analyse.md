@@ -67,10 +67,10 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a><<br>
+            <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a><br>
 			<a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung</a><br>
-			<td><a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
 			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
             <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
