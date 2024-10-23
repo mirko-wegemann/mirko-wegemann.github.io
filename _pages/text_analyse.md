@@ -70,12 +70,15 @@ nav: false
             <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a><<br>
 			<a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung</a><br>
+			<td><a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
 			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
             <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
                 <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
 				<a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
-				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 
+				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 				
+				<a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
+
 				</td>
         </tr>
     </table>
