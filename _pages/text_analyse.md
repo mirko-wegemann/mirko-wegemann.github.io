@@ -76,7 +76,7 @@ nav: false
             <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
                 <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
 				<a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
-				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 				
+				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 	<br>			
 				<a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
 
 				</td>
