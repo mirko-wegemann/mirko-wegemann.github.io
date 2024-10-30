@@ -94,3 +94,135 @@ Hält Trump, als populistischer Präsident, also einfachere Ansprachen?
 ```{r}
 textstat_readability(corp)
 ```
+
+
+Und addressieren Präsidenten bestimmte soziale Gruppen besonders oft?
+```{r}
+soc_groups <- list(
+  public_service = c("public servic*"),
+  officers = c("officer*"),
+  homeowner = c("homeown*"),
+  owner = c("owner"),
+  self_employed = c("self-employ*"),
+  rich = c("rich"),
+  high_earner = c("high earner"),
+  caregiver = c("caregiv*"),
+  kindergarten_teacher = c("kindergarten teacher"),
+  business = c("busi*"),
+  companies = c("compani"),
+  enterpreneurs = c("enterpreneur"),
+  unemployed = c("unemploy*"),
+  wage_earner = c("wage earner*"),
+  worker = c("worker*"),
+  low_earner = c("low earner*"),
+  pensioner = c("pension*"),
+  farmer = c("farmer*"),
+  student = c("student*"),
+  unionist = c("unionist*"),
+  renter = c("renter"),
+  teacher = c("teacher"),
+  workforce = c("workforc*"),
+  low_wage_workers = c("low-wage workers"),
+  tenant = c("tenant"),
+  urban = c("urban"),
+  suburbs = c("suburbs"),
+  poor = c("poor"),
+  policeman = c("policeman"),
+  soldier = c("soldier"),
+  middle_class = c("middle class"),
+  medical_staff = c("medical staff"),
+  doctors = c("doctors"),
+  banks = c("banks"),
+  SMEs = c("SMEs"),
+  wealthy = c("wealthy"),
+  low_income = c("low income"),
+  low_income_hyphen = c("low-income"),
+  welfare_recipients = c("welfare recipients"),
+  needy = c("needy"),
+  employed = c("employed"),
+  foreigner = c("foreigner"),
+  asylum_seekers = c("asylum seekers"),
+  single_mother = c("single mother"),
+  single_parent = c("single parent"),
+  single_father = c("single father"),
+  girl = c("girl"),
+  boy = c("boy"),
+  man = c("man"),
+  woman = c("woman"),
+  transgender = c("transgender"),
+  gay = c("gay"),
+  lesbian = c("lesbian"),
+  queer = c("queer"),
+  homosexual = c("homosexual"),
+  same_sex = c("same sex"),
+  heterosexual = c("heterosexual"),
+  middle_age = c("middle age"),
+  old_people = c("old people"),
+  young_people = c("young people"),
+  LGBTQ = c("LGBTQ"),
+  jew = c("jew"),
+  muslim = c("muslim"),
+  christian = c("christian"),
+  patient = c("patient"),
+  british = c("british"),
+  migrant = c("migrant"),
+  immigrant = c("immigrant"),
+  married = c("married"),
+  single = c("single"),
+  parents = c("parents"),
+  people_in_need = c("people in need"),
+  sick = c("sick"),
+  rural = c("rural"),
+  children = c("children"),
+  family = c("famil"),
+  displaced = c("displaced"),
+  skilled_worker = c("skilled worker"),
+  business = c("business"),
+  company = c("company"),
+  caregiver = c("caregiver"),
+  high_earner_repeat = c("high earner"),
+  rich_repeat = c("rich"),
+  self_employed = c("self-employed"),
+  owner_repeat = c("owner"),
+  homeowner = c("homeowner"),
+  civil_servant = c("civil servant"),
+  public_service = c("public service")
+)
+
+soc_group_dic <- dictionary(soc_groups)
+```
+
+Wie oben nutzen wir die Funktion dfm_lookup()
+```{r}
+res2 <- dfm_lookup(dfm_inaug, soc_group_dic)
+meta2 <- data.frame(docvars(res2))
+res_df2 <- data.frame(res2)
+
+df2 <- bind_cols(meta2, res_df2)
+df_long2 <- pivot_longer(df2, 6:88)
+
+df_long2 %>%
+  group_by(name) %>%
+  summarise(tot_usage = sum(value, na.rm=T),
+            avg_usage = mean(value, na.rm=T)) %>%
+  arrange(desc(tot_usage))
+
+
+# restrict to top 5 groups and plot over time
+top5 <- df_long2 %>%
+  group_by(name) %>%
+  summarise(tot_usage = sum(value, na.rm=T),
+            avg_usage = mean(value, na.rm=T)) %>%
+  arrange(desc(tot_usage)) %>%
+  slice(1:5) %>%
+  select(name) %>%
+  unlist()
+  
+
+df_long2 %>%
+  filter(name %in% c(top5)) %>%
+  group_by(Year, name) %>%
+  summarise(count = sum(value, na.rm=T)) %>%
+  ggplot(aes(Year, count, colour=name)) +
+  geom_line() + theme_light()
+```
