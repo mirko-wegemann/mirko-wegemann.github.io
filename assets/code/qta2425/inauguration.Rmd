@@ -1,0 +1,96 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(RCurl)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textplots)
+library(lingmatch)
+```
+
+# US Inauguration Speeches
+Im folgenden Anschauungsbeispiel nutzen wir einen Korpus, welcher die US Inauguration Speeches von 1789 bis heute enthält. Dieser Korpus kommt mit dem Paket quanteda, welches wir auch für andere Formen der Textanalyse verwenden werden. 
+
+## 1. Vorbereitung der Daten
+Zunächst einmal müssen wir die Daten noch in das richtige Format für verschiedene Analysen bringen. Wir werden in Zukunft noch ausführlich über Transformationsschritte sprechen und diese teils auch noch etwas verfeinern. Für jetzt reicht es aber aus, zu wissen, dass es grundsätzlich drei Formate gibt: 
+
+1. Korpus (in diesem Fall sind die Daten bereits in dem Korpus-Format)
+2. Tokens 
+3. Document-Frequency-Matrix (kurz dfm)
+
+```{r}
+corp <- data_corpus_inaugural
+toks <- tokens(corp, "word")
+dfm_inaug <- dfm(toks, tolower=T)
+```
+
+## 2. Definition eines Dictionary
+
+Wir können Wörterbücher entweder selbst definieren oder existierende nutzen. Im Folgenden nutzen wir erst einmal das existierende "Moral Foundations Dictionary" (hier von GitHub heruntergeladen). 
+
+```{r}
+file_git <- getURL("https://raw.githubusercontent.com/medianeuroscience/emfd/refs/heads/master/dictionaries/mfd2.0.dic")
+mf <- read.dic(file_git, raw=T)
+mf_dic <- dictionary(mf)
+```
+
+## 3. Matchen des Dictionaries
+
+Im Folgenden suchen wir nach Schlüsselbegriffen, welche bestimmte Tugenden (und Makel) ausmachen. Hierfür können wir die Funktion dfm_lookup des quanteda-Packages nutzen. 
+
+```{r}
+res <- dfm_lookup(dfm_inaug, mf_dic)
+```
+
+
+## 4. Visualisierung 
+
+Wir können uns u.a. anschauen, wie sich die Reden im Zeitverlauf entwickelt haben. In diesem Beispiel fokussieren wir uns darauf, wie wichtig "Fairness" als Tugend ist. 
+
+```{r}
+meta <- data.frame(docvars(res))
+res_df <- data.frame(res)
+
+df <- bind_cols(meta, res_df)
+df %>%
+  ggplot(aes(Year, fairness.virtue)) + 
+  geom_line() + theme_light()
+```
+
+
+## 5. Vergleich zwischen zwei Präsidenten
+
+Während wir in der vorigen Analyse uns vor allem einen globalen Überblick über die Tugenden verschafft haben, können wir natürlich auch bestimmte Präsidenten miteinander vergleichen, in diesem Fall Trump und Obama. 
+
+```{r}
+df_long <- pivot_longer(df, 6:15)
+df_long %>%
+  filter(name %in% c("authority.virtue", "care.virtue", "fairness.virtue", "loyalty.virtue", "sanctity.virtue") & President %in% c("Obama", "Trump")) %>%
+  group_by(President, name) %>%
+  summarise(mean_val = mean(value, na.rm=T)) %>%
+  ggplot(aes(name, mean_val, fill=President)) + 
+  geom_col(position = "dodge")
+```
+
+quanteda.textplots und quanteda.textstats kommen mit einigen anderen nützlichen Funktionen. Beispielsweise können wir uns die sogenannte Keyness-Statistik zwischen zwei Texten ausgeben lassen. Keyness zeigt anhang eines Chi-Quadrat-Tests an, wie eigen gewisse Tokens einem Dokument im Vergleich zum anderen Dokument sind.
+
+```{r}
+dfm_obama_trump <- dfm(tokens(corpus_subset(corp, President %in% c("Obama", "Trump")))) 
+
+keyness_obama_trump <- textstat_keyness(dfm_obama_trump, target = "2017-Trump")
+textplot_keyness(keyness_obama_trump)
+
+
+dfm_obama_trump <- dfm(tokens(corpus_subset(corp, President %in% c("Obama", "Trump")))) %>% dfm_remove(stopwords("en"))
+
+keyness_obama_trump2 <- textstat_keyness(dfm_obama_trump, target = "2017-Trump")
+textplot_keyness(keyness_obama_trump2)
+```
+
+Eine interessante (aber teils nicht allzu aussagekräftige) Methode ist es, sich die Einfachheit von Text anzuzeigen. Dafür gibt es verschiedene Indikatoren, wie den Flesch-Score, welche vor allem auf der Länge von Wörtern und Sätzen basieren. 
+Dieser lässt sich einfach über die Funktion textstat_readability auf dem Korpus anwenden. 
+
+Hält Trump, als populistischer Präsident, also einfachere Ansprachen?
+```{r}
+textstat_readability(corp)
+```

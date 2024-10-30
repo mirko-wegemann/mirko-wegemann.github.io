@@ -83,3 +83,16 @@ nav: false
 				</td>
         </tr>
     </table>
+	<h4>4. Woche: Was ist quantitative Textanalyse</h4>
+	In dieser Sitzung beschäftigen wir uns mit Konzepten aus der Inhaltsanalyse. Wir werden einen Text manuell analysieren, bevor wir verschiedene Methoden und Gütekriterien der quantitativen Textanalyse kennenlernen. 
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/qta.pdf">Einführung in die quantitative Textanalyse</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/inauguration.RMD">Code (US Inauguration Speeches)</a>
+            </td>
+        </tr>
+    </table>
