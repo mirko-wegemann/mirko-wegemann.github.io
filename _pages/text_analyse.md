@@ -92,7 +92,7 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/qta.pdf">Einführung in die quantitative Textanalyse</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/inauguration.RMD">Code (US Inauguration Speeches)</a>
+            <td><a href="{{ site.url }}assets/code/qta2425/inauguration.Rmd">Code (US Inauguration Speeches)</a>
             </td>
         </tr>
     </table>
