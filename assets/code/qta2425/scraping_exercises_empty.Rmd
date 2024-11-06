@@ -1,0 +1,66 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+## Übung
+Hier laden wir die Pressemitteilungen der Stadt Münster herunter (https://www.muenster.de/pressemeldungen/web/frontend/output/standard/design/standard/). 
+
+Besucht die Webseite und parsed das HTML, speichert es in einem Objekt namens "html".
+
+```{r}
+
+```
+
+Nutzt SelectorGadget oder wählt manuell den CSS-Selektor aus, um den Link aller Pressemeldungen auf der ersten Seite abzurufen.
+```{r}
+
+```
+
+Fällt euch was bei den Links auf? 
+
+Wir haben nun die ersten zwanzig Links. Lasst uns nun die ersten 100 Pressemeldungen ausgeben.
+
+Könnt ihr eine Struktur in der Paginierung erkennen?
+
+
+Erstellt eine Schleife, um die Links zu den ersten 100 Pressemeldung zu scrapen.
+```{r}
+
+```
+
+
+*Herausforderung*
+
+Schafft ihr dasselbe in einer Funktion?
+```{r}
+
+```
+
+Navigiere nun auf jede Seite, scraped den Titel, den Text sowie das Datum. Speichert all diese Informationen mitsamt dem Link zur Pressemeldung in einer geeigneten Struktur ab.
+
+```{r}
+
+```
+
+Großartig, ihr habt es geschafft!
+
+*Bonus 1*
+Am Anfang jeder Pressemitteilung steht "Münster (SMS)". Versucht die Mitteilungen davon zu bereinigen.
+
+```{r}
+
+```
+
+*Bonus 2* 
+Schaut euch an, welches die 100 häufigsten Wörter in den Pressemeldungen sind. quanteda hat einen Befehl hierfür, findet ihr ihn heraus?
+
+```{r}
+
+```
