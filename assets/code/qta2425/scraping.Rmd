@@ -1,0 +1,417 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+
+
+
+# Browsing the web
+
+Lass uns mit etwas beginnen, das wir alle tun - nur auf einfachere Weise. Lasst uns das robots.txt der Website, die wir später scrapen wollen, öffnen, um zu schauen, ob Scrapen grundsätzlich erlaubt oder verboten ist.
+
+```{r,eval=F}
+browseURL("https://press.un.org/robots.txt")
+```
+
+Ok, das hat ja schon einaml gut funktioniert. Nun wollen wir mehr über die Arbeit der UN wissen. Aber alle Links einzeln dafür anklicken? Nein, das ist zu viel Arbeit. Also versuchen wir, diesen Vorgang zu automatisieren.
+
+Es gibt einige nützliche Tools für *statische* Webseiten wie die der UN. Was "statisch" bedeutet? Das finden wir vor allem in der nächsten Woche heraus, wenn es um dynamische Webseiten geht. 
+
+Für unser Vorhaben können wir einfach das sehr potente Paket *rvest* nutzen, das wir bereits installiert und in unsere Umgebung geladen haben.
+
+Alle Informationen, auf die wir im Web zugreifen, sind in einem Format namens *H*yper*T*ext *M*arkup *L*anguage (HTML) gespeichert. Im Frontend sieht es aus wie eine schöne Webseite. Aber im Backend ist es einfach eine Datenstruktur. Versuchen wir auf diesen Quellcode zuzugreifen.
+
+```{r}
+url <- "https://press.un.org/en/content/press-release"
+html <- read_html(url)
+html
+```
+
+HTML besteht normalerweise aus verschiedenen Teilen, hier einem "Header" und einem "Body". Normalerweise interessieren wir uns für den "Body", da dort die meisten Informationen gespeichert sind. Der "header" speichert nur Metadaten - die uns nur manchmal interessieren.
+
+# Elemente aus HTML extrahieren
+
+Gut, wir wissen, wie HTML aussieht, wir haben das HTML unserer Zielwebsite heruntergeladen. Aber das ist nur der erste Schritt. Wir möchten eigentlich nur bestimmte Elemente des HTML ansteuern.
+
+## Text extrahieren
+Angenommen, wir möchten in diesem Beispiel die Überschriften der Pressemitteilungen der UN abrufen. Das würde uns ja schon eine Vorstellung davon geben, was die UN macht. Wie wir bereits gelernt haben, sind Überschriften in der Regel unter <h1>, <h2>, <h3> usw. gespeichert. Let's try!
+
+1. HTML herunterladen (read_html, wie wir es zuvor gemacht haben)
+2. Zugriff auf das Element, an dem wir interessiert sind, mit html_elements("h1")
+3. Nur den Text abrufen, nicht die umgebenden Tags, mit html_text()
+
+```{r}
+(top_level_headline <- html %>% html_elements("h1") %>% html_text())
+```
+
+Nun, die Hauptüberschrift ist nicht so aussagekräfig. Ladet euch die Überschriften der Pressemitteilungen mit dem richtigen Tag herunter. 
+
+```{r}
+
+```
+
+Nice, das hat gut funktioniert!
+
+
+### Extrahieren der Paragraphen
+Habt ihr auch eine Idee, wie wir alle Paragraphen auf der Website herunterladen können?
+```{r}
+
+```
+
+
+
+Auf der Hauptseite haben wir jetzt schon einiges abgegrast. Beim Scraping sind wir aber häufig auch an den Unterseiten, in diesem Fall den spezifischen Pressemeldungen interessiert. Wie stellen wir das an? 
+
+
+## Links herunterladen
+Tatsächlich ist der Zugriff auf Links nicht viel anders als der auf Text. Die Pipeline ist sehr ähnlich. 
+Es gibt allerdings einen entscheidenen Unterschied, der sich im folgenden Beispiel zeigen lässt. 
+```{r}
+(pr_headlines <- read_html(url) %>% html_elements(".field__item a") %>% html_text())
+```
+
+Nun haben wir wieder die Titel der Pressemeldungen heruntergeladen., 
+
+Um das zu ändern, müssen wir einfach den letzten Teil unserer Pipeline ändern. 
+Wie wir eben schon kurz besprochen haben, gibt es in der HTML-Architektur nicht nur Elemente, sondern auch Attribute. Das Attribut, auf das wir zugreifen müssen, um andere URLs zu erreichen, ist normalerweise href (Hyperlink). 
+
+Natürlich hat rvest die entsprechende vordefinierte Funktion parat.
+
+```{r}
+(pr_urls <- read_html(url) %>% html_elements(".field__item a") %>% html_attr("href"))
+```
+
+Das sieht einem Link ja schon einmal ähnlich. Manchmal sind URLs als komplette Links abgespeichert, manchmal (in diesem Fall) bestehen sie aber nur aus der Verästelung. Wir müssen sie mit der "root"-URL verbinden. Hierfür können wir auf die uns bekannte paste0()-Funktion von baseR zurückgreifen.
+
+```{r}
+root_url <- "https://press.un.org/"
+(pr_urls2 <- paste0(root_url, pr_urls))
+```
+
+Superb!
+
+Eine kleine Ergänzung: 
+
+Vielleicht ist euch schon aufgefallen, dass wir manchmal html_element*s* und manchmal einfach das Singular html_attr verwenden. Der Grund dafür ist einfach. Auf unserer Hauptseite suchen wir nach mehreren Elementen, die unseren Link enthalten. Diese Elemente haben jedoch nur ein einziges Attribut "href".
+
+***Your Turn***
+
+Versucht auf einer der Unterseiten das Datum der Pressemeldung zu identifizieren.
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+# Translate to German
+Lass uns den Text der Veröffentlichung zusammen scrapen. Das sollte für uns kein Problem sein, wir haben alles, was wir brauchen.
+
+```{r}
+(text_pr1 <- read_html(pr_urls2[1]) %>% html_elements(".field--type-text-with-summary .field__item") %>% html_text())
+```
+
+**Tune Deinen Code.**
+
+Wie ihr sehen könnt, gibt es viele Informationen auf den Unterseiten. Nehmen wir mal an, ihr möchtet die Überschrift, das Datum, den Text und die ID-Nummer eines Textes sammeln. Ihr könnt die Abfrage beschleunigen und die UN-Server entlasten, wenn ihr das HTML nur einmal abruft und seine Komponenten auf deiner lokalen Festplatte auseinandernimmst. Lasst uns das machen und einen Datensatz mit den gesammelten Informationen erstellen.
+
+```{r}
+# retrieve source code
+html <- read_html(pr_urls2[1])
+
+# access information in html object
+(id_pr1 <- html %>% html_elements(".field--name-field-symbol .field__item") %>% html_text())
+(date_pr1 <- html %>% html_elements("#block-un3-press-content .datetime") %>% html_text())
+(headline_pr1 <- html %>% html_elements(".page-header") %>% html_text())
+(text_pr1 <- html %>% html_elements(".field--type-text-with-summary .field__item") %>% html_text())
+
+
+# combine into one data frame
+df <- data.frame(id=id_pr1, date=date_pr1, headline=headline_pr1, text=text_pr1)
+df
+```
+
+
+# Automatisierung 
+Wir haben alle Informationen für unsere späteren Textanalysen heruntergeladen, allerdings nur für eine einzige Seite! 
+In der Praxis möchten wir diese Aufgabe automatisieren, wir wollen schließlich alle Pressemeldungen, nicht nur eine. 
+
+Ein erster Schritt ist es, alle für uns interessanten Daten für die URLs herunterzuladen, auf die wir auf der ersten Seite der Pressemitteilungen zugegriffen haben.
+Das können wir auf verschiedene Arten tun:
+
+  - Ihr könnt eine `for()`-Schleife verwenden, die über einen definierten Vektor an Links iteriert und jeden davon abruft.
+  - Ihr könnt eine Funktion schreiben, die den Inhalt aller Links abruft. Die Funktion kann daraufhin mit `apply()` auf einen Vektor anwenden - das ist die schnellste Variante, erfordert jedoch etwas Übung.
+
+Lasst uns mit der for-Schleife beginnen, diese ist normalerweise einfacher nachzuvollziehen.
+In einer for-Schleife durchlauft ihr alle Elemente (k) eines Vektors x. In unserem Fall gehen wir unsere Liste von URLs durch und laden die benötigten Informationen herunter.
+
+# Beispiel für die Automatisierung einer for-Schleife:
+```{r}
+urls <- c("https://www.uni-muenster.de/de/", "https://www.uni-osnabrueck.de/startseite/")
+links <- c()
+for(i in 1:length(urls)){
+    html <- read_html(urls[[i]])
+    links[i] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+links
+```
+
+Bevor wir etwas automatisieren, sollten wir sicherstellen, dass die einzelnen Bestandteile unseres Loops funktionieren. Also: erst die Einzelteile aufschreiben, dann in einen for-loop packen. 
+
+```{r}
+# let's use the code from above
+# first HTML
+html <- read_html(pr_urls2[1])
+
+# then elements
+(id_pr1 <- html %>% html_elements(".field--name-field-symbol .field__item") %>% html_text())
+(date_pr1 <- html %>% html_elements("#block-un3-press-content .datetime") %>% html_text())
+(headline_pr1 <- html %>% html_elements(".page-header") %>% html_text())
+(text_pr1 <- html %>% html_elements(".field--type-text-with-summary .field__item") %>% html_text())
+```
+
+
+## Automatisierung durch einen for-loop
+
+Die einzige Änderung besteht darin, dass wir einen Platzhalter für die URL, die wir in read_html einfügen, verwenden. Früher haben wir immer die erste verwendet. 
+Jetzt schreiben wir eine Schleife, um alle Links durchzugehen und die Informationen in leere Vektoren zu speichern, die vor der Schleife definiert wurden.
+
+```{r}
+id <- date <- headline <- text <- c()
+
+start <- Sys.time()
+# loop through all the links we have collected, this may take some time
+for(link in 1:length(pr_urls2)){        # define the index (here, we've got ten links, so we will go through link 1 to 10).
+  html <- read_html(pr_urls2[link])     # instead of the number, we put the variable defined in the line above (here <url>)
+
+  id[link] <- html %>% html_elements(".field--name-field-symbol .field__item") %>% html_text()
+  date[link] <- html %>% html_elements("#block-un3-press-content .datetime") %>% html_text()
+  headline[link] <- html %>% html_elements(".page-header") %>% html_text()
+  text[link] <- html %>% html_elements(".field--type-text-with-summary .field__item") %>% html_text()
+}
+
+end <- Sys.time()
+end-start
+
+
+df2 <- data.frame(id, date, headline, text)
+```
+
+Fantastisch!
+
+## Automatisierung durch eine Funktion
+
+Wie gesagt, eine Funktion mag ein wenig komplexer aussehen. 
+
+```{r}
+urls <- c("https://www.uni-muenster.de/de/", "https://www.uni-osnabrueck.de/startseite/")
+
+h1_scrape <- function(url){
+  html <- read_html(urls[[url]])
+    links[url] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+
+links <- sapply(1:length(urls), h1_scrape)
+```
+
+Nun, der for-Loop von oben als Funktion: 
+
+```{r}
+start <- Sys.time()
+scrape_un <- function(urls){
+  results <- c()
+  html <- read_html(urls)     # instead of the number, we put the variable defined in the line above (here <url>)
+
+  id <- html %>% html_elements(".field--name-field-symbol .field__item") %>% html_text()
+  date <- html %>% html_elements("#block-un3-press-content .datetime") %>% html_text()
+  headline <- html %>% html_elements(".page-header") %>% html_text()
+  text <- html %>% html_elements(".field--type-text-with-summary .field__item") %>% html_text()
+  
+  contents <- cbind(id, date, headline, text)
+  results <- append(results, contents)
+}
+
+results2 <- sapply(pr_urls2, scrape_un)
+end <- Sys.time()
+end-start
+
+# transpose matrix and store as data frame
+results3 <- data.frame(t(results2))
+```
+
+Hier gibt es eigentlich keinen Unterschied. Aber bei sehr großen Aufgaben sind Funktionen normalerweise schneller. Außerdem können Funktionen einfacher parallelisiert werden. Parallelisierung bedeutet, dass man die URLs aufteilt und gleichzeitig mehrere Prozesse startet, um Daten abzurufen. Das geht super schnell und kann mit *furrr* und future_map() anstelle von sapply() verwendet werden. Passt aber auf: Je schneller ihr Daten herunterlädt, desto größer ist das Risiko, dass ihr vom Webadministrator erkannt und blockiert werdet!
+
+# Automatisierung: Gimme more!
+
+
+Bisher haben wir nur die Links der ersten 10 Pressemitteilungen gesammelt. Aber die UN hat ja noch viele weitere Pressemeldungen! Wenn wir die Webseite erneut aufrufen, können wir sehen, wie wir an die anderen Links gelangen könnten.
+
+```{r}
+browseURL(url)
+```
+
+
+Im Falle der UN folgen alle Seiten, auf denen die Pressemeldungen gespeichert sind einem ähnlichen "Root-Path" ("https://press.un.org/en/content/press-release?page="). Wenn wir die ersten fünfzig Pressemeldungen ansteuern wollen, müssen wir also die ersten fünf Seiten scrapen (Hinweise: die erste Seite ist auch page=0).
+```{r}
+urls_un <- paste0("https://press.un.org/en/content/press-release?page=", 0:4)
+```
+
+
+
+***Your Turn***
+
+Versucht, auf alle Links zu den Pressemitteilungen auf den ersten fünf Seiten der UN-Webseite zuzugreifen.
+Nicht schummeln! Wir werden den Code gleich gemeinsam durchgehen.
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***Lösung***
+
+Wir werden sehr ähnlich wie zuvor vorgehen und eine Funktion erstellen, in der wir automatisch die fünf URL-Seiten durchgehen und dann die Links zu den einzelnen Pressemitteilungen sammeln.
+
+```{r}
+# define function
+press_url <- function(n){
+  url_list <- c()     
+  url <- read_html(urls_un[n]) %>% html_nodes(".field__item a") %>% html_attr("href")     # refer to each of the five links with index n
+  url_list <- append(url_list, url)                                                       # append links to url list
+        
+}
+press_urls <- sapply(1:length(urls_un), press_url)                                        # execute function
+
+press_urls2 <- unlist(as.list(press_urls))                                                # the output format is not really helpful for us, we need to first transform to a list before we unlist again to get a character vector
+
+press_urls3 <- paste0(root_url, press_urls2)                                              # adding the root url and we're ready to go
+``` 
+
+Nun versuchen wir, alle Informationen für jede unserer 50 Webseiten abzurufen. Wir können die oben definierte Funktion verwenden und einfach das Objekt in der apply-Funktion ändern.
+
+# Dies kann einige Zeit in Anspruch nehmen.
+```{r}
+start <- Sys.time()
+results_comp <- sapply(press_urls3, scrape_un)
+end <- Sys.time()
+end-start
+
+# Matrix transponieren und als Datenrahmen speichern
+results_comp2 <- data.frame(t(results_comp))
+```
+
+Herzlichen Glückwunsch, ihr könnt jetzt statische Webseiten herunterladen!
+
+
+
+# Ein paar Zusatzinfos
+
+Wir haben bereits viel geschafft, aber es gibt einige weitere Funktionen, die für euch je nach Anwendungsbereich hilfreich sein können. Eventuell wollt ihr ja Tabellen oder Bilder herunterladen?
+
+## Tabellen
+Starten wir mit dem Einfachen: Tabellen.
+
+Als Anwendungsbeispiel greifen wir auf Wikipedia zurück. 
+```{r}
+url2 <- "https://de.wikipedia.org/wiki/Mitglieder_des_Deutschen_Bundestages_(20._Wahlperiode)"
+html <- read_html(url2)
+table <- html %>% html_element(".wikitable:nth-child(4)") %>% html_table()
+table
+
+# Wenn ihr wollt, könnt ihr die Tabelle noch etwas aufbereiten
+table2 <- table[-1,]
+table2
+``` 
+
+Ein Disclaimer: Tabellen werden manchmal etwas lausig programmiert. Je schlechter sie im HTML-Code niedergeschrieben sind, desto schlechter ist natürlich auch das Ergebnis. 
+
+## Bilder
+
+Wir beschäftigen uns in unserem Seminar mit Textanalysen. Aber vielleicht wollt ihr in Zukunft auch mit Bildanalysen beschäftigen? 
+
+Auch hier startet ihr oftmals, indem ihr Bilder herunterlädt. 
+
+Wir können im Ursprungsbeispiel (UN-Pressemeldungen bleiben), auf deren Seite gibt es ja Grafiken. 
+
+Zuerst überprüfen wir, ob es auf der Hauptseite Bilder gibt
+```{r}
+images <- read_html(url) %>% html_nodes("img")
+```
+
+
+Ja, die gibt es. Aber wie können wir sie herunterladen?
+Scheinbar ähnlich wie bei Links.
+
+Zuerst steuern wir die Quelle eines Bildes (source attribute) an.
+```{r}
+(images_src <- read_html(url) %>% html_nodes("img") %>% html_attr("src"))
+```
+
+...bevor wir sie mit der Stamm-URL verbinden.
+```{r}
+images_src2 <- paste0(root_url, images_src)
+```
+
+Versuchen wir einmal, auf den ersten Link dieser Bildquellendateien zuzugreifen
+```{r}
+browseURL(images_src2[[1]])
+```
+...und schließlich laden wir sie in unser Projektverzeichnis herunter.
+```{r}
+download.file(images_src2[[1]], destfile = getwd())
+```
+
+
+Oops, Zugriff verweigert! Das funktioniert so nicht.
+
+Stattdessen wird's hier etwas komplizierter (in der nächsten Woche lernen wir mehr dazu). Wir müssen nämlich eine reale Browsersitzung starten, bevor wir mit dem Herunterladen von Bildern beginnen. Für dies ist das R-Paket *httr2* (hitter) nützlich. Das Paket wird häufig verwendet, um auf eine API zuzugreifen.
+
+```{r}
+session <- session(url)
+```
+
+```{r}
+#Zugriff auf Links für Bildquellen
+imgsrc <- session %>% read_html() %>% html_nodes("img") %>% html_attr("src")
+
+# Zugriff auf die Seite der Bildquelle (hier nur das erste Bild abrufen)
+img <- session_jump_to(session, paste0(root_url, imgsrc[[1]]))
+
+# Abspeichern in unser Verzeichnis
+writeBin(img$response$content, basename(imgsrc[1]))
+```
