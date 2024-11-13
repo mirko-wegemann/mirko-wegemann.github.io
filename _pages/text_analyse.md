@@ -58,7 +58,7 @@ nav: false
 	<br>
 	<h4>1. Woche: Einführung</h4>
 	<a href="{{ site.url }}assets/pdf/qta/introduction.pdf">Slides</a>
-	<br>
+	<br><br>
 	<h4>2. und 3. Woche: Crashkurs in R</h4>
 	<table class="fancy-table">
         <tr>
@@ -82,7 +82,7 @@ nav: false
 
 				</td>
         </tr>
-    </table>
+    </table><br><br>
 	<h4>4. Woche: Was ist quantitative Textanalyse</h4>
 	In dieser Sitzung beschäftigen wir uns mit Konzepten aus der Inhaltsanalyse. Wir werden einen Text manuell analysieren, bevor wir verschiedene Methoden und Gütekriterien der quantitativen Textanalyse kennenlernen. 
 	<table class="fancy-table">
@@ -95,7 +95,7 @@ nav: false
             <td><a href="{{ site.url }}assets/code/qta2425/inauguration.Rmd">Code (US Inauguration Speeches)</a>
             </td>
         </tr>
-    </table><br>
+    </table><br><br>
 	<h4>5. Woche: Web-Scraping statischer Webseiten</h4>
 	In dieser Woche versuchen wir, Daten von einfachen Webseiten herunterzuladen und in ein für uns nutzbares Dateiformat zu überführen. Bitte installiert im Vorfeld das <a href="https://selectorgadget.com/">SelectorGadget</a> für den Browser, welchen ihr normalerweise nutzt. Überlegt euch, welche Website für euch von Interesse sein könnte.  <br>
 	<table class="fancy-table">
@@ -111,9 +111,9 @@ nav: false
 
             </td>
         </tr>
-    </table><br>
+    </table><br><br>
 	<h4>6. Woche: Web-Scraping dynamischer Webseiten</h4>
-	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>.  <br>
+	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>).  <br>
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
@@ -125,4 +125,6 @@ nav: false
 			<a href="{{ site.url }}assets/code/qta2425/apis.Rmd">Code (APIs)</a>
             </td>
         </tr>
-    </table><br>
+    </table><br><br>
+	<h4>7. Woche: Datenaufbereitung und Vorbereitung für Analysen </h4>
+	Diese Woche widmet sich der Vorbereitung von einem Datensatz für die Textanalyse. Wir wandeln den Datensatz über verschiedene Schritte in eine Document-Frequency-Matrix um, mithilfe derer wir viele 'bags-of-words'-Analysen in R umsetzen können. Wir lernen dabei auch, welche Tokens wir entfernen können und wie wir wichtige Meta-Informationen zu den Daten in die neuen Datenformate konvertieren können. 
