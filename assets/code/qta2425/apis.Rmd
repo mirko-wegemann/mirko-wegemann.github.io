@@ -1,0 +1,215 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")    # wrangling
+if (!require("jsonlite")) install.packages("jsonlite")      # manual handling of APIs
+if (!require("manifestoR")) install.packages("manifestoR")  # Manifesto Project API wrapper
+remotes::install_github("news-r/nytimes")                   # NYT-API wrapper
+library(nytimes)
+if (!require('usethis')) install.packages("usethis")        # open environment files (for secret API keys)
+#edit_r_environ()
+```
+
+# APIs
+APIs sind Schnittstellen, mithilfe derer wir auf Inhalte von Webseiten zugreifen können. Der Vorteil: die Webseiten-Betreiber*innen erlauben uns den Zugriff. Legale Bedenken sind dementsprechend etwas weniger relevant. 
+
+Der Nachteil: wir müssen den Zugriff meist erst beantragen und benötigen für die Nutzung der API einen sogenannten API-Key. 
+
+## New York Times API
+
+### 1. Manueller Zugang über jsonlite
+Zunächst versuchen wir unseren eigenen Wrapper für die NYT-API zu bauen. Das ist eventuell aufwendiger und auch nicht immer notwendig. Dafür sind wir flexibler, insbesondere in den Fällen, in denen es keine bereits geschriebenen Pakete für R gibt. 
+
+Wir können hier recht eng mit der API-Dokumentation arbeiten. Die Daten laden wir über einen JSON-Parser herunter. JSON ist ein oftgenutztes Dateiformat, welches für Webinhalte genutzt wird. 
+
+
+#### 1.1. Search-Query
+Um eine Anfrage zu senden, müssen wir meist einen gewissen "Search"-String mit unserer API (d.h., unserer Zugangsberechtigung) verbinden. 
+
+Lasst uns nach Artikeln über Donald Trump suchen. 
+
+```{r}
+url_query <- paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json?q=trump&api-key=", Sys.getenv("NYTIMES_API_KEY"))
+query <- fromJSON(url_query)
+```
+
+Wenn wir uns den Inhalt des neuen Objekts "query" anzeigen lassen, sehen wir bereits einen Datensatz, der für uns interessant sein kann. 
+```{r}
+query
+```
+Das gesamte Objekt "query" ist allerdings eine Liste, welche u.a. den Datensatz erhält. Um nur den Datensatz herunterzuladen, müssen wir ihn aus der Liste extrahieren. 
+
+#### 1.2 Daten aus JSON-Objekt extrahieren
+
+Um die Daten zu extrahieren, können wir entweder einfach den gesamten Datensatz ansteuern.
+
+```{r}
+df <- data.frame(query$response$docs)
+```
+
+
+oder einzelne Variablen extrahieren
+```{r}
+df <- data.frame(date = query$response$docs$pub_date, url = query$response$docs$web_url, summary = query$response$docs$abstract, lead_paragraph = query$response$docs$lead_paragraph)
+```
+
+
+
+#### 1.3 Automatisierung des Prozesses
+Wir können diesen Prozess natürlich automatisieren. Standardmäßig kriegen wir nur die ersten zehn Ergebnisse angezeigt.
+Wir können hier ähnlich wie bei statischen Webseiten vorgehen und einfach, die ersten Seiten der Suche durchgehen. 
+Es gibt ein Limit an Anfragen, die wir pro Minute stellen dürfen (5 pro Minute, 500 pro Tag); dies berücksichtigen wir mithilfe der Sleep-Funktion. Zu den Limits (https://developer.nytimes.com/faq).
+```{r}
+n_pages <- 0:5
+df <- c()
+for(i in n_pages){
+  url_query <- paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json?q=trump&api-key=", Sys.getenv("NYTIMES_API_KEY"), "&page=", i)
+  query
+  df_temp <- data.frame(date = query$response$docs$pub_date, url = query$response$docs$web_url, summary = query$response$docs$abstract, lead_paragraph = query$response$docs$lead_paragraph)
+  df <- rbind(df, df_temp)
+  Sys.sleep(12)  # dieser "Sleeper" macht eine Pause zwischen jedem Loop, damit nicht zu viele Anfragen gesendet werden
+}
+
+df
+
+saveRDS(df, "nyt_data.RDS")
+```
+
+
+#### 1.4 Fine-Tuning
+Wir können die Suche natürlich durch weitere Parameter spezifizieren. Hierzu werft ihr am besten einen erneuten Blick in die Dokumentation. 
+Beispielsweise können wir uns die Suchergebnisse nach Datum oder Section in der NYT filtern lassen. Das ist natürlich hilfreich, wenn ihr eh spezifische Daten braucht, da ihr dadurch die Anzahl der Anfragen deutlich verringert. 
+
+```{r}
+search_string <- "trump"
+begin_date <- "&begin_date=20241104"
+end_date <- "&end_date=20241106"
+news_desk <- '&fq=section_name:%28%22Business%22%2C%20%22Opinion%22%29'
+url_query2 <- paste0('https://api.nytimes.com/svc/search/v2/articlesearch.json?q=', search_string, begin_date, end_date, news_desk, "&api-key=", Sys.getenv("NYTIMES_API_KEY"))
+query2 <- fromJSON(url_query2)
+
+df2 <- data.frame(query2$response$docs)
+
+```
+
+
+### 2. Automatisierter Zugang zur New York Times
+
+Anhand eines zweiten Beispiels möchte ich euch zeigen, wie ein bereits vorbereiteter Wrapper euer Leben erleichtern kann. In diesem Beispiel nutzen wir einfach das *nytimes*-Package, welches auf GitHub von Coene et al. zur Verfügung gestellt wird. 
+
+#### 2.1 Festlegen des API-Keys
+
+Analog zum manuellen Herunterladen der Daten über jsonlite, legen wir erst einmal den API-Key aus der R-Umgebung fest. 
+```{r}
+nytimes_key(Sys.getenv("NYTIMES_API_KEY"))
+```
+
+
+#### 2.2. Search-Query
+
+Nun nutzen wir das NYT-Archiv, um einen historischen Überblick über Nachrichten zu erhalten.
+
+Wir können Daten ab 2023 nutzen. Lasst uns für Januar 2020, den Monat, in dem Trump-Supporter das Kapitol erstürmt haben, die NYT-Artikel herunterladen. Das geht einfach über den Wrapper.
+
+```{r}
+list_archive <- ny_archive(2020, 1)
+```
+
+#### 2.3. Transformation als Datensatz
+
+Potentiell haben wir die Daten schon in einer Liste. Die Liste besteht allerdings aus 4480 Listen, also eine Liste für jeden Artikel. Die Umwandlung in einen Datensatz kann wiederum über eine Schleife erzielt werden.
+
+```{r}
+df3 <- NA
+
+for(i in 1:length(list_archive)){
+  df_temp <- data.frame(date = list_archive[[i]]$pub_date, url = list_archive[[i]]$web_url, summary = list_archive[[i]]$abstract, lead_paragraph = list_archive[[i]]$lead_paragraph)
+  df3 <- rbind(df3, df_temp)
+}
+
+```
+
+
+## Manifesto Project
+
+Als zweites Anschauungsbeispiel gehen wir durch die API des Manifesto Projects (https://manifestoproject.wzb.eu/) durch. Das Manifesto Project sammelt alle Wahlprogramme von Parteien in 67 Demokratien, die mehr als einen Sitz im Parlament haben. In vielen Ländern gibt es die Daten seit 1945. 
+
+Was machen wir als erstes?
+API-Key festlegen. 
+
+### 1. API-Key festlegen
+```{r}
+mp_setapikey(key=Sys.getenv("MP_API_KEY"))
+```
+
+
+### 2. Zugang zu Daten
+Ein einfaches Beispiel zur Kommunikation mit der API. 
+Um einen Einblick in die Codes zu bekommen, können wir eine (vereinfachte) Version des Codebooks öffnen.
+```{r}
+mp_codebook()
+```
+
+Wir können auch ganz einfach, alle Parteien des Datensatzes inkl. ein paar Metainformationen herunterladen.
+```{r}
+parties <- mp_parties()
+```
+
+
+Wir sind auch hier primär an den Textdateien interessiert. Diese sind sehr groß und müssen schrittweise heruntergeladen werden. Wir können sie direkt als data.frame abspeichern. 
+
+Zum Beispiel können wir alle Daten für Deutschland herunterladen.
+```{r}
+german_mp <- mp_corpus_df(countryname=="Germany")
+```
+
+
+***YOUR TURN***
+Versucht, alle Textstellen für die Partei SPD herunterzuladen.
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+spd_mp <- mp_corpus_df(party==c(parties$party[parties$abbrev=="SPD" & parties$countryname=="Germany"]))
+```
+
+
+Ok, wir sind fast fertig. Oftmals wollen wir Daten von mehreren Ländern herunterladen. Zum Beispiel von Deutschland und Österreich.
+Findet ihr heraus wie? 
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+df_mp <- mp_corpus_df(countryname %in% c("Germany", "Austria"))
+```
+
+Lasst uns im letzten Schritt noch die Korpusdaten mit den Metadaten verknüpfen.
+
+```{r}
+df_mp_meta <- left_join(df_mp, parties, by=c("party"))
+```
