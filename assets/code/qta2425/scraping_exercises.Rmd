@@ -1,0 +1,105 @@
+---
+title: "Exercises - Scraping"
+author: "Mirko Wegemann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+## Übung
+Hier laden wir die Pressemitteilungen der Stadt Münster herunter (https://www.muenster.de/pressemeldungen/web/frontend/output/standard/design/standard/). 
+
+Besucht die Webseite und parsed das HTML, speichert es in einem Objekt namens "html"
+
+```{r}
+url <- "https://www.muenster.de/pressemeldungen/web/frontend/output/standard/design/standard/"
+html <- read_html(url)
+html
+```
+
+Nutzt SelectorGadget oder wählt manuell den CSS-Selektor aus, um den Link aller Pressemeldungen auf der ersten Seite abzurufen.
+```{r}
+urls <- html %>% html_elements("#presseApp .intern") %>% html_attr("href")
+```
+
+Fällt euch was bei den Links auf? 
+
+Wir haben nun die ersten zwanzig Links. Lasst uns nun die ersten 100 Pressemeldungen ausgeben.
+
+Könnt ihr eine Struktur in der Paginierung erkennen?
+
+
+Erstellt eine Schleife, um die Links zu den ersten 100 Pressemeldung zu scrapen.
+```{r}
+pages <- seq(0, 4, 1)
+links <- c()
+for (i in pages) {
+  url <- paste0("https://www.muenster.de/pressemeldungen/web/frontend/output/standard/design/standard/page/", pages[i])
+  html <- read_html(url)
+  urls <- html %>% html_elements("#presseApp .intern") %>% html_attr("href") 
+  links <- append(links, urls)
+}
+```
+
+
+*Herausforderung*
+
+Schafft ihr dasselbe in einer Funktion?
+```{r}
+url_scrape <- function(i) {
+  url <- paste0("https://www.muenster.de/pressemeldungen/web/frontend/output/standard/design/standard/page/", i)
+  html <- read_html(url)
+  urls <- html %>% html_elements("#presseApp .intern") %>% html_attr("href")
+  return(urls)
+}
+
+links <- sapply(pages, url_scrape)
+```
+
+Navigiere nun auf jede Seite, scraped den Titel, den Text sowie das Datum. Speichert all diese Informationen mitsamt dem Link zur Pressemeldung in einer geeigneten Struktur ab.
+
+```{r}
+content_scrape <- function(link) {
+  html <- read_html(link)
+  title <- html %>% html_element("#presseApp_artikel_subtitle , #presseApp_artikel_title") %>% html_text()
+  date <- html %>% html_element("#presseApp_artikel_date") %>% html_text() 
+  text <- html %>% html_element("#presseApp_artikel_text") %>% html_text()
+  res <- cbind(title, date, text, link)
+  return(res)
+}
+
+results <- sapply(links, content_scrape)
+df <- data.frame(t(results))
+colnames(df) <- c("title", "date", "text", "urls")
+
+
+saveRDS(df, "./press_muenster.RDS")
+```
+
+Großartig, ihr habt es geschafft!
+
+*Bonus 1*
+Am Anfang jeder Pressemitteilung steht "Münster (SMS)". Versucht die Mitteilungen davon zu bereinigen.
+
+```{r}
+df <- df %>%
+  mutate(text = str_remove(text, "\\n\\t\\t\\tMünster \\(SMS\\) "))
+```
+
+*Bonus 2* 
+Schaut euch an, welches die 100 häufigsten Wörter in den Pressemeldungen sind. quanteda hat einen Befehl hierfür, findet ihr ihn heraus?
+
+```{r}
+if (!require('quanteda')) install.packages("quanteda") 
+tokens(df$text) %>% dfm %>% topfeatures(n=100)
+```

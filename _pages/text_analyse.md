@@ -106,7 +106,9 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/scraping.pdf">Scraping statischer Webseiten</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/scraping.Rmd">Code (Scraping Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/scraping_exercises_empty.Rmd">Übungen (Scraping)</a>
+			<a href="{{ site.url }}assets/code/qta2425/scraping_exercises_empty.Rmd">Übungen (Scraping)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/scraping_exercises.Rmd">Übungen - Lösungen</a>
+
             </td>
         </tr>
     </table><br>
