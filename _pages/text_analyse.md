@@ -111,4 +111,16 @@ nav: false
         </tr>
     </table><br>
 	<h4>6. Woche: Web-Scraping dynamischer Webseiten</h4>
-	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>. 
+	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>.  <br>
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/dynamic_scraping.pdf">Scraping dynamischer Webseiten und APIs</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/dynamic_scraping.Rmd">Code (Scraping dynamischer Webseiten)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/apis.Rmd">Code (APIs)</a>
+            </td>
+        </tr>
+    </table><br>
