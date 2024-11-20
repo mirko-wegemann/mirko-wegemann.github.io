@@ -136,8 +136,8 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/preparation.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/data_preparation.Rmd">Code</a></td>
+            <td><a href="{{ site.url }}assets/pdf/qta/pdf/preparation.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/code/data_preparation.Rmd">Code</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Manifesto Data</a>
 				</td>
         </tr>
