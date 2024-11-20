@@ -1,0 +1,465 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('lexicon')) install.packages("lexicon")                          # lemmatization lexicon
+install.packages("devtools")
+devtools::install_github("matthewjdenny/preText")
+library(preText)
+```
+
+# Vorbereitung für bags-of-words Analysen
+
+In dem folgenden Script wandeln wir einen Datensatz in ein für Textanalysen nutzbares Format um. Dafür nutzen wir an dieser Stelle Daten aus dem Manifesto Project, welches Quasi-Sätze von Parteiprogrammen in verschiedene Kategorien codiert. Die Daten habe ich mithilfe der API, welche wir in der letzten Woche kennengelernt haben, heruntergeladen.  
+
+
+## 1. Import des Datensatzes
+
+Lasst uns den Datensatz, welchen ich heruntergeladen habe (bestehend aus allen englischsprachigen Demokratien) in unsere Umgebung laden.
+
+```{r}
+df <- readRDS("./data_prep.RDS")
+
+# Lasst uns alle Sätze ohne ein Thema entfernen. Hier geht es oft um Präambeln, welche uns u.U. wenig über den Inhalt sagen
+df <- subset(df, issue!="NA")
+
+# Erstellen einer eindeutigen ID-Variable für jeden Satz des Datensatzes
+df$id <- 1:nrow(df)
+```
+
+
+## 2. Einblick in den Datensatz
+
+Bevor wir mit der Umwandlung des Datensatzes anfangen, lasst uns einen kurzen Blick in die Daten erhaschen. 
+
+```{r}
+summary(df)
+table(df$country)
+table(df$parfam_n)
+```
+
+Der Datensatz besteht aus parteipolitischen Statements und hat darüber hinaus einige nützliche Metainformationen (Ländernamen, Parteinamen, Parteifamilie, Thema, Jahr).
+
+Lasst uns die ersten fünf Sätze anschauen.
+```{r}
+df$sentence[1:5]
+```
+
+
+## 3. Umwandlung des Datensatzes
+
+Im folgenden wandeln wir den Datensatz schrittweise in eine Document-Feature-Matrix um.
+
+1. data.frame zu corpus
+2. corpus zu tokens
+3. tokens zu dfm
+
+Die Strukturen bauen teils aufeinander auf. Ob wir eine Struktur für spätere Analysen benötigen, hängt von der Methode ab wie wir später sehen werden. 
+
+### 3.1. data.frame zu corpus
+
+Die Umwandlung in ein Korpusobjekt ist relativ einfach. Wir müssen lediglich die Textzeile des Datensatzes identifizieren und können sie über die Funktion *corpus()* umwandeln. 
+
+```{r}
+corp <- corpus(df$sentence)
+head(corp)
+summary(head(corp))
+```
+
+In diesem Beispiel stellt jedes Element einen Text dar.
+
+### 3.2. Vom corpus zum tokens-Objekt
+
+Korpusobjekte bestehen immer noch aus vollständigen Sätzen. Mit denen können wir in bags-of-words Ansätzen recht wenig anfangen. Daher brauchen wir im Weiteren einen Tokenizer, der alle Tokens eines Texts quasi in einen Beutel wirft. Der Tokenizer, den wir hier verwenden, trennt jedes Wort; für andere Anwendungen benötigen wir möglicherweise einen **sentence-tokenizer**, der Texte in Sätze aufteilt. 
+
+```{r}
+toks <- tokens(corp, what="word")
+
+# schauen wir uns die ersten 20 Tokens unseres ersten Dokuments an
+head(toks[[1]], 20)
+```
+
+Diese Struktur ist schon gut, jedoch enthält sie immer noch ein wenig **noise**, Features, welche uns u.U. nicht weiterhelfen. 
+
+### 3.2.1. Pre-Processing 
+
+Generell wollen wir bei allen Text-as-Data-Aufgaben sicherstellen, dass wir mit dem kleinstmöglichen Objekt für unseren Zweck arbeiten (, wobei wir gleichzeitig möglich wenig Informationen verlieren wollen). Für Transformator-Modelle funktioniert das nicht wirklich, da wir den gesamten Kontext benötigen. Aber für Bags-of-Words wollen wir alle unnötigen Tokens loswerden (wie Leerzeichen, Satzzeichen, Links). Wir können dies auf zwei Arten tun: entweder durch die Verwendung von Regular Expressions (https://cran.r-project.org/web/packages/stringr/vignettes/regular-expressions.html) oder durch die Verwendung von Funktionen des quanteda-Pakets.
+
+Zur Vereinfachung verlassen wir uns zunächst auf die Funktionen von quanteda, aber generell ist ein tiefes Verständnis von Regular Expressions natürlich sehr hilfreich!
+
+**Achtung:** 
+Wie wir weiter unten sehen werden, beeinflussen Pre-Processing Schritte Zusammenhänge in unserem Text recht stark. 
+An dieser Stelle werden wir sie machen, im Verlaufe des Seminars aber noch auf potentielle Probleme eingehen.  
+
+
+Versucht es erst einmal selbst. Schaut euch im Hilfsfile von der tokens()-Funktion an, wie ihr Satzzeichen, Zahlen, Symbole und URLs entfernen könnt. 
+```{r}
+
+
+```
+
+
+
+
+
+
+
+Lösung: 
+
+```{r}
+toks <- tokens(corp, what="word",
+               remove_punct = T,
+               remove_numbers = T,
+               remove_symbols = T,
+               remove_url = T)
+ 
+# wieder, 20 Tokens im ersten Dokument
+head(toks[[1]], 20)
+```
+
+
+### 3.2.2 Entfernen von Stopwords
+
+Das sieht schon besser aus. Aber es gibt immer noch einige Begriffe, die inhaltlich sehr wenig Bedeutung haben. Wir nennen diese Begriffe Stopwörter (wie "the", "and", "in" usw.). Glücklicherweise hat quanteda auch dafür eine integrierte Funktion, um diese zu entfernen!
+
+*Aber vorsichtig! Manchmal möchten wir stop words behalten. Da diese quanteda-Funktion auf einer Liste von Wörtern basiert, könnten einige wichtige Wörter fehlen oder fälschlicherweise ausgeschlossen werden*
+
+```{r}
+# verwenden wir die quanteda-Liste der stopwords
+head(quanteda::stopwords(language="en"))
+
+# falls wir stop words behalten wollen
+stopwords2 <- c(quanteda::stopwords(language="en"), "can")
+
+# entfernen der stop words
+toks <- toks %>% tokens_remove(stopwords2)
+ 
+# wie schauen die ersten 20 Tokens im ersten Dokument nun aus?
+head(toks[[1]], 20)
+```
+
+
+### 3.2.3. Hinzufügen von n-grams
+
+Versucht herauszufinden, wie ihr mithilfe von quanteda n-grams hinzufügt. 
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+Wir können n-grams über die Funktion *tokens_ngrams()* hinzufügen. 
+
+```{r}
+# hier erstellen wir bigrams (n-grams der Länge 2)
+toks_ngram <- tokens_ngrams(toks, n = 2)
+head(toks_ngram, 30)
+```
+
+Oftmals benötigen wir nicht für jedes Wort n-grams. Es ist sinnvoller, einige Entitäten oder Begriffe zu n-grams zusammenzufassen.
+
+```{r}
+toks_ngram2 <- tokens_compound(toks, pattern=phrase(c("United Kingdom", "European Union", "of course", "House of Commons")))
+toks_ngram2_select <- tokens_select(toks_ngram2, pattern = phrase(c("United_Kingdom", "European_Union", "of_course", "House_of_Commons")))
+
+for(i in 1:5000){
+  if(length(toks_ngram2_select[[i]])>0){
+    print(toks_ngram2_select[[i]])
+  } else{
+    
+  }
+}
+```
+
+
+### 3.2.4 Stemming
+
+Viele Wörter enthalten denselben Wortstamm. Wir können die Struktur unseres Datensatzes vereinfachen, indem wir ähnliche Wörter mit demselben Wortstamm als ein Token definieren. Auch diese geht mithilfe von quanteda. 
+
+```{r}
+toks_stem <- tokens_wordstem(toks, language="en")
+
+toks_stem[1:20]
+```
+
+Stemming vereinfacht die Struktur, kann aber Wörter mit unterschiedlichem grammatikalischen Wortstamm vermischen. Lemmatisierung kann hier Abhilfe schaffen, ist allerdings nicht integriert in quanteda. Wir müssen das lexicon-Package nutzen, um ein Lemmatisierungs-Wörterbuch abzurufen und wenden es dann über tokens_replace() an.
+
+```{r}
+toks_lemma <- tokens_replace(toks, pattern = hash_lemmas$token, replacement = hash_lemmas$lemma)
+
+toks[1:20]
+toks_lemma[1:20]
+```
+
+## 3.3 Vom tokens-Objekt zum dfm
+
+Nun können wir unsere character Vektoren in numerische Vektoren zu verwandeln. Für die meisten Bags-of-Words-Modelle möchten wir dies in eine *D*ocument-*F*eature-*M*atrix (*dfm*) umwandeln. Eine dfm ist eine Matrix, in der Zeilen dem Dokument und Spalten den Tokens entsprechen. Die Zellen geben an, wie oft ein Token in einem Text vorkommt.
+
+Auf geht's. (gleichzeitig wandeln wir die Tokens in Kleinschreibung um)
+```{r}
+m_dfm <- dfm(toks, tolower = T)
+
+m_dfm
+```
+
+### 3.3.1 Pre-Processing mit dem dfm-Objekt
+
+So sieht eine *dfm* aus. Die Metainformationen sind hier hilfreich: Eine dfm ist immer ziemlich "sparse", das bedeutet, dass die meisten Zellen leer sind (weil viele Texte das Feature/Token nicht enthalten). Je mehr wir die sparsity reduzieren können, desto effizienter wird die Schätzung. Ein übliches Vorverarbeitungsverfahren besteht daher darin, Tokens zu entfernen, die extrem selten sind. Gleichzeitig sind jene Tokens, die extrem häufig vorkommen, möglicherweise auch nicht so informativ (Teil von vielen Dokumenten). Lassen uns also diese ebenfalls entfernen.
+
+An dieser Stelle noch einmal der Hinweis: diese Schritte können unsere Ergebnisse stark verändern. 
+
+```{r}
+m_dfm <- dfm(toks, tolower = T) %>% dfm_trim(min_termfreq = 5,
+                                             termfreq_type = "count",
+                                             max_docfreq = 0.5,
+                                             docfreq_type = "prop")
+m_dfm
+```
+
+Die dfm ist immer noch sehr sparse, aber wir haben die Anzahl der Merkmale von 78k auf 15k reduziert, das ist eine enorme Reduzierung der Größe.
+
+### 3.3.2 Hinzufügen von Meta-Informationen zum dfm
+
+Was uns jetzt noch fehlt, sind Meta-Informationen. Wir haben keine Docvars (wie Thema, Partei usw.) definiert. Lasst uns das jetzt tun.
+
+```{r}
+docvars(m_dfm, "text_id") <- df$id
+docvars(m_dfm, "country") <- df$country
+docvars(m_dfm, "issue") <- df$issue
+docvars(m_dfm, "parfam") <- df$parfam_n
+docvars(m_dfm, "year") <- df$year
+
+m_dfm
+
+
+# das Gleiche für den Korpus machen
+docvars(corp, "text_id") <- df$id
+docvars(corp, "country") <- df$country
+docvars(corp, "issue") <- df$issue
+docvars(corp, "parfam") <- df$parfam_n
+docvars(corp, "year") <- df$year
+```
+
+### 3.3 Löschen von Objekten
+
+Da wir so viele Merkmale entfernt haben, ist es möglich, dass einige Dokumente jetzt leer sind. Das ist kein Problem, aber bei der Analyse später könnte dies unsere Interpretation beeinflussen. Lasst uns daher nur jene Dokumente behalten, die mehr als 0 Tokens enthalten. Leere Texte löschen wir ebenfalls aus dem data.frame. Dies erleichtert das spätere Zusammenführen der Daten mit unserem data.frame.
+
+```{r}
+# Vektor erstellen, der die IDs von Texten enthält, die nicht leer sind
+drop_ids <- m_dfm@docvars$docname_[ntoken(m_dfm)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# aus dem data.frame löschen
+df <- df[!row.names(df) %in% drop_ids, ]
+
+# aus dfm löschen
+m_dfm <- dfm_subset(m_dfm, ntoken(m_dfm)>0)
+m_dfm
+
+# aus corp löschen
+corp <- corpus_subset(corp, !text_id %in% drop_ids)
+```
+
+Wir sehen, dass tatsächlich fast 1.000 Dokumente aufgrund unserer Pre-Processing Schritte leer sind und  entfernt wurden.
+
+### 3.4 Kurzer Einblick in den dfm
+
+Nun, da unsere dfm vorbereitet ist, lasst uns die dfm inspizieren.
+Welche sind die häufigsten Begriffe?
+
+```{r}
+topfeatures(m_dfm)
+```
+
+...und welche Begriffe werden in den meisten Dokumenten verwendet?
+
+```{r}
+topfeatures(m_dfm, scheme="docfreq")
+```
+
+
+
+## Validierung über preText
+
+Wie Denny und Spirling (2017) bemerken, hat Data Preprocessing einen großen Effekt auf die Ergebnisse unserer Analysen. Daher haben sie in Paket entwickelt, mithilfe dessen wir sehen, wie stark einzelne Schritte unsere Ergebnissen beeinflussen würden. 
+
+
+Der Nachteil der Methode: wir schätzen 128 verschiedene Preprocessing-Steps. Das kann sehr lange dauern. Lasst uns der Einfachheit halber nur die ersten 10 Dokumente des Korpus nehmen. 
+
+Wie geht das?
+```{r}
+
+```
+
+
+
+
+
+
+
+Ich baue noch einen Zufallsgenerator ein, damit die Sätze nicht zu ähnlich sind. 
+```{r}
+set.seed(413)
+random_number <- sample(1:nrow(df), 10)
+
+docs <- corp[random_number,]
+```
+
+Nun können wir die Funktion factorial_preprocessing anwenden, die alle möglichen Kombinationen von Pre-Processing ausprobiert. (Achtung: nur binäre Entscheidung, keine weiteren Parameter werden gesetzt).
+
+```{r}
+docs_preprocessed <- factorial_preprocessing(
+    docs,
+    use_ngrams = TRUE,
+    infrequent_term_threshold = 0.2)
+```
+
+Im nächsten Schritt müssen wir die Ähnlichkeit der übrig gebliebenen Texte vergleichen. 
+Dazu rechnen wir ein Regressionsmodell, indem wir die beta-Koeffizienten die Distanz zwischen den Texten anzeigt.
+
+```{r}
+preText_results <- preText(
+    docs_preprocessed,
+    dataset_name = "Manifesto Sentences",
+    distance_method = "cosine",
+    num_comparisons = 20,
+    verbose = FALSE)
+
+```
+
+
+Am besten visualisieren wir die Ergebnisse. Wir können entweder die Unterschiede aller 128 Kombinationen anzeigen lassen. 
+
+```{r}
+preText_score_plot(preText_results)
+```
+
+oder uns in aggregierter Form die Unterschiede zwischen einzelnen Pre-Processing-Strategien plotten.
+
+```{r}
+regression_coefficient_plot(preText_results,
+                            remove_intercept = TRUE)
+```
+
+Wir sehen in diesem Fall: der größte Koeffizient ergibt sich beim beim Hinzufügen von n-grams. Allerdings ist dieser negativ, d.h. die Distanzen zwischen den Texten wird geringer - was gut ist. Am problematischsten ist dementsprechend der positive Koeffizient beim Entfernen seltener Tokens. 
+
+
+Wir prüfen das ganze noch einmal mit einer etwas größeren Anzahl an Dokumenten. Denny and Spirling (2017) raten stark davon ab, zu viele Dokumente (über 1000) zu verwenden, aber eventuell werden die Ergebnisse mit ein wenig mehr Dokumenten robuster (sie empfehlen eine Zahl von 500-100).
+Hier nehmen wir aus Zeitgründen erst einmal 50 Dokumente (500 benötigen ca. 10 Minuten).
+
+```{r}
+start <- Sys.time()
+set.seed(413)
+random_number2 <- sample(1:nrow(df), 50)
+
+docs2 <- corp[random_number2,]
+
+docs_preprocessed2 <- factorial_preprocessing(
+    docs2,
+    use_ngrams = TRUE,
+    infrequent_term_threshold = 0.2)
+
+preText_results2 <- preText(
+    docs_preprocessed2,
+    dataset_name = "Manifesto Sentences",
+    distance_method = "cosine",
+    num_comparisons = 50,
+    verbose = FALSE)
+
+regression_coefficient_plot(preText_results2,
+                            remove_intercept = TRUE)
+ggsave("valid_preprocessing.png", device="png", units="in", width=6, height=4, dpi=600)
+```
+
+Die Ergebnisse sind sehr ähnlich. Es zeigt sich, dass das Entfernen der Satzzeichen und das Nutzen von n-grams eher unproblematisch ist. Beim Entfernen seltener Wörter sollten wir aufpassen bzw. eine gute Begründung haben. 
+
+
+## Deskriptive Analysen
+
+Es ist oft recht hilfreich, einige der Beziehungen zwischen Wörtern zu visualisieren, ohne irgendeine komplexe Analyse durchzuführen.
+
+### Visualisierungen
+
+In der Vergangenheit haben viele Leute word clouds erstellt. Obwohl diese nicht so informativ sind, können sie auf einem Titelblatt oder in einem Bericht ganz gut aussehen.
+
+```{r}
+textplot_wordcloud(m_dfm, max_words = 300, color="firebrick")
+```
+
+
+## Readability
+
+Wir können auch die Komplexität der Texte visualisieren, die oft durch den "Flesch"-Wert angegeben wird. Je höher der 
+Wert, desto einfacher ist ein Text zu lesen. 
+
+```{r}
+complexity <- textstat_readability(corp)
+
+# einige Metainformationen hinzufügen
+complexity <- cbind(complexity, df$partyname, df$year)
+
+head(complexity, 20)
+```
+
+Generell gibt es eine ziemliche Variation in der Lesbarkeit der Sätze (ein Wert zwischen 30-50 wird normalerweise als Schwierigkeitsgrad auf College-Niveau angesehen).
+
+## Keywords-in-context
+
+Nun werfen wir einen Blick auf die Daten, indem wir anschauen, wie verschiedene Wörter im Kontext verwendet werden (etwas, worauf wir zurückkommen werden, wenn wir über Word-Embeddings sprechen).
+
+Die kwic-Methode ist leider nur für Tokens-Objekte verfügbar, daher müssen wir das Tokens-Objekt verwenden, das noch etwas mehr noise enthält.
+
+```{r}
+kwic(toks, "country",window=4)
+```
+
+Das gibt uns eine Vorstellung davon, wie verschiedene Akteure über ihr Land sprechen.
+
+
+## Wörterbücher
+
+Wir können ein Wörterbuch mit dictionary() vordefinieren. Jedes Listenobjekt bezeichnet eine Kategorie, die aus einem Zeichenvektor von Wörtern besteht. Wir können Platzhalter für Wortstämme verwenden (refugee* schließt unter anderem "refuge", "refugee", "refugees" ein).
+
+Nach der Verwendung von dfm_lookup können wir das dfm nach einem Docvar gruppieren (hier der Parteifamilie), um herauszufinden, wer wie oft über eine bestimmte Kategorie spricht.
+
+```{r}
+# Wörterbuch definieren
+dict <- dictionary(list(economy = c("deficit", "budget", "growth", "employment"),
+                        migration = c("immigrants", "refuge*", "asylum")))
+
+# Wörterbuch auf dfm anwenden
+(dict_results <- dfm_lookup(m_dfm, dict))
+
+# Häufigkeit der Kategorie nach Gruppe
+dfmat_parfam_dict <- dfm(dict_results) %>% 
+  dfm_group(groups = parfam)
+dfmat_parfam_dict
+```
+
+
+## Keyness-Statistics
+
+Keyness-Statistiken helfen uns, mehr darüber zu erfahren, wie verschiedene Begriffe unterschiedlich in Gruppen verwendet werden.
+Hierfür sind die Meta-Informationen, die wir als Docvars gespeichert haben, nützlich.
+In diesem Beispiel wollen wir wissen, was Mainstream-Links-Parteien von allen anderen Parteien unterscheidet.
+
+```{r}
+keyness <- dfm_group(m_dfm, parfam) %>%
+ textstat_keyness("Mainstream Left")
+
+head(keyness)
+
+keyness %>%
+ textplot_keyness()
+```
+
+Wir sehen einige der typischen Begriffe, die mit Mitte-Links-Parteien verbunden sind, wie Arbeiter und Multinationale. Aber es gibt immer noch viele Begriffe, die nur Selbstreferenzen (Arbeit) oder andere Parteireferenzen (Tories) sind.
