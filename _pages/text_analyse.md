@@ -52,7 +52,7 @@ nav: false
     <br>
 
 	Das Seminar findet wöchentlich am Mittwoch zwischen 16-18 Uhr im Seminarraum SCH 100.107 statt. Student*innen werden gebeten, ihre Laptops mitzubringen. 
-    <br>
+    <br><br>
     <h3>Materialien</h3>
     Um den Beispielcode durchlaufen lassen zu können, sollten zuerst die Dateien lokal gespeichert werden und in derselben Dateistruktur ein .Rproj-Datei erstellt werden. Über einen Doppelklick auf das .Rproj-File öffnet sich RStudio, über das das .RMD-File geöffnet werden kann. Eine Kurzanleitung lässt sich bspw. <a href="https://intro2r.com/rsprojs.html">hier</a> finden. <br>
 	<br>
@@ -128,3 +128,17 @@ nav: false
     </table><br><br>
 	<h4>7. Woche: Datenaufbereitung und Vorbereitung für Analysen </h4>
 	Diese Woche widmet sich der Vorbereitung von einem Datensatz für die Textanalyse. Wir wandeln den Datensatz über verschiedene Schritte in eine Document-Frequency-Matrix um, mithilfe derer wir viele 'bags-of-words'-Analysen in R umsetzen können. Wir lernen dabei auch, welche Tokens wir entfernen können und wie wir wichtige Meta-Informationen zu den Daten in die neuen Datenformate konvertieren können. 
+	
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/preparation.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/data_preparation.Rmd">Code</a></td>
+            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Manifesto Data</a>
+				</td>
+        </tr>
+    </table><br><br>
