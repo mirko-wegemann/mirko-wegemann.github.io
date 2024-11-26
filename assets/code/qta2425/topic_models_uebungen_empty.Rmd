@@ -1,0 +1,99 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # quanteda basic functions
+if (!require('stm')) install.packages("stm")                                  # structural topic models
+
+#install.packages("devtools")
+#devtools::install_github("matthewjdenny/preText")
+library(preText)
+```
+
+Nun habt ihr selbst mithilfe eines "The Guardian"-Datensatzes die Möglichkeit ein Topic Model durchzuführen. 
+```{r}
+df <- readRDS("guardian_corp.RDS")
+df$id <- 1:nrow(df)
+```
+
+
+## 1. Schritt: Vorbereitung
+
+Schaut euch den Datensatz genauer an. Welche Spalte ist für euch interessant? 
+Lasst Euch ein paar Texte anzeigen, um ein Gefühl für den Datensatz zu erhalten.
+
+```{r}
+
+```
+
+
+Wandelt die Textspalte nun schrittweise in ein dfm-Objekt um. Nimmt dabei eurer Meinung nach nötige Vorbereitungsschritte vor.
+
+```{r}
+
+```
+
+
+Definiert im nächsten Schritt Meta-Variablen als docvars, die für euch interessant sein könnten.
+
+```{r}
+
+```
+
+
+Löscht Dokumente, welche nun leer sind aus dem Datensatz sowie aus dem dfm.
+
+```{r}
+
+```
+
+Dieser Datensatz ist schon recht groß. Für Lehrzwecke können wir zufällig 15% der Dokumente auswählen, um die Bearbeitungszeit etwas zu verkürzen. 
+
+```{r}
+set.seed(3145)
+dfm_guardian_sub <- dfm_sample(dfm_guardian, size=0.15*ndoc(corp))
+```
+
+
+## 2. Analyse
+
+Wie viele Topics sind statistisch gesehen ideal?
+
+```{r}
+
+```
+
+
+Schätzt ein Topic Model mit der statistisch idealen Anzahl an Topics *oder* der Anzahl, welche ihr für am besten haltet. 
+
+```{r}
+
+```
+
+
+## 3. Interpretation
+
+Lasst euch wichtige Keywords zu den jeweiligen Themen ausgeben.
+
+```{r}
+
+```
+
+Lassen sich die Themen gut interpretieren? Schaut euch dazugehörige Texte an, wenn ihr euch unsicher seid. 
+
+```{r}
+
+```
+
+## 4. Rückkopplung mit Datensatz
+
+Fügt die Themen zum bestehenden Datensatz hinzu.
+
+```{r}
+
+```
+
+
+Plottet ein Thema eurer Wahl im Zeitverlauf.
+```{r}
+
+``` 
