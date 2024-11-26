@@ -142,3 +142,24 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
+	<h4>8. Woche: Unsupervised Topic Models </h4>
+	In dieser Sitzung schauen wir uns an, wie wir ohne Input von Forscher*innen Dokumente in verschiedene Themen clustern können. Dabei greifen wir auf das stm-Package von Roberts et al. (2019) zurück.
+	
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/topic_models.Rmd">Code (Einführung)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen_empty.Rmd">Code (Übungen)</a></td>
+            <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Hauptdatensatz)</a><br>
+			<a href="{{ site.url }}assets/data/allb08_cb.pdf">Allbus 2008 (Codebook)</a><br>
+			<a href="{{ site.url }}assets/data/allb08_offen.dta">Allbus 2008 (Offene Angaben)</a><br>
+			<a href="{{ site.url }}assets/data/allb08_offen_cb.pdf">Allbus 2008 (Codebook Offene Angaben)</a><br>
+			<a href="{{ site.url }}assets/data/guardian_corp.RDS">Guardian (Media-Corpus)</a>			
+				</td>
+        </tr>
+    </table><br><br>
