@@ -152,7 +152,7 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td></td>
+            <td><a href="{{ site.url }}assets/pdf/qta/topic_models.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/topic_models.Rmd">Code (Einführung)</a><br>
 			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen_empty.Rmd">Code (Übungen)</a></td>
             <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Hauptdatensatz)</a><br>
