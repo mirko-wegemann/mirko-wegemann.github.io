@@ -1,0 +1,331 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # quanteda basic functions
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # textstats
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # textplots
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # textmodels
+if (!require('spacyr')) install.packages("spacyr")                    # an alternative tokenizer that can effectively split into sentences
+#spacy_initialize(model="de_core_news_sm")
+if (!require('LSX')) install.packages("LSX")                                  # Latent Semantic Scaling
+if (!require("manifestoR")) install.packages("manifestoR")                    # Manifesto Project API wrapper (here for validation)
+
+```
+
+# Latent Semantic Scaling
+
+Im folgenden werden wir versuchen parteipolitische Statements mithilfe von Latent Semantic Scaling auf einer wirtschaftspolitischen Dimension zu ranken. 
+
+## 1. Importieren des Datensatzes
+
+Für diese Anwendung greifen wir das erste Mal auf einen Parlamentskorpus zurück. In diesem Fall handelt es sich um Reden im Schweizer Nationalrat. Im Vorfeld habe ich die Reden in Bezug auf deutsche Sprache gefiltert. 
+
+```{r}
+df <- readRDS("corp_switzerland_de.RDS")
+
+df <- df %>%
+  mutate(party_n = case_when(party=="V" ~ "Swiss People’s Party", 
+                             party=="S" ~ "Social Democratic Party of Switzerland",
+                             party=="RL" ~ "Radical Democratic Party",
+                             party=="G" ~ "Green Party of Switzerland",
+                             party=="GL" ~ "Green Liberal Party",
+                             party=="CEg" ~ "Christian Democratic People’s Party of Switzerland",
+                             party=="BD" ~ "Conservative Democratic Party of Switzerland",
+                             party=="CE" ~ "Christian Democratic People’s Party of Switzerland",
+                             party=="C" ~ "Christian Democratic People’s Party of Switzerland",
+                             party=="E" ~ "Protestant People’s Party of Switzerland",
+                             party=="L" ~ "Liberal Party of Switzerland",
+                             party=="R" ~ "Radical Democratic Party"))
+summary(df)
+```
+
+## 2. Vorbereitung des Datensatzes 
+
+### 2.1 Umwandlung auf Satzstruktur
+
+
+#### 2.1.1 Variante 1 
+
+Wir müssen unsere Dokumente erst einmal in Sätze aufspalten. Hierfür gibt es u.a. die *tokenize_sentence()*-Funktion von quanteda. Diese funktioniert allerdings nicht so optimal.
+
+```{r}
+df_sent <- df_sub %>%
+  mutate(sentence = tokenize_sentence(df_sub$text)) %>%
+  unnest(sentence) %>%
+  mutate(id = 1:nrow(.))
+```
+
+#### 2.1.1 Variante 2
+
+Deutlich besser funktioniert hingegen der sentence-tokenizer von spacyr (ein Python-Modul, welches auch für R angeboten wird - dafür müsst ihr aber eine Python-Installation haben). 
+
+*Achtung*: Dieser Code dauert sehr lange. Wir werden ihn daher hier nicht live durchführen. Probiert es gerne zuhause aus!
+
+```{r}
+# alternativer tokenizer (besser, aber langsamer)
+sents <- spacy_tokenize(df$text, what="sentence")
+sents_char <- unlist(sents) # list to character
+
+df_sent2 <- df
+
+# hier fügen wir die Anzahl der Sätze, welches jedes Dokument beinhaltet, hinzu
+for(i in 1:length(sents)){
+    df_sent2$nsentences[i] <- length(sents[[i]]) 
+}
+
+# Wir nutzen die neue Variable nsentences und fügen so viele Zeilen, wie sie beinhalten zu unserem Datensatz hinzu (über die uncount-Funktion)
+df_sent2 <- df_sent2 %>% 
+  uncount(nsentences) %>% 
+  mutate(sentence = tolower(sents_char))
+
+
+df_sent2$id <- 1:nrow(df_sent2)
+
+saveRDS(df_sent2, "swiss_parl_sent.RDS")
+
+
+## create a small subset for in-course work
+set.seed(412)
+sample_id <- sample(df_sent2$id, 100000)
+df_sent_sample <- subset(df_sent2, id %in% sample_id)
+saveRDS(df_sent_sample, "swiss_parl_sent_sample.RDS")
+
+```
+
+### 2.2 Tokenization + Umwandlung in dfm-Struktur
+
+Von hier an können wir so vorgehen, wie sonst auch. 
+
+```{r}
+corpus_parl2 <- corpus(df_sent2$sentence, docnames = df_sent2$id)
+
+toks_parl2 <- tokens(corpus_parl2, what="word", 
+       remove_punct = T,
+       remove_symbols = T)
+
+toks_parl2 <- tokens_remove(toks_parl2, stopwords("de"))
+dfm_parl2 <- dfm(toks_parl2, tolower=T)
+
+docvars(dfm_parl2, "id") <- df_sent2$id 
+```
+
+
+## 3. Parameter finden und festlegen
+
+### 3.1 Polarity Words (Seed words)
+
+Nun können wir uns bereits um die eigene Analyse kümmern. Latent Semantic Scaling ist ein semi-supervised Approach, weil wir dem Algorithmus bestimmte Polarity-Words hinzufügen. In unserem Fall wären das Wörter, die auf der einen Seite einen eher linke und eine eher rechte Wirtschaftseinstellung symbolisieren. 
+
+Der Vorteil des semi-supervised Vorgehens? Wir müssen nicht alle Wörter angeben. Wörter, die unseren Wörtern ähneln und dementsprechend in der Nähe auftauchen, werden automatisch einbezogen.
+
+
+Wörterbuch für linke und rechte Begriffe zum Thema Wirtschaft festlegen.
+
+```{r}
+econ_left <- c("sozial", "gerechtigkeit", "armut", "proletariat", "ungleichheit", "solidarität")
+econ_right <- c("defizit", "haushalt", "stabilität", "unternehmer", "steuern") 
+
+econ_dict <- dictionary(list(left = econ_left,
+                             right = econ_right))
+seed <- as.seedwords(econ_dict)
+```
+
+### 3.2 Model Terms
+
+Unser Datensatz ist bisher nicht gefiltert. Das heißt, er beinhaltet viele Sätze, die nicht von der Wirtschaft handeln. Wenn dies der Fall ist, sollten wir "model terms" definieren, d.h. Wörter, welche mit unserer Zieldimension zusammenhängen. Am einfachsten machen wir das über eine sogenannte keywords-in-context-Methode.
+
+```{r}
+m_terms <- char_context(toks_parl2, "wirtschaft*")
+m_terms
+```
+
+
+## 4. Analyse
+Nun haben wir alle Zutaten zusammen und können die LSS-Methode anwenden. 
+
+```{r}
+lss_model <- textmodel_lss(dfm_parl2, seeds = seed, terms = m_terms, k = 300) 
+saveRDS(lss_model, "lss_model1.RDS")
+```
+
+Wir haben nun Schätzungen der Polarität jedes Begriffes in unserem lss_model-Vektor. Wir sind allerdings auf Polarity Scores auf Dokumentenebene interessiert. Jedem Satz soll ein Vektor zugeordnet werden. Hierfür müsste wir die predict()-Funktion nutzen.
+
+```{r}
+df_sent2$fit <- predict(lss_model, newdata = dfm_parl2)
+saveRDS(df_sent2, "df_lss1.RDS")
+```
+
+
+## 5. Visualisierungen
+
+Wie Watanabe (2021) können wir für eine Visualisierung der Polarity-Scores unserer Schlüsselbegriffe die Funktion textplot_terms() nutzen.
+
+```{r}
+textplot_terms(lss_model, econ_dict, max_highlighted=16)
+```
+Unsere Polarity Words sind größtenteils dort, wo wir sie vermuten. Lediglich "Stabilität" scheint deutlich zentristischer zu sein, als wir es erwartet haben. 
+
+
+Wie bereits beim Topic Model sind wir meistens in weitergehende Analysen mit Meta-Variablen interessiert. Wir können uns z.B. die Polarity-Scores der Schweizer Parteien im Mittel anzeigen lassen. 
+
+```{r}
+df_sent2 <- readRDS("df_lss1.RDS")
+
+df_sent2 %>%
+  group_by(party_n) %>%
+  summarise(pos = mean(fit, na.rm=T)) %>%
+  mutate(party_n = fct_reorder(party_n, pos)) %>%
+  ggplot(aes(party_n, pos)) + 
+  geom_col() + theme_light() + theme(axis.text.x = element_text(angle=30))
+```
+
+
+Das scheint ebenfalls plausibel. Die Grünen sind die wirtschaftlich linkeste Partei in der Schweiz, die rechtspopulistische Volkspartei am rechtesten. 
+
+## 6. Validierungen
+
+Wir können externe Messungen (wie vom Manifesto-Projekt) nutzen, um unsere Scores zu validieren. 
+
+```{r}
+mp_setapikey(key=Sys.getenv("MP_API_KEY"))
+mp_data <- mp_maindataset()
+mp_data_che <- mp_data %>%
+  filter(countryname=="Switzerland" & edate>"1999-12-05")
+```
+
+
+Nun müssen wir nur noch die Daten mit unseren Daten verbinden. 
+
+```{r}
+df_sent2 <- df_sent2 %>%
+  mutate(date_speech = as.Date(date),
+         edate = as.Date(case_when(date_speech>="1999-01-01" & date_speech<"2003-10-19" ~ "2003-10-19",
+                           date_speech>="2003-10-19" & date_speech<"2007-10-21" ~ "2007-10-21",
+                           date_speech>"2007-10-21" & date_speech<"2011-10-23" ~ "2011-10-23",
+                           date_speech>"2011-10-23" & date_speech<"2015-10-18" ~ "2015-10-18",
+                           date_speech>"2015-10-18" & date_speech<"2019-10-20" ~ "2019-10-20")))
+
+by <- join_by(partyname==party_n, edate)
+df_merged <- right_join(mp_data_che, df_sent2, by)
+```
+
+...und können uns die Korrelation der Links-Rechts-Skala mit unseren Werten, gruppiert nach Legislatur anzeigen lassen.
+
+```{r}
+df_merged %>%
+  group_by(edate) %>%
+  summarise(lr_scaled = mean(fit, na.rm=T),
+            rile = mean(rile, na.rm=T)*-1,
+            planeco = mean(planeco,na.rm=T)*-1) %>%
+  filter(!is.na(rile))  %>%
+  summarise(cor(lr_scaled, planeco))
+
+
+df_merged %>%
+  group_by(partyname, edate) %>%
+  summarise(lr_scaled = mean(fit, na.rm=T),
+            rile = mean(rile, na.rm=T)*-1,
+            planeco = mean(planeco,na.rm=T)*-1) %>%
+  filter(!is.na(rile))  %>%
+  summarise(cor(lr_scaled, planeco))
+``` 
+Im Aggregat ist die Performance ok, parteispezifisch gibt es aber Schwankungen. 
+
+
+
+## 7. Fine-Tuning der Ergebnisse
+
+Wir haben mithilfe der Keyness-Statistik "model terms" ausgewählt. Es gibt aber auch eine andere Möglichkeit: Filtern des Korpus nach wirtschaftsrelevanten Begriffen und dann eine Schätzung ohne model terms. 
+Mal schauen, wie hier die Performance ist.
+
+```{r}
+m_terms
+
+# nur eindeutige Wörter behalten
+m_terms2 <- m_terms[m_terms %in% c(
+  "leistungsfähigkeit", "abgaben", "finanz-", "besteuerung", "prosperität", "rahmenbedingungen",
+  "wettbewerbsfähigkeit", "doppelbelastung", "ressourceneffiziente", "arbeitsplätze", "tragbarkeit",
+  "wohlstand", "kmu", "aufschwung", "exportorientierte", "innovation", "stabilität", "unternehmen",
+  "wirtschaft", "handelspolitischen", "wachstum", "globalisierung", "auswirkungen", "arbeitskräfte",
+  "tourismus", "politik", "gewerbe", "ankurbelung", "investitionen", "liberalen", "zuwanderung",
+  "globalen", "potenzial", "attraktivität", "fachkräfte", "krise", "zusammenarbeit", "kaufkraft",
+  "marktzugang", "exportwirtschaft", "volkswirtschaft", "beschäftigung", "wirtschaftspolitik",
+  "wirtschaftswachstum", "wirtschaftliche", "finanzkrise", "wertschöpfung", "steuern", "arbeitsmarkt",
+  "investition", "standortfaktor", "binnenmarkt", "freihandelsabkommen", "finanzplatz", "konkurrenzfähigkeit",
+  "wirtschaftszusammenarbeit", "unternehmerischen", "global", "konjunktur", "handelsbeziehungen",
+  "strukturwandel", "produktivität", "standortattraktivität", "bip", "exportindustrie", "exportförderung", "steuerpolitik", "infrastruktur", "versorgungssicherheit", "marktwirtschaft", "stabilisierung", "technologien", "digitalisierung", "konkurrenz", "arbeitsrecht", "entiwcklungsländern", "bundesfinanzen", "lenkungsabgabe", "steuersubstrat", "umsatz", "gewinn"
+)]
+
+m_terms2_pattern <- paste0(m_terms2, collapse="|")
+df_sent2_sub <- subset(df_sent2, str_detect(sentence, m_terms2_pattern))
+
+corpus_parl3 <- corpus(df_sent2_sub$sentence, docnames = df_sent2_sub$id)
+
+toks_parl3 <- tokens(corpus_parl3, what="word", 
+       remove_punct = T,
+       remove_symbols = T)
+
+toks_parl3 <- tokens_remove(toks_parl3, stopwords("de"))
+dfm_parl3 <- dfm(toks_parl3, tolower=T)
+
+docvars(dfm_parl3, "id") <- df_sent2_sub$id 
+```
+
+...und nun noch einmal LSS schätzen.
+```{r}
+lss_model2 <- textmodel_lss(dfm_parl3, seeds = seed, k = 300) 
+saveRDS(lss_model2, "lss_model2.RDS")
+```
+
+
+Haben sich die Ergebnisse verändert? 
+```{r}
+df_sent2_sub$fit2 <- predict(lss_model2, newdata = dfm_parl3)
+saveRDS(df_sent2_sub, "df_lss2.RDS")
+df_sent2_sub <- readRDS("df_lss2.RDS")
+
+
+# Textplot
+textplot_terms(lss_model2, econ_dict, max_highlighted=16)
+
+# nach Parteien gruppierte Werte
+df_sent2_sub %>%
+  group_by(party_n) %>%
+  summarise(pos = mean(fit, na.rm=T)) %>%
+  mutate(party_n = fct_reorder(party_n, pos)) %>%
+  ggplot(aes(party_n, pos)) + 
+  geom_col() + theme_light() + theme(axis.text.x = element_text(angle=30))
+```
+
+
+...und die Validierung?
+
+```{r}
+df_sent2_sub <- df_sent2_sub %>%
+  mutate(date_speech = as.Date(date),
+         edate = as.Date(case_when(date_speech>="1999-01-01" & date_speech<"2003-10-19" ~ "2003-10-19",
+                           date_speech>="2003-10-19" & date_speech<"2007-10-21" ~ "2007-10-21",
+                           date_speech>"2007-10-21" & date_speech<"2011-10-23" ~ "2011-10-23",
+                           date_speech>"2011-10-23" & date_speech<"2015-10-18" ~ "2015-10-18",
+                           date_speech>"2015-10-18" & date_speech<"2019-10-20" ~ "2019-10-20")))
+
+by <- join_by(partyname==party_n, edate)
+df_merged2 <- right_join(mp_data_che, df_sent2_sub, by)
+
+df_merged2 %>%
+  group_by(edate) %>%
+  summarise(lr_scaled = mean(fit, na.rm=T),
+            rile = mean(rile, na.rm=T)*-1,
+            planeco = mean(planeco,na.rm=T)*-1) %>%
+  filter(!is.na(rile))  %>%
+  summarise(cor(lr_scaled, planeco))
+
+
+df_merged2 %>%
+  group_by(partyname, edate) %>%
+  summarise(lr_scaled = mean(fit, na.rm=T),
+            rile = mean(rile, na.rm=T)*-1,
+            planeco = mean(planeco,na.rm=T)*-1) %>%
+  filter(!is.na(rile))  %>%
+  summarise(cor(lr_scaled, planeco))
+``` 
