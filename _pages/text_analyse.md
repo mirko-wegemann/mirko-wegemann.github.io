@@ -163,3 +163,17 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
+		<h4>9. Woche: Scaling</h4>
+	In dieser Woche beschäftigen wir uns mit der Möglichkeit, Texte auf einer eindimensionalen Skala sogenannte Polarity Scores zuzuordnen.	
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/scaling.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/scaling.Rmd">Code (Einführung)</a></td>
+            <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a></td>
+        </tr>
+    </table><br><br>
