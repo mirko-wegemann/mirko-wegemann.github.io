@@ -174,6 +174,7 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/scaling.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/scaling.Rmd">Code (Einführung)</a></td>
-            <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a></td>
+            <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a><br>
+			<a href="{{ site.url }}assets/data/lss_model1.RDS">LSS-Model</a></td>
         </tr>
     </table><br><br>
