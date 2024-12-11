@@ -1,0 +1,77 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('caret')) install.packages("caret")                              # for advanced machine learning
+```
+
+
+# 1. Schritt: Import und Vorbereitung des Korpus
+Im ersten Schritt importieren wir unseren Datensatz. In diesem Fall nutzen wir einen Sentiment-Datensatz, welcher Tweets in "positiv", "neutral" und "negativ" klassifiziert hat (https://huggingface.co/datasets/mteb/tweet_sentiment_extraction).
+
+Zunächst beschränken wir uns auf einen binären Klassifikationstask. Das ist meist einfacher. 
+
+```{r}
+data <- readRDS("./sentiment_tweets.RDS")
+data <- data %>%
+  filter(label_text!="neutral")
+```
+
+# 2. Schritt: Umwandlung in dfm-Objekt
+
+Im nächsten Schritt müsst ihr die Daten wieder in ein dfm-Objekt konvertieren.
+
+```{r}
+
+```
+
+
+# 3. Trainigs- und Test-Datensatz
+
+Nun müsst ihr eure Datensätze in einen Trainings- und einen Test-Datensatz aufteilen. Sorgt dafür, dass beide dfm über dieselben Features verfügen.
+
+```{r}
+
+```
+
+
+# 4. Modellierung 
+
+Nun könnt ihr bereits ein Model schätzen. Fangt an mit einem Naive Bayes-Classifier.
+
+```{r}
+
+```
+
+# 5. Validierung 
+
+Diskutiert im Folgenden, wie gut das Modell performed hat. Ist es besser darin, positive oder negative Tweets vorherzusagen?
+
+```{r}
+
+```
+
+# 6. Out-of-sample prediction
+
+Kreirt nun euren eigenen kleinen Datensatz an Texten, welche von eurem Modell noch nicht gesehen worden sind. Versucht das Sentiment dieser Texte vorherzusagen. Wie beurteilt ihr die Performance?
+
+```{r}
+
+```
+# Verbesserung der Prediction
+
+Im folgenden solltet ihr versuchen, eure Prediction zu verbessern. Nutzt zunächst einmal Support Vector Machines, um zu schauen, ob es den Testdatensatz besser vorhersagt.
+
+```{r}
+
+```
+
+
+Nun entfernt einige Features aus dem dfm und führt die Analyse mit diesem dfm erneut durch. Verbessert dies die Prediction? 
+
+```{r}
+
+```
