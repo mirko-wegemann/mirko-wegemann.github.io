@@ -188,9 +188,9 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/supervised_intro.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/supervised.Rmd">Code (Einführung)</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/supervised.RMD">Code (Einführung)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
 			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
         </tr>
     </table><br><br>
