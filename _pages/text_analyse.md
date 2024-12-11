@@ -163,7 +163,7 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
-		<h4>9. Woche: Scaling</h4>
+	<h4>9. Woche: Scaling</h4>
 	In dieser Woche beschäftigen wir uns mit der Möglichkeit, Texte auf einer eindimensionalen Skala sogenannte Polarity Scores zuzuordnen.	
 	<table class="fancy-table">
         <tr>
@@ -176,5 +176,21 @@ nav: false
             <td><a href="{{ site.url }}assets/code/qta2425/scaling.Rmd">Code (Einführung)</a></td>
             <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a><br>
 			<a href="{{ site.url }}assets/data/lss_model1.RDS">LSS-Model</a></td>
+        </tr>
+    </table><br><br>
+	<h4>10. Woche: Supervised Classification</h4>
+	In dieser Sitzung widmen wir uns zunächst Grundkonzepten des Maschinellen Lernen, bevor wir diese auf einen Textcorpus (vom Manifesto-Project) anwenden.
+	<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/supervised_intro.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/supervised.Rmd">Code (Einführung)</a></td>
+            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
+			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
         </tr>
     </table><br><br>

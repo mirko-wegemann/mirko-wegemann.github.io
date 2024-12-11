@@ -1,0 +1,310 @@
+---
+title: "Supervised classification"
+author: "Mirko Wegemann"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('caret')) install.packages("caret")                              # for advanced machine learning
+# if (!require('xgboost')) install.packages("xgboost")                          # for xgboost
+# if (!require('Matrix')) install.packages("Matrix")                            # treating sparse matrix in machine learning
+```
+
+# Supervised Classification
+
+Im Folgenden werden wir einen bereits annotierten Datensatz verwenden, um auf dessen Basis, ein Klassifikationsmodell zu trainieren, welches wir für out-of-sample prediction nutzen können. 
+
+
+## 1. Datenimport
+
+Lasst uns zunächst die Daten laden. Für die heutige Sitzung greifen wir wieder auf Daten aus dem Manifesto Project zurück. Der Vorteil dieses Datensatzes ist, dass der Text bereits annotiert ist - er eignet sich also sehr gut für einen supervised classification task.
+
+```{r}
+df <- readRDS("./data_prep.RDS")
+
+# Texte ohne Thema werden wieder entfernt
+df <- subset(df, issue!="NA")
+
+# Generieren einer eindeutigen ID-Variablen
+df$id <- 1:nrow(df)
+```
+
+## 2. Datenvorbereitung
+
+Wie immer bereiten wir unseren Datensatz zunächst einmal vor. Bei prediction-tasks können wir potentiell etwas großzügiger bei der Ausklammerung von Textfeatures sein.
+
+```{r}
+corp <- corpus(df$sentence)
+toks <- tokens(corp, what="word",
+               remove_punct = T,
+               remove_numbers = T,
+               remove_symbols = T,
+               remove_url = T)
+
+stopwords2 <- c(quanteda::stopwords(language="en"), "can")
+
+# stop words entfernen
+toks <- toks %>% tokens_remove(stopwords2)
+
+# zu dfm
+m_dfm <- dfm(toks, tolower = T) %>% dfm_trim(min_termfreq = 5,
+                                             termfreq_type = "count",
+                                             max_docfreq = 0.5,
+                                             docfreq_type = "prop")
+
+docvars(m_dfm, "text_id") <- df$id
+docvars(m_dfm, "country") <- df$country
+docvars(m_dfm, "issue") <- df$issue
+docvars(m_dfm, "parfam") <- df$parfam_n
+docvars(m_dfm, "year") <- df$year
+
+# Vektor erstellen, der die IDs von leeren Dokumenten enthält
+drop_ids <- m_dfm@docvars$docname_[ntoken(m_dfm)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# aus data.frame entfernen
+df2 <- df[!row.names(df) %in% drop_ids, ]
+
+# aus dfm entfernen
+m_dfm <- dfm_subset(m_dfm, ntoken(m_dfm)>0)
+m_dfm
+```
+
+
+## 3. Datenstruktur vereinfachen
+
+Das Manifesto-Project ist recht komplex, es gibt zahlreiche verschiedene Kategorien. Um einen Klassifikationsalgorithmus zu trainieren, brauchen wir sehr viele Daten und komplexere Modellierungen als wir sie heute lernen. Deshalb vereinfachen wir an dieser Stelle unseren Klassifikations-Task in eine binäre Klassifizierung. Wir wollen vorhersagen, ob ein Text über den Wohlfahrtsstaat (per504 oder per505) oder Migration (per601 oder per602) handelt. 
+
+Zunächst passen wir unseren data.frame an, dann benutzen wir die Funktion *dfm_subset*, um nur die Texte in unserem *dfm* zu behalten, welche noch in unserem data.frame enthalten sind (also nur diejenigen über den Wohlfahrstaat oder Migration).
+
+```{r}
+df_sub <- subset(df2, issue %in% c("504", "505", "601", "602"))
+
+df_sub$label <- ifelse(df_sub$issue %in% c("504", "505"), 1, 0)
+saveRDS(df_sub, "./pred_df.RDS") # für später speichern
+
+# nur die Texte werden behalten, welche noch Teil unseres data.frames sind
+keep <- df_sub$id
+m_dfm_sub <- dfm_subset(m_dfm, text_id %in% keep)
+
+# Label als docvar zu dfm zuweisen
+docvars(m_dfm_sub, "label") <- df_sub$label
+```
+
+
+## 4. Training-/Testsplit
+
+Im folgenden müssen wir unseren dfm aufspalten - und zwar in Trainings- und Testdaten. Wie viele Dokumente in welchen dfm kommen, ist eure Entscheidung; für gewöhnlich haben wir aber deutlich mehr Trainings- als Testdaten, oft wählen Forscher*innen 80 (Training)/20 (Test) Splits.
+
+```{r}
+set.seed(250)
+
+# optional: weitere Reduzierung der Größe unseres dfm, um die Geschwindigkeit zu erhöhen
+# m_dfm_small <- dfm_sample(m_dfm_sub,0.3*ndoc(corp))
+
+train <- dfm_sample(m_dfm_sub,0.8*nrow(df_sub))
+test <- dfm_subset(m_dfm_sub,
+  !(docnames(m_dfm_sub) %in% docnames(train)))
+```
+
+Da wir nur einige Texte ausgewählt haben, könnte es sein, dass einige Features (Wörter) aus dem dfm entfernt worden sind. Wir benötigen exakt die gleichen Features in beiden Datensätzen. Dies können wir mit der Funktion *dfm_match()* sicherstellen. 
+
+```{r}
+train <- train %>% dfm_trim(1)
+test <- dfm_match(test, featnames(train))
+```
+
+## 5. Modellierung
+
+Nun können wir bereits die Klassifikationsalgorithmen trainieren.
+Wir nutzen zunächst den einfachsten Klassifikationsalgorithmus: Naive Bayes. Er folgt dem Bayes-Theorem - gegeben ein Wort w in einem Text, wie wahrscheinlich ist es, dass es zu Kategorie A oder B gehört. Der Algorithmus ist sehr simpel, daher auch sehr schnell.
+
+```{r}
+start <- Sys.time()
+
+# Modell
+nb_model <- textmodel_nb(train,docvars(train, "label"))
+nb_model
+
+end <- Sys.time()
+end-start
+```
+
+
+## 6. Validierung
+
+Im Folgenden können wir uns ansehen, wie gut wir performed haben. Das ist der große Vorteil von supervised classification tasks. Da wir über annotierte Daten verfügen, können wir schauen, wie gut unsere Vorhersage der Kategorien ist. 
+
+```{r}
+test_predictions <- predict(nb_model, newdata=test)
+
+head(test_predictions,5)
+(eval_mat <- table(test_predictions, docvars(test,"label")))
+```
+
+Wie war unsere Performance?
+
+```{r}
+print(paste0("Es gibt ", eval_mat[[2]] + eval_mat[[3]], " falsche Vorhersagen"))
+```
+Das Paket *caret* verfügt noch über bessere Validierungsmetriken. 
+
+```{r}
+confusionMatrix(test_predictions, as.factor(docvars(test,"label")))
+```
+
+Wir können uns auch anschauen, welche Feature (Wörter) besonders mit welcher Klasse korrespondieren. 
+
+```{r}
+# Wie vorhersagbar sind bestimmte Merkmale einer Klasse?
+coefs_nb <- coef(nb_model) %>% 
+  data.frame() %>%
+  mutate(feature=rownames(.))
+
+# Wörter, die mehr zur Vorhersage von Migration beitragen
+coefs_nb[coefs_nb$feature=="migration",]
+coefs_nb[coefs_nb$feature=="asylum",]
+
+# Wörter, die mehr zur Vorhersage des Wohlfahrtsstaats beitragen
+coefs_nb[coefs_nb$feature=="pension",]
+coefs_nb[coefs_nb$feature=="health",]
+
+# Wörter mit der höchsten Unterscheidungskraft
+coefs_nb %>%
+  mutate(diff = abs(X1 - X0)/(X1+X0)) %>%
+  arrange(desc(diff))
+```
+
+Ok, das ist nicht so schlecht. Um einen besseren Vergleich für andere überwachte Aufgaben zu haben, die wir in der nächsten Woche machen werden, behalten wir die Trainings- und Test-IDs.
+
+```{r}
+train_ids <- docvars(train)["text_id"] %>% unlist() %>% as.numeric
+test_ids <- docvars(test)["text_id"] %>% unlist %>% as.numeric
+
+saveRDS(train_ids, "./train_ids.RDS")
+saveRDS(test_ids, "./test_ids.RDS")
+```
+
+
+Der eigentliche Grund, warum wir ein Modell trainieren, ist natürlich, dass wir mithilfe des Modells die Kategorie von Dokumenten vorhersagen wollen, welche wir noch nicht klassifiziert haben. Lasst uns das mal hier versuchen: 
+
+```{r}
+new_texts <- c("We need to do better to integrate migrants into the society", "We need more social protection.", "Australia is a country with strong values we need to preserve", "Cost containment is the only possible option.")
+dfm_oos <- dfm(new_texts, tolower=T)
+dfm_oos <- dfm_match(dfm_oos, featnames(train))
+
+predict(nb_model, newdata=dfm_oos)
+```
+Das hat in diesem Fall gut funktioniert. Der erste und dritte Text wird als "Traditional Way of Life" eingestuft. Der 2. und 4. Text als wohlfahrtsrelevant.
+
+## 7. Support-Vector-Machines
+
+Im Folgenden schauen wir uns mal an, ob ein etwas komplexerer Algorithmus wie support vector machines besser abgeschnitten hätte. 
+
+```{r}
+start <- Sys.time()
+
+# Modell
+svm_model<-textmodel_svm(train,docvars(train,
+  "label"))
+svm_model
+
+end <- Sys.time()
+end-start
+
+test_predictions_svm <- predict(svm_model,
+  newdata=test)
+
+head(test_predictions_svm,5)
+confusionMatrix(as.factor(test_predictions_svm), as.factor(docvars(test,"label")))
+```
+
+
+## 6. Alternative Modellierungen (außerhalb quantedas)
+
+quanteda hat nur Funktionen für Naive Bayes und Support Vector Machines. Falls ihr euch mit anderen Modellen, wie Random Forest beschäftigen wollt, müsst ihr auf caret und randomForest ausweichen. 
+
+Wir können keine dfm-Struktur mehr nutzen und müssen dementsprechend wieder zurück zu einer data.frame-Struktur.
+Dies können wir auf Basis der gespeicherten IDs relativ leicht vornehmen. Es dauert aber einiges an Zeit, da wir große Datensätze erstellen. Wir sollten daher die Komplexität der Datensätze im Voraus verringern. 
+
+```{r}
+m_dfm2 <- m_dfm_sub %>% dfm_trim(min_termfreq = 10,
+                                             termfreq_type = "count",
+                                             max_docfreq = 0.5,
+                                             docfreq_type = "prop")
+
+docvars(m_dfm2, "text_id") <- df_sub$id
+
+# Vektor erstellen, der die IDs von leeren Dokumenten enthält
+drop_ids <- m_dfm2@docvars$docname_[ntoken(m_dfm2)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# aus data.frame entfernen
+df_sub2 <- df_sub[!row.names(df_sub) %in% drop_ids, ]
+
+# aus dfm entfernen
+m_dfm2 <- dfm_subset(m_dfm2, ntoken(m_dfm2)>0)
+
+
+set.seed(250)
+
+train2 <- dfm_sample(m_dfm2,0.8*nrow(df_sub2))
+test2 <- dfm_subset(m_dfm2,
+  !(docnames(m_dfm2) %in% docnames(train2)))
+
+train2 <- train2 %>% dfm_trim(1)
+test2 <- dfm_match(test2, featnames(train2))
+
+train_ids <- docvars(train2)["text_id"] %>% unlist() %>% as.numeric
+test_ids <- docvars(test2)["text_id"] %>% unlist %>% as.numeric
+```
+
+Nun können wir die dfm-Strukturen data.frames umwandeln. Diese haben natürlich immer noch sehr viele Zeilen (so viele wie Wörter).
+```{r}
+train_df <- train2 %>% as.matrix() %>% as.data.frame()
+test_df <- test2 %>% as.matrix() %>% as.data.frame()
+```
+
+Die sparse-Matrix, welche wir aus dem dfm kreieren (viele Features sind nicht in allen Dokumenten enthalten), funktioniert nicht sonderlich gut mit Machine Learning Classifier. Wir können sie umwandeln. 
+
+```{r}
+train_matrix <- as(as.matrix(train_df), "dgCMatrix")
+test_matrix <- as(as.matrix(test_df), "dgCMatrix")
+```
+
+Wir müssen nun noch unsere Label-Variable hinzufügen.
+
+```{r}
+train_labels <- df_sub$label[df_sub$id %in% train_ids] %>% as.factor()
+test_label <- df_sub$label[df_sub$id %in% test_ids] %>% as.factor()
+```
+
+Nun können wir einfach ein beliebiges Modell trainieren. Bei Datensätzen mit großer Feature-Matrix wie unserem empfiehlt sich beispielsweise xgBoost. 
+
+```{r}
+model <- xgboost(data = train_matrix, label = train_labels, 
+                 eta=0.1,
+                 nrounds=8000,
+                 subsample=.5,
+                 max_depth=8,
+                 min_child_weight=2,
+                 scale_pos_weight = sum(train_labels == 0) / sum(train_labels == 1), 
+                 objective = "binary:logistic")
+
+saveRDS(model, "xgboost_model.RDS")
+```
+
+...und nun können wir die Performance am Test-Datensatz evaluieren
+
+```{r}
+preds_rf <- predict(model, 
+        newdata=test_matrix)
+
+preds_rf_class2 <- ifelse(preds_rf<0.5,0,1)
+table(preds_rf_class2, test_label)
+```
