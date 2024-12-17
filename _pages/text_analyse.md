@@ -154,7 +154,8 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/topic_models.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/topic_models.Rmd">Code (Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen_empty.Rmd">Code (Übungen)</a></td>
+			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen_empty.Rmd">Code (Übungen)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
             <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Hauptdatensatz)</a><br>
 			<a href="{{ site.url }}assets/data/allb08_cb.pdf">Allbus 2008 (Codebook)</a><br>
 			<a href="{{ site.url }}assets/data/allb08_offen.dta">Allbus 2008 (Offene Angaben)</a><br>
@@ -189,8 +190,11 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/supervised_intro.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/qta2425/supervised.RMD">Code (Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a></td>
+			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
+			<a href="{{ site.url }}assets/code/qta2425/classification_uebung.Rmd">Übung (Lösungen)</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a><br>
 			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
         </tr>
     </table><br><br>
+	<h4>11. Woche: Lab Session</h4>
+	Diese Woche ist eine Lab-Session. Zunächst wird kurz über die Erwartungen der Hausarbeit gesprochen, bevor individuelle Probleme (konzeptueller Natur, bzgl. Code, etc.) besprochen werden können. 

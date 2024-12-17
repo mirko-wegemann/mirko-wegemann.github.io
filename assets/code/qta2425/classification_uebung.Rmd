@@ -1,0 +1,143 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('caret')) install.packages("caret")                              # for advanced machine learning
+```
+
+
+# 1. Schritt: Import und Vorbereitung des Korpus
+Im ersten Schritt importieren wir unseren Datensatz. In diesem Fall nutzen wir einen Sentiment-Datensatz, welcher Tweets in "positiv", "neutral" und "negativ" klassifiziert hat (https://huggingface.co/datasets/mteb/tweet_sentiment_extraction).
+
+Zunächst beschränken wir uns auf einen binären Klassifikationstask. Das ist meist einfacher. 
+
+```{r}
+data <- readRDS("./sentiment_tweets.RDS")
+data <- data %>%
+  filter(label_text!="neutral")
+```
+
+# 2. Schritt: Umwandlung in dfm-Objekt
+
+Im nächsten Schritt müsst ihr die Daten wieder in ein dfm-Objekt konvertieren.
+
+```{r}
+corp_tweet <- corpus(data$text)
+toks_tweet <- tokens(corp_tweet,
+                     remove_punct=T,
+                     remove_symbols=T)
+dfm_tweet <- dfm(toks_tweet, tolower=T)
+
+docvars(dfm_tweet, "text_id") <- data$id
+docvars(dfm_tweet, "label") <- data$label
+docvars(dfm_tweet, "label_text") <- data$label_text
+```
+
+
+# 3. Trainigs- und Test-Datensatz
+
+Nun müsst ihr eure Datensätze in einen Trainings- und einen Test-Datensatz aufteilen. Sorgt dafür, dass beide dfm über dieselben Features verfügen.
+
+```{r}
+set.seed(135)
+
+train <- dfm_sample(dfm_tweet,0.8*nrow(dfm_tweet))
+test <- dfm_subset(dfm_tweet,
+  !(docnames(dfm_tweet) %in% docnames(train)))
+
+train <- train %>% dfm_trim(1)
+test <- dfm_match(test, featnames(train))
+```
+
+
+# 4. Modellierung 
+
+Nun könnt ihr bereits ein Model schätzen. Fangt an mit einem Naive Bayes-Classifier.
+
+```{r}
+tweets_nb <- textmodel_nb(train,docvars(train, "label"))
+tweets_nb
+```
+
+# 5. Validierung 
+
+Diskutiert im Folgenden, wie gut das Modell performed hat. Ist es besser darin, positive oder negative Tweets vorherzusagen?
+
+```{r}
+pred_tweets <- predict(tweets_nb, newdata=test)
+
+confusionMatrix(pred_tweets, as.factor(docvars(test,"label")))
+```
+
+# 6. Out-of-sample prediction
+
+Kreirt nun euren eigenen kleinen Datensatz an Texten, welche von eurem Modell noch nicht gesehen worden sind. Versucht das Sentiment dieser Texte vorherzusagen. Wie beurteilt ihr die Performance?
+
+```{r}
+new_examples <- c("I am so happy you are here", "You disappoint me", "leave me alone", "That's not fair", "are u joking")
+new_dfm <- dfm(new_examples)
+
+# Align the features with the training DFM
+new_dfm <- dfm_match(new_dfm, features = featnames(train))
+
+
+out_of_sample <- predict(tweets_nb, newdata=new_dfm)
+out_of_sample
+```
+# Verbesserung der Prediction
+
+Im folgenden solltet ihr versuchen, eure Prediction zu verbessern. Nutzt zunächst einmal Support Vector Machines, um zu schauen, ob es den Testdatensatz besser vorhersagt.
+
+```{r}
+tweets_svm <- textmodel_svm(train,docvars(train, "label"))
+pred_tweets2 <- predict(tweets_svm, newdata=test)
+
+confusionMatrix(as.factor(pred_tweets2), as.factor(docvars(test,"label")))
+```
+
+
+Nun entfernt einige Features aus dem dfm und führt die Analyse mit diesem dfm erneut durch. Verbessert dies die Prediction? 
+
+```{r}
+# zum dfm
+dfm_tweet2 <- dfm(toks_tweet, tolower = T) %>% dfm_trim(min_termfreq = 10,
+                                             termfreq_type = "count",
+                                             max_docfreq = 0.5,
+                                             docfreq_type = "prop")
+
+docvars(dfm_tweet2, "text_id") <- data$id
+docvars(dfm_tweet2, "label") <- data$label
+docvars(dfm_tweet2, "label_text") <- data$label_text
+
+
+# IDs der leeren Dokumente identifizieren
+drop_ids <- dfm_tweet2@docvars$docname_[ntoken(dfm_tweet2)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# aus Datensatz löschen
+data2 <- data[!row.names(data) %in% drop_ids, ]
+
+# aus dfm löschen
+dfm_tweet2 <- dfm_subset(dfm_tweet2, ntoken(dfm_tweet2)>0)
+dfm_tweet2
+
+# Training/Testsplit
+set.seed(135)
+
+train2 <- dfm_sample(dfm_tweet2,0.8*nrow(dfm_tweet2))
+test2 <- dfm_subset(dfm_tweet2,
+  !(docnames(dfm_tweet2) %in% docnames(train2)))
+
+train2 <- train2 %>% dfm_trim(1)
+test2 <- dfm_match(test2, featnames(train2))
+
+# Modellierung
+tweets_nb2 <- textmodel_nb(train2,docvars(train2, "label"))
+
+# Evaluierung
+pred_tweets3 <- predict(tweets_nb2, newdata=test2)
+confusionMatrix(pred_tweets3, as.factor(docvars(test2,"label")))
+```
+Nein. 
