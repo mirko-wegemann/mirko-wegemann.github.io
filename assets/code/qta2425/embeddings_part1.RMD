@@ -1,0 +1,425 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")            # data wrangling
+if (!require('text2vec')) install.packages("text2vec")              # word embeddings
+if (!require('umap')) install.packages("umap")                      # visualization
+if (!require('conText')) install.packages("conText")                # context-specific description and embedding regression
+if (!require("textstem")) install.packages("textstem")              # lemmatizing
+if (!require('quanteda')) install.packages("quanteda")              # functions for text processing
+if (!require('proxy')) install.packages("proxy")                    # for sentence similarity
+```
+
+
+# Word embeddings and party manifestos
+## 1. Tidying text
+This is an essential task for word embeddings as well since reducing the number of tokens increases computational efficiency and gives us more meaningful relationships between words. 
+
+```{r}
+df <- readRDS("./data_prep.RDS")
+df <- subset(df, issue!="NA")
+df$id <- 1:nrow(df)
+
+# pre-process text: remove punctuation, numbering, superfluous whitespace, linebreaks 
+df$text_prep <- tolower(df$sentence_context) %>% 
+  paste0(" ", .) %>%
+  str_replace_all(., "\\d+", " ") %>% 
+  str_replace_all(., "[[:punct:]]", " ") %>% 
+  str_replace_all(., "[[:symbol:]]", " ") %>%  
+  str_replace_all(., "\n", " ") 
+
+# tokenize corpus into unigrams
+toks <- quanteda::tokens(df$text_prep) %>% tokens_remove(quanteda::stopwords(language="en"))
+toks[[1]][1:5]
+
+# further pruning of vocabulary -> only terms that appear at least 5 times 
+# first dfm transformation to extract those features before removing others from tokenized object
+features <- dfm(toks, verbose = FALSE) %>% dfm_trim(min_termfreq = 5) %>% featnames()
+
+toks_sub <- tokens_select(toks, features, padding=T)
+
+
+# add meta information to dfm 
+docvars(toks, "text_id") <- df$id
+docvars(toks, "country") <- df$country
+docvars(toks, "issue") <- df$issue
+docvars(toks, "parfam") <- df$parfam_n
+docvars(toks, "year") <- df$year
+
+# for embedding regression, let's add a variable that distinguishes between pre- and post 2015
+df$prepost <- ifelse(df$year<2015, "pre", "post")
+table(df$prepost)
+
+docvars(toks, "prepost") <- df$prepost
+```
+
+## 2. Load pre-trained embeddings 
+
+With embeddings, there are two different options. First, we create our own embeddings locally. Here, we infer from the data we have how different words relate to each other. The main advantage of this approach is that our embeddings have in-domain knowledge. This may play a role, for instance, if some terms are used differently in other contexts. However, embeddings are most accurate if they are trained on large instances of data. This takes a lot of time and often requires much data. Therefore, we follow a second approach. Here, we download pre-trained embeddings from (https://nlp.stanford.edu/projects/glove/) and retrieve them for our text.
+```{r}
+#path <- "./glove.6B/glove.6B.100d.txt" # use this on a less powerful machine
+path <- "./glove.42B.300d/glove.42B.300d.txt"
+glove_wts <- data.table::fread(path, quote = "", data.table = FALSE) %>% 
+  as_tibble()
+
+dim(glove_wts)
+head(glove_wts)
+```
+
+Every word in this embedding model is represented by a vector of 100/300 dimensions, other dimensionalities are available, too.
+
+Do pre-trained embeddings contain all words of our MARPOR corpus?
+
+Let us first tokenize the data. It's a bit different from before. We first tokenize but then create an iterator that goes through all tokens and stores them in a vocabulary object.
+```{r}
+# tokenize (use text2vec tokenizer here to create correct object type)
+tokens <- word_tokenizer(df$text_prep)
+# Create vocabulary. Terms will be unigrams (simple words).
+it <- itoken(tokens)
+vocab <- create_vocabulary(it, stopwords = c(stopwords(language="en"),"also", "s", "t", "d"))
+vocab <- subset(vocab, term_count>5)
+tail(vocab)
+```
+
+Lemmatization can help for later interpretability since similar words will be put into one vector.
+
+```{r}
+lemmatized_terms <- lemmatize_words(vocab$term)
+vocab$term <- lemmatized_terms
+
+vocab <- vocab %>%
+  group_by(term) %>%
+  summarise(term_count = sum(term_count, na.rm=T), 
+            doc_count = sum(doc_count, na.rm=T))
+```
+
+
+Now, let's check which tokens are not part of pre-trained embeddings
+
+```{r}
+not_in_glove <- vocab %>%
+  filter(!term %in% glove_wts$V1)
+
+print(paste0(nrow(not_in_glove), " words of our MARPOR corpus are not represented in the pre-trained embeddings."))
+not_in_glove <- not_in_glove[order(not_in_glove$term_count, decreasing=T),]
+
+print(paste0("The most frequently used words which are not captured by the pre-trained embeddings are ", paste0(head(not_in_glove$term), collapse=", ")))
+```
+
+As some of the terms are not represented in pre-trained corpus, we need to create our own matrix only with those terms that are represented.
+
+```{r}
+# fill matrix with embeddings -> embeddings that are not available, remain 0 in the matrix
+# store V1 (terms) as row names
+row_names <- glove_wts %>%
+  filter(V1 %in% vocab$term)  %>%
+  select(V1)
+
+# filter the embeddings to terms of our corpus
+embeddings <- glove_wts %>%
+  filter(V1 %in% vocab$term) %>%
+  select(-V1) %>%
+  as.matrix()
+
+# set terms as rownames
+rownames(embeddings) <- row_names$V1
+
+# add those words which GloVe does not have with a 0
+embeddings_na <- matrix(data = 0, nrow = nrow(not_in_glove), ncol = 300)
+
+# set terms as rownames
+rownames(embeddings_na) <- not_in_glove$term
+
+# row bind available and not available embeddings
+embeddings <- rbind(embeddings, embeddings_na)
+
+saveRDS(embeddings, "./embeddings_mat.RDS")
+```
+
+
+Before doing analysis of our input data, let's do a very common illustration of the idea of word embeddings. 
+Paris - France should equal which city - Germany? 
+To execute this common example, we look for the cosine similarity of Germany given the aforementioned calculation.
+
+```{r}
+embeddings <- readRDS("./embeddings_mat.RDS")
+
+which_capital = embeddings["paris", , drop = FALSE] -
+  embeddings["france", , drop = FALSE] +
+  embeddings["germany", , drop = FALSE]
+capital_cos_sim = sim2(x = embeddings, y = which_capital, method = "cosine", norm = "l2")
+head(sort(capital_cos_sim[,1], decreasing = TRUE), 5)
+```
+Yes, it's Berlin!
+
+*Your Turn*
+If you want, try out a similar logic yourself!
+
+```{r}
+
+```
+
+We can explore their nearest neighbours. Which words have close embeddings to economy, which to migrants?
+
+```{r}
+embeddings <- readRDS("./embeddings_mat.RDS")
+
+
+# which are close words to the term "migrants"?
+find_nns(embeddings['migrant',], pre_trained = embeddings, N = 20)
+
+
+# and which terms are close to "economy"?
+find_nns(embeddings['economy',], pre_trained = embeddings, N = 10)
+```
+
+# Exploratory analysis 
+
+We can also connect them with our dataset and look at which words are most often used in vicinity to a key term. For this purpose, we first create a so-called feature context matrix
+```{r}
+# how are specific words used in these contexts?
+# 1. create a feature context matrix
+toks_fcm <- fcm(toks, context = "window", window = 10, count = "frequency", tri = FALSE) # important to set tri = FALSE
+toks_fcm
+
+# 2. create a transformation matrix (this gives important terms a high weight, terms like stopwords a low weight)
+trans_mat <- compute_transform(x = toks_fcm, pre_trained = embeddings, weighting=500) # as weighting, set a high number
+
+# 3. Let's further zero in on how the word "economy" is used usually
+toks_context <- tokens_context(x = toks, pattern = "economic", window = 5L)
+toks_context 
+
+# 4. transform to document frequency matrix
+context_dfm <- dfm(toks_context)
+context_dfm
+
+# 5. create document embedding matrix
+context_dem <- dem(x = context_dfm, pre_trained = embeddings, transform = TRUE, transform_matrix = trans_mat, verbose = TRUE)
+dim(context_dem)
+
+# 6. now, we have several embeddings for a term; to get a single estimate, aggregate column
+context_wv <- colMeans(context_dem)
+```
+
+
+We can scrutinize how are different actors talking about a keyword of interest.
+```{r}
+context_wv_parfam <- dem_group(context_dem, groups = context_dem@docvars$parfam)
+dim(context_wv_parfam) # 5 different party families
+
+
+# nearest neighbours for different party families
+context_nns <- nns(context_wv_parfam, pre_trained = embeddings, N = 10, candidates = context_wv_parfam@features, as_list = TRUE)
+context_nns
+```
+That gives us a very nice descriptive idea of how different actors talk differently about a subject. The rad left is talking about "revolution", whereas the mainstream right emphasizes "growth". The Greens stress the environmental aspect. 
+
+
+# visualization
+Let's visualize relationships between words. As our embedding matrix has 300 dimensions, we first need to reduce dimensionality before we can visualize anything in a two-dimensional space. 
+
+```{r}
+# let's find the 50 nearest neighbors surrounding our target word
+words <- find_nns(context_wv, pre_trained = embeddings, N = 50, candidates = context_dem@features)
+
+# filter our vocabulary by these terms
+vocab_sub <- vocab %>%
+  filter(term %in% c(words)) 
+
+# create data frame of embedding matrix
+emb_df <- data.frame(embeddings)
+
+# row names to column
+emb_df <- emb_df %>% rownames_to_column()
+
+# filter by 50 most frequent terms
+emb_df_sub <- subset(emb_df, rowname %in% vocab_sub$term)
+
+# convert back to matrix
+emb_df_sub2 <- emb_df_sub %>% remove_rownames() %>% column_to_rownames("rowname") %>% as.matrix()
+
+
+# now finally: visualizing
+# reducing dimensionality 
+visualization <- umap(emb_df_sub2, n_neighbors = 10, n_threads = 2) 
+
+
+df_visualization  <- data.frame(word = rownames(emb_df_sub2),  
+                  xpos = gsub(".+//", "", rownames(emb_df_sub2)),  
+                  x = visualization$layout[, 1], y = visualization$layout[, 2],  
+                  stringsAsFactors = FALSE) 
+
+df_visualization %>%
+  ggplot(aes(x,y, label=word, colour=word=="economic")) + 
+  geom_point() + geom_text(hjust=0, vjust=0) + theme_light() +
+  scale_color_manual(values=c("black", "red"), guide="none") 
+```
+We can learn quite something from this. Growth and market are quite close to our target term, so people are usually connecting it with this - environment and transformation are quite far away. Future analysis could look into time differences. 
+
+# Embedding regression
+Let's first replicate the example of Rodriguez and Spirling to show how embedding regression (averaging between embeddings of a word by covariates) can help us to retrieve changing meaning of a word.
+```{r}
+set.seed(451)
+model2 <- conText(formula = trump ~ prepost,
+                 data = toks,
+                 pre_trained = embeddings,
+                 transform = TRUE, transform_matrix = trans_mat,
+                 bootstrap = TRUE,
+                 num_bootstraps = 100,
+                 permute = TRUE, num_permutations = 10,
+                 window = 10, 
+                 verbose = T)
+
+model2@normed_coefficients
+```
+
+We see: there is a significant difference in the word usage of "trump" pre and post the 2015. The substantive differences can be clarified by looking into the nearest neighbors before and after 2015. 
+
+```{r}
+post <- model2['(Intercept)',]
+pre <- model2['(Intercept)',]  + model2['prepost_pre',]
+
+# nearest neighbors
+nns(rbind(post,pre), N = 40, pre_trained = embeddings, candidates = model2@features)
+```
+
+Before 2015, trump was mainly used as a verb, afterwards it's a description of the US president.
+
+
+Sometimes, we want to make inference about the different usage of a word by specific groups. Following the example above, we know which terms different parties use when talking about the economy. But we do not know yet, whether there are substantial and significant differences in the words parties use. To get this single parameter, embedding regression breaks down the embeddings towards a focal word (here economy) to a single number and compares whether there are statistically significant difference. For instance, do the Greens use a significantly different vocabulary on the economy compared to the mainstream right? 
+
+We've got all the ingredients we need already, let's feed them into conText, developed by Rodrigues et al. 2021. 
+
+```{r}
+set.seed(510)
+model1 <- conText(formula = economic ~ parfam + year,
+                 data = toks,
+                 pre_trained = embeddings,
+                 transform = TRUE, transform_matrix = trans_mat,
+                 bootstrap = TRUE,
+                 num_bootstraps = 100,
+                 permute = TRUE, num_permutations = 10,
+                 window = 10, 
+                 verbose = T)
+
+
+rownames(model1)
+# (normed) coefficient table
+model1@normed_coefficients
+
+```
+
+How have different party families talked about the economy?
+
+```{r}
+Greens_wv <- model1['(Intercept)',] + 2010*model1['year',]
+MR_wv <- model1['(Intercept)',]  + model1['parfam_Mainstream Right',]  + 2010*model1['year',]
+RL_wv <- model1['(Intercept)',]  + model1['parfam_Radical Left',]   + 2010*model1['year',]
+
+# nearest neighbors
+nns(rbind(MR_wv,RL_wv), N = 40, pre_trained = embeddings, candidates = model1@features)
+```
+
+# Document embeddings
+
+```{r}
+embeddings <- readRDS("./embeddings_mat.RDS")
+
+text <- c("The President greets the press in Chicago", "Obama speaks to the media in Illinois", "The band gave a concert in Japan.")
+dfm_example <- tokens(text) %>% dfm()
+
+common_features <- intersect(colnames(dfm_example), rownames(embeddings))
+dfm_example2 <- dfm_example[, common_features, drop = FALSE]
+embeddings2 <- embeddings[common_features, , drop = FALSE]
+
+text_mat <- as.matrix(dfm_example2)
+
+# Matrix multiplication: dfm %*% embeddings
+document_embeddings <- text_mat %*% embeddings2
+
+# document similarity
+simil(document_embeddings, method = "cosine")
+```
+This is, of course, only a toy example. We can also create an embedding matrix from our documents (similarly to the one we created above), and calculate the similarity of each sentence to each other.
+
+```{r}
+# feature co-occurrence matrix
+toks_fcm <- fcm(toks, context = "window", window = 10, count = "frequency", tri = FALSE) # important to set tri = FALSE
+
+# transformation matrix
+trans_mat <- compute_transform(x = toks_fcm, pre_trained = embeddings, weighting=500) # as weighting, set a high number
+
+# document feature matrix of our tokens
+dfm_marpor <- dfm(toks)
+
+# document-embedding matrix
+dem_marpor <- dem(x = dfm_marpor, pre_trained = embeddings, transform = TRUE, transform_matrix = trans_mat, verbose = TRUE)
+
+
+# consider, for example, the following statements
+print(df$sentence_context[2])
+print(df$sentence_context[25])
+print(df$sentence_context[26])
+print(df$sentence_context[27])
+
+mat_marpor <- as.matrix(dem_marpor)
+mat_marpor2 <- mat_marpor[c(2,25,26,27),]
+simil(mat_marpor2, method="cosine")
+```
+
+
+
+## Addendum: Train your own local embeddings
+
+In the following code, you'll see how you could train your own local embeddings. This is not always advisable. In some instances, the data is simply to small to retrieve (more) meaningful representations than pre-trained embeddings. Besides, you can also fine-tune the pre-trained embeddings by applying transfer-learning. 
+
+Still, sometimes, it can be helpful (particularly if your text is very specific). 
+
+First, we do a similar preparation as before when we transformed our words into a vocabulary. What we do add is a function to vectorize (transform our words into numbers) and create a tokens co-occurrence matrix. We did not do that before since we just loaded the numeric representation of pre-trained embeddings and connected it to our raw vocabulary. 
+```{r}
+tokens <- word_tokenizer(df$text_prep)
+it <- itoken(tokens)
+vocab <- create_vocabulary(it, stopwords = c(stopwords(language="en"),"also", "s", "t", "d"))
+
+# now we can actually start to transform our tokens into vector representations
+vectorizer <- vocab_vectorizer(vocab) # defines a function for vectorization
+
+# define the term-co-occurrence matrix
+## this step is crucial: we define the context window: the larger the window, the more context is captured (but the more computationally intense the process is)
+tcm <- create_tcm(itoken(tokens), vectorizer, skip_grams_window = 10L)
+```
+
+
+Now, we can already estimate our own embeddings with glove. Here, we create a vocab*300 dimensional structure.
+```{r}
+glove = GlobalVectors$new(rank = 300, x_max = 10) 
+wv_main <- glove$fit_transform(tcm, n_iter = 100, convergence_tol = 0.01)
+
+
+# model learns two sets of word vectors - main and context -> main are the vectors for our target word whereas context are vectors for all words in context window (here n=10); convention: just average them
+dim(wv_main)
+wv_context <- glove$components
+dim(wv_context)
+word_vectors = wv_main + t(wv_context)
+```
+
+
+Let's do a short test whether it has worked.
+```{r}
+# similarity of words of interest
+# which words appear often in relation to "economic"?
+europe = word_vectors["economic", , drop = F]
+cos_sim_europe = sim2(x = word_vectors, y = europe, method = "cosine", norm = "l2")
+head(sort(cos_sim_europe[,1], decreasing = T), 10)
+```
+
+
+Does the equation between Paris, France and Germany still work?
+```{r}
+which_capital = word_vectors["paris", , drop = FALSE] -
+  word_vectors["france", , drop = FALSE] +
+  word_vectors["germany", , drop = FALSE]
+capital_cos_sim = sim2(x = word_vectors, y = which_capital, method = "cosine", norm = "l2")
+head(sort(capital_cos_sim[,1], decreasing = TRUE), 5)
+```
+
+Well, not really. And this could be due to the fact that our data has not enough examples of Berlin and Germany in one sentence. 
