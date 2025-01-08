@@ -197,7 +197,7 @@ nav: false
         </tr>
     </table><br><br>
 	<h4>11. Woche: Lab Session</h4>
-	Diese Woche ist eine Lab-Session. Zunächst wird kurz über die Erwartungen der Hausarbeit gesprochen, bevor individuelle Probleme (konzeptueller Natur, bzgl. Code, etc.) besprochen werden können. 
+	Diese Woche ist eine Lab-Session. Zunächst wird kurz über die Erwartungen der Hausarbeit gesprochen, bevor individuelle Probleme (konzeptueller Natur, bzgl. Code, etc.) besprochen werden können. <br><br>
 	<a href="https://github.com/danbischof/danbischof.github.io/blob/master/assets/pdf/Bischof_howtopaper.pdf">Formalitäten und Word-Vorlage für die Hausarbeit</a><br> <br>
 	<h4>12. Woche: Embedding Regression</h4>
 	Wir lernen mit "Embeddings" eine komplexere Art der Repräsentation von Text kennen. Mithilfe des "conText"-Packages in R führen wir einfache deskriptive Analysen sowie eine Embedding-Regression durch. 
@@ -212,4 +212,7 @@ nav: false
             <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part1.RMD">Code</a><br>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
         </tr>
+		<tr>
+		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
+		</tr>
     </table><br><br>
