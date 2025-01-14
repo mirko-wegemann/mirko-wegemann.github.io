@@ -216,3 +216,20 @@ nav: false
 		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
 		</tr>
     </table><br><br>
+	<h4>13. Woche: Embeddings und Deep Neural Networks</h4>
+	In unserer letzten inhaltlichen Sitzung des Seminars beschäftigen wir uns mit der instrumentellen Funktion von Embeddings für Downstream-Tasks. Wir nutzen Embeddings hierbei, um ein neural network zur Klassifikation von politischem Text zu trainieren. 
+		<table class="fancy-table">
+        <tr>
+            <th style="width:33%;">Slides</th>
+            <th style="width:33%;">Code</th>
+            <th style="width:33%;">Daten</th>
+        </tr>
+        <tr>
+            <td><a href="{{ site.url }}assets/pdf/qta/neural_networks.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part2.RMD">Code</a><br>
+            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
+        </tr>
+		<tr>
+		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
+		</tr>
+    </table><br><br>
