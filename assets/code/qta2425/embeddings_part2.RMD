@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(echo = TRUE)
 library(reticulate)
 use_virtualenv("~/.virtualenvs/r-reticulate")
+#py_install("keras")
 if (!require('tidyverse')) install.packages("tidyverse")            # data wrangling
 if (!require('text2vec')) install.packages("text2vec")              # word embeddings
 if (!require('umap')) install.packages("umap")                      # visualization
@@ -101,7 +102,8 @@ vectorize_layer <- layer_text_vectorization(
 )
 vectorize_layer %>% adapt(df_sub$text_prep)
 features <- vectorize_layer(df_sub$text_prep)
-head(sequences)
+features <- as.array(features)
+head(features)
 ```
 
 
@@ -119,8 +121,8 @@ row_names_train <- as.numeric(row.names(df_sub)[with(df_sub, id %in% index_train
 row_names_test <- as.numeric(row.names(df_sub)[with(df_sub, id %in% index_test)])
 
 
-x_train <- features[[row_names_train-1]]
-x_test <- features[[row_names_test-1]]
+x_train <- features[row_names_train,]
+x_test <- features[row_names_test,]
 
 # define the labels of interest. Here, distinguish statements on welfare state from migration
 df_sub$labels <- ifelse(df_sub$issue %in% c("504", "505"), 1, 0)
