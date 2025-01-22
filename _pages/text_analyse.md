@@ -234,5 +234,7 @@ nav: false
 		</tr>
     </table><br><br>
 	<h4>14. Woche: Abschlusssitzung</h4>
-	In unserer letzten Sitzung tauschen wir uns über eure Hausarbeitsideen aus und besprechen Bewertungskriterien der Arbeit. Darüber hinaus evaluieren wir den Lernfortschritt, den wir im Seminar gemacht haben.  
+	In unserer letzten Sitzung tauschen wir uns über eure Hausarbeitsideen aus und besprechen Bewertungskriterien der Arbeit. Darüber hinaus evaluieren wir den Lernfortschritt, den wir im Seminar gemacht haben.  <br><br>
+	<a href="{{ site.url }}assets/pdf/qta/wrap_up.pdf">Slides</a><br>
+	<a href="{{ site.url }}assets/pdf/qta/anforderungen_hausarbeit.pdf">Überblick zu den Anforderungen der Hausarbeit</a><br>
 	
