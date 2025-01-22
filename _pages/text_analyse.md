@@ -201,7 +201,7 @@ nav: false
 	<a href="https://github.com/danbischof/danbischof.github.io/blob/master/assets/pdf/Bischof_howtopaper.pdf">Formalitäten und Word-Vorlage für die Hausarbeit</a><br> <br>
 	<h4>12. Woche: Embedding Regression</h4>
 	Wir lernen mit "Embeddings" eine komplexere Art der Repräsentation von Text kennen. Mithilfe des "conText"-Packages in R führen wir einfache deskriptive Analysen sowie eine Embedding-Regression durch. 
-		<table class="fancy-table">
+	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
             <th style="width:33%;">Code</th>
@@ -209,7 +209,7 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/embeddings.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part1.RMD">Code</a><br>
+            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part1.RMD">Code</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
         </tr>
 		<tr>
@@ -226,10 +226,13 @@ nav: false
         </tr>
         <tr>
             <td><a href="{{ site.url }}assets/pdf/qta/neural_networks.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part2.RMD">Code</a><br>
+            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part2.RMD">Code</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
         </tr>
 		<tr>
 		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
 		</tr>
     </table><br><br>
+	<h4>14. Woche: Abschlusssitzung</h4>
+	In unserer letzten Sitzung tauschen wir uns über eure Hausarbeitsideen aus und besprechen Bewertungskriterien der Arbeit. Darüber hinaus evaluieren wir den Lernfortschritt, den wir im Seminar gemacht haben.  
+	
