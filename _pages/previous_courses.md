@@ -19,7 +19,7 @@ Lecturer, Winter Semester 2024-25 <br>
 <strong>Quantitative Textanalyse</strong><br>
 Undergraduate course, University of Münster, 2024 <br>
 Lecturer, Winter Semester 2024-25 <br> 
-<a href="{{ site.url }}teaching/teaching/qta2425">Materials</a> <br>
+<a href="{{ site.url }}teaching/qta2425">Materials</a> <br>
 [Teaching Evaluation][2]
 
 [2]:{{ site.url }}assets/pdf/qta/evaluation_qta2425.pdf

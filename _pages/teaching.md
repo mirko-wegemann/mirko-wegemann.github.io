@@ -13,7 +13,7 @@ children:
     permalink: /teaching/cta25
   - title: Gender and Political Representation (Münster 25)
     permalink: /teaching/gap25
-  - title: Party Competition in Western Europe(Münster 25)
+  - title: Party Competition in WE(Münster 25)
     permalink: /teaching/pcwe25
 
 ---
