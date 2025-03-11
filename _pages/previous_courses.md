@@ -9,25 +9,20 @@ nav: false
 <strong>Challenges to Democracy</strong><br>
 Graduate course, University of Münster, 2024 <br>
 Lecturer, Winter Semester 2024-25 <br>
-[Materials][4] 
-[4]:{{ site.url }}teaching/ctd2425 
-<br>
+<a href="{{ site.url }}teaching/ctd2425">Materials</a> <br>
+[Teaching Evaluation][3]
 
-[Teaching Evaluation][5]
-
-[5]:{{ site.url }}assets/pdf/ctd2425/evaluation_ctd2425.pdf
+[3]:{{ site.url }}assets/pdf/ctd2425/evaluation_ctd2425.pdf
 
 
 
 <strong>Quantitative Textanalyse</strong><br>
 Undergraduate course, University of Münster, 2024 <br>
 Lecturer, Winter Semester 2024-25 <br> 
-[Materials][2] 
-[2]:{{ site.url }}teaching/qta2425 
-<br>
-[Teaching Evaluation][3]
+<a href="{{ site.url }}teaching/teaching/qta2425">Materials</a> <br>
+[Teaching Evaluation][2]
 
-[3]:{{ site.url }}assets/pdf/qta/evaluation_qta2425.pdf
+[2]:{{ site.url }}assets/pdf/qta/evaluation_qta2425.pdf
 
 
 
