@@ -1,0 +1,163 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")    # wrangling
+if (!require('lubridate')) install.packages("lubridate")    # date conversion
+if (!require("jsonlite")) install.packages("jsonlite")      # manual handling of APIs
+if (!require("manifestoR")) install.packages("manifestoR")  # Manifesto Project API wrapper
+remotes::install_github("news-r/nytimes")                   # NYT-API wrapper
+library(nytimes)
+if (!require('usethis')) install.packages("usethis")        # open environment files (for secret API keys)
+edit_r_environ()
+```
+
+To run the code, you need two API keys, one for the NYT and one for the manifesto project. They need to be stored in your R environment.
+MP_API_KEY="KEY"
+NYTIMES_API_KEY="KEY"
+
+After adding them to the environment, close R and restart.
+
+# APIs
+APIs are digital infrastructures we can use to access website contents. They are offered by the provider. Therefore, many legal issues which may arise from webscraping are mitigated, as the website provider controls the issues we can access.
+
+The disadvantage? We need to register for API access. However, in many cases, this is just a quick formality (except for more sensitive data, such as social media data). 
+
+In the following code, we use two different APIs: the New York Times and the Manifesto Project. 
+
+## New York Times API
+
+### 1. Using jsonlite
+Let's first build our own API wrapper. This requires more work in the setup but we are independent from Rpackages which are often deprecated because they are offered by users. Moreover, this approach is more universal as not every site offers R packages for their API.
+
+We can work quite closely with the API documentation here. We download the data using a JSON parser. JSON is a commonly used file format for web content.
+
+# 1.1. Search-Query
+
+To send a request, we usually need to combine a certain "Search" string with our API (i.e., our access authorization).
+
+Let's search for articles about Donald Trump.
+
+```{r}
+url_query <- paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json?q=trump&api-key=", Sys.getenv("NYTIMES_API_KEY"))
+query <- fromJSON(url_query)
+```
+
+If we print the query object, we'll see the whole data object. 
+
+```{r}
+query
+```
+
+However, the format of the query object is suboptimal. Let's extract the relevant data. 
+
+#### 1.2 Extract data from JSON
+
+To extract data, we can simply navigate to the relevant dataset. 
+
+```{r}
+df <- data.frame(query$response$docs)
+```
+
+
+...we can, of course, also identify only relevant variables
+
+```{r}
+df <- data.frame(date = query$response$docs$pub_date, url = query$response$docs$web_url, summary = query$response$docs$abstract, lead_paragraph = query$response$docs$lead_paragraph)
+```
+
+
+
+#### 1.3 Automatization
+
+We can automate this process. By default, we only get the first ten results displayed. Similar to static websites, we can go through the first pages of the search.
+
+There is a limit on the number of requests we can make per minute (5 per minute, 500 per day); we take this into account using the Sleep function. For the limits, visit https://developer.nytimes.com/faq.
+
+```{r}
+n_pages <- 0:5
+df <- c()
+for(i in n_pages){
+  url_query <- paste0("https://api.nytimes.com/svc/search/v2/articlesearch.json?q=trump&api-key=", Sys.getenv("NYTIMES_API_KEY"), "&page=", i)
+  query
+  df_temp <- data.frame(date = query$response$docs$pub_date, url = query$response$docs$web_url, summary = query$response$docs$abstract, lead_paragraph = query$response$docs$lead_paragraph)
+  df <- rbind(df, df_temp)
+  Sys.sleep(12)  # this "sleeper" implement a break between each request, here 12 seconds
+}
+
+df
+
+saveRDS(df, "nyt_data.RDS")
+```
+
+
+# 1.4 Fine-Tuning
+We can specify the search by using additional parameters. For this, it is best to take another look at the documentation.  For example, we can filter the search results by date or section in the NYT. 
+This is helpful if you know that you only need certain data, as it significantly reduces the number of requests.
+
+```{r}
+search_string <- "trump"
+begin_date <- "&begin_date=20241104"
+end_date <- "&end_date=20241106"
+news_desk <- '&fq=section_name:%28%22Business%22%2C%20%22Opinion%22%29'
+url_query2 <- paste0('https://api.nytimes.com/svc/search/v2/articlesearch.json?q=', search_string, begin_date, end_date, news_desk, "&api-key=", Sys.getenv("NYTIMES_API_KEY"))
+query2 <- fromJSON(url_query2)
+
+df2 <- data.frame(query2$response$docs)
+
+```
+
+# 2. Automated Access to the New York Times 
+
+Using a second example, I want to show you how a pre-prepared wrapper can make your life easier. In this example, we simply use the nytimes package provided on GitHub by Coene et al.
+
+# 2.1 Setting the API Key
+
+Similar to manually downloading the data using jsonlite, we first set the API key in the R environment.
+
+```{r}
+nytimes_key(Sys.getenv("NYTIMES_API_KEY"))
+```
+
+# 2.2. Search Query
+
+Now we use the NYT archive to get a historical overview of news.
+We can use data from 2023. Let's download the NYT articles for January 2020, the month when Trump supporters stormed the Capitol. This is easily done using the wrapper.
+```{r}
+list_archive <- ny_archive(2020, 1)
+```
+
+# 2.3. Transformation into a Dataset
+
+Potentially, we already have the data in a list. However, the list consists of many lists, one list for each article. Converting it into a dataset can be achieved using a loop.
+
+```{r}
+df3 <- NA
+
+for(i in 1:length(list_archive)){
+  df_temp <- data.frame(date = list_archive[[i]]$pub_date, url = list_archive[[i]]$web_url, summary = list_archive[[i]]$abstract, lead_paragraph = list_archive[[i]]$lead_paragraph)
+  df3 <- rbind(df3, df_temp)
+}
+```
+
+# Manifesto Project
+# Set API key for Manifesto Project
+```{r}
+mp_setapikey(key=Sys.getenv("MP_API_KEY"))
+
+# Get a simplified version of the codebook
+mp_codebook()
+
+# Download all party data
+parties <- mp_parties()
+
+# Download all data for Germany
+german_mp <- mp_corpus_df(countryname=="Germany")
+
+# Download all data for the party SPD in Germany
+spd_mp <- mp_corpus_df(party==c(parties$party[parties$abbrev=="SPD" & parties$countryname=="Germany"]))
+
+# Download data for Germany and Austria
+df_mp <- mp_corpus_df(countryname %in% c("Germany", "Austria"))
+
+# Merge corpus data with metadata
+df_mp_meta <- left_join(df_mp, parties, by=c("party"))
+```

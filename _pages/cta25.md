@@ -113,10 +113,11 @@ nav: false
             <th style="width:33%;">Lab session</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/scraping.pdf">Slides</a><br></td>
-            <td><a href="{{ site.url }}assets/code/scraping.Rmd">Replication code</a><br> </td>
+            <td><a href="{{ site.url }}assets/pdf/cta25/scraping25.pdf">Slides</a><br></td>
+            <td><a href="{{ site.url }}assets/code/cta25/scraping25.Rmd">Replication code</a><br> </td>
             <td><a href="{{ site.url }}assets/code/scraping_exercises_empty.Rmd">Exercises</a> <br>
-                <a href="{{ site.url }}assets/code/solution_scraping_exercises.Rmd">Solution</a></td>
+                <a href="{{ site.url }}assets/code/solution_scraping_exercises.Rmd">Solution</a> <br>
+				<a href="{{ site.url }}assets/code/cta25/apis25.Rmd">Script on APIs</a></td>
         </tr>
     </table>
     <br>
@@ -128,9 +129,9 @@ nav: false
             <th style="width:33%;">Lab session</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/bags_words.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/pdf/cta25/bags_words25.pdf">Slides</a></td>
             <td>
-                <a href="{{ site.url }}assets/code/bow.RMD">Replication code</a><br>
+                <a href="{{ site.url }}assets/code/cta25/bow25.RMD">Replication code</a><br>
                 <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
                 <a href="{{ site.url }}assets/data/stm_marpor.RDS">Basic STM</a>  <br>    
                 <a href="{{ site.url }}assets/data/stm_marpor_parfam.RDS">STM with covariates</a> <br> 
@@ -151,7 +152,7 @@ nav: false
             <th style="width:33%;">Lab session</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/transformers.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/pdf/cta25/embeddings_transformers.pdf">Slides</a></td>
             <td>for <strong>R:</strong> <br> 
                 <a href="{{ site.url }}assets/code/embeddings.RMD">Replication code</a><br>
                 <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
