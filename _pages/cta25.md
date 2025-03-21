@@ -56,7 +56,7 @@ nav: false
         understanding recent trends in text- and images-as-data. Thereby, the workshop is structured
         alongside four input sessions and 2-3 practical sessions.</p>
     You can download the syllabus <a href="{{ site.url }}assets/pdf/cta_syllabus_25.pdf">here</a>.
-    <br>
+    <br><br>
 
     <h3>People</h3><br>
     <table class="plain-table">
@@ -103,7 +103,7 @@ nav: false
     Please download the files, put them in one directory and create a .Rproj in that directory. <br>
 
     To download the MARPOR data on your own, you can use this <a href="{{ site.url }}assets/code/download_marpor.Rmd">script</a>. You need to register for API access at <a href="https://manifesto-project.wzb.eu/information/documents/api">Manifesto Project</a> before.
-    The API key needs to be stored in a .txt-file in your directory. <br>
+    The API key needs to be stored in a .txt-file in your directory. <br><br>
 
     <h4>Session 1: Scraping</h4>
     <table class="fancy-table">
@@ -144,7 +144,7 @@ nav: false
     </table>
     <br>
     <h4>Session 3: Embeddings and machine learning</h4>
-    For session 3, you need a local installation of Python and GloVe embeddings you can download <a href="https://nlp.stanford.edu/projects/glove/">here</a> <br>
+    For session 3, you need a local installation of Python and input embeddings. We will use <a href="https://github.com/commonsense/conceptnet-numberbatch?tab=readme-ov-file">Numberbatch</a> ensemble embeddings. If you want, you can also download <a href="https://nlp.stanford.edu/projects/glove/">GloVe embeddings</a> to compare. <br>
     <table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
@@ -154,7 +154,7 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/cta25/embeddings_transformers.pdf">Slides</a></td>
             <td>for <strong>R:</strong> <br> 
-                <a href="{{ site.url }}assets/code/embeddings.RMD">Replication code</a><br>
+                <a href="{{ site.url }}assets/code/cta25/embeddings25.RMD">Replication code</a><br>
                 <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
                 <a href="{{ site.url }}assets/data/embeddings_mat.RDS">Embeddings Matrix</a><br>
                 <a href="{{ site.url }}assets/code/gpt_in_r.Rmd">Addition: How to use GPT in R</a><br>
