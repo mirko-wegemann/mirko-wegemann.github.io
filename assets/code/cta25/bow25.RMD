@@ -196,7 +196,7 @@ topfeatures(m_dfm, scheme="docfreq")
 
 # Descriptive visualizations
 
-It's often quite fruitful to visualize some of the relations between words without doing any complex analysis. 
+It's often quite helpful to visualize some of the relations between words without doing any complex analysis. 
 
 In the past, many people did wordclouds. Although they are not that informative, it may look good on a cover page or in a report.
 ```{r}
@@ -635,6 +635,7 @@ textplot_terms(lss_model, lr_dict, max_words = 1000)
 ```
 
 The LSS package has generated a weight for every term (whether it's rather left or right wing). Generally, the closer terms are to the polarizing words, the larger their weight. We can use these weights to predict a general score along the two-dimensional continuum for each of our sentences.
+
 ```{r}
 dfmat_doc <- dfm_group(m_dfm2)
 dat <- docvars(m_dfm2)
