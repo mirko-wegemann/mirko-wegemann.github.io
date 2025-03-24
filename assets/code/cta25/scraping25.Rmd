@@ -124,7 +124,7 @@ Solution?
 Sometimes, urls are stored with their full names, sometimes, the root url needs to be pasted to these links. Let's do that using the base R function paste0().
 
 ```{r}
-root_url <- "https://press.un.org/"
+root_url <- "https://press.un.org"
 (pr_urls2 <- paste0(root_url, pr_urls))
 ```
 
@@ -373,6 +373,7 @@ browseURL(url)
 In the case of the UN, all press releases are stored on a url with a similar root -> "https://press.un.org/en/content/press-release?page=". If we want to retrieve the first fifty press releases, we need to access the first five pages (hint: the first page is page=0)
 ```{r}
 urls_un <- paste0("https://press.un.org/en/content/press-release?page=", 0:4)
+urls_un
 ```
 
 
@@ -392,6 +393,15 @@ Try to access all the links to the press releases on the first five pages of the
 ***Solution***
 We will proceed very similarly as before, and construct a function in which we go through the five url pages automatically, and then gather the links to the individual press releases.
 ```{r}
+
+press_urls_loop <- c()
+for(page in 1:length(urls_un)){
+   urls2 <- read_html(urls_un[page]) %>% html_nodes(".field__item a") %>% html_attr("href")     # refer to each of the five links with index n
+   press_urls_loop <- append(press_urls_loop, urls2)
+}
+
+
+
 # define function
 press_url <- function(n){
   url_list <- c()     
