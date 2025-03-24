@@ -157,7 +157,7 @@ nav: false
                 <a href="{{ site.url }}assets/code/cta25/embeddings25.RMD">Replication code</a><br>
                 <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
                 <a href="{{ site.url }}assets/data/embeddings_mat.RDS">Embeddings Matrix</a><br>
-                <a href="{{ site.url }}assets/code/gpt_in_r.Rmd">Addition: How to use GPT in R</a><br>
+                <a href="{{ site.url }}assets/code/cta25/gpt_in_r.Rmd">LLM in R</a><br>
                 for <strong>Python:</strong> <br>
                 Transformers (Colab) <a href="https://github.com/mirko-wegemann/mirko-wegemann.github.io/blob/master/assets/code/intro_transformers.ipynb">Download raw file here and open in Colab</a> <br>
                 <a href="{{ site.url }}assets/data/training.csv">Training data</a><br>	  
