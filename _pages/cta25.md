@@ -133,7 +133,7 @@ nav: false
             <td>
                 <a href="{{ site.url }}assets/code/cta25/bow25.RMD">Replication code</a><br>
                 <a href="{{ site.url }}assets/data/data_prep.RDS">Data</a><br>
-                <a href="{{ site.url }}assets/data/stm_marpor.RDS">Basic STM</a>  <br>    
+                <a href="{{ site.url }}assets/data/stm_marpor2.RDS">Basic STM</a>  <br>    
                 <a href="{{ site.url }}assets/data/stm_marpor_parfam.RDS">STM with covariates</a> <br> 
                 <a href="{{ site.url }}assets/data/searchK.RDS">Results (searchK)</a> 
             </td>

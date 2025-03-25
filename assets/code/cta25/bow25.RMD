@@ -11,8 +11,8 @@ library(stm)                                                                  # 
 library(LSX)                                                                  # latent semantic scaling 
 
 # pretext (testing the sensitivity of text pre-processing) -> if installation fails, comment out
-install.packages("devtools")
-devtools::install_github("matthewjdenny/preText")
+#install.packages("devtools")
+#devtools::install_github("matthewjdenny/preText")
 library(preText)
 ```
 
@@ -345,8 +345,11 @@ m_dfm_sub <- dfm_trim(m_dfm_sub, min_termfreq = 1)
 
 # estimate stm
 stm_sub <- stm(m_dfm_sub, K = 20, seed=421, emtol=0.001)
+# stm <- stm(m_dfm, K = 20, seed=421, emtol=0.001)
+
 end <- Sys.time()
 end-start
+# saveRDS(stm, "./stm_marpor2.RDS")
 
 labelTopics(stm_sub)
 ```
@@ -355,7 +358,7 @@ labelTopics(stm_sub)
 ## Interpretation
 I've estimated a topic model with the full amount of data, if you want load it and compare to your own findings
 ```{r}
-stm1 <- readRDS("./stm_marpor.RDS")
+stm1 <- readRDS("./stm_marpor2.RDS")
 #labelTopics(stm_sub)
 labelTopics(stm1, n=10)
 ```
