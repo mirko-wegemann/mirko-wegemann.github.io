@@ -3,7 +3,8 @@ knitr::opts_chunk$set(echo = TRUE)
 if (!require('tidyverse')) install.packages("tidyverse") # wrangling
 if (!require('RSelenium')) install.packages("RSelenium") # dynamic scraping
 if (!require('wdman')) install.packages("wdman") # selenium server config
-if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects
+if (!require('furrr')) install.packages("furrr") # parallelization
 if (!require('httr2')) install.packages("httr2") # start a browser session
 if (!require('httpcache')) install.packages("httpcache") # clears cache
 if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
@@ -393,7 +394,7 @@ Try to access all the links to the press releases on the first five pages of the
 ***Solution***
 We will proceed very similarly as before, and construct a function in which we go through the five url pages automatically, and then gather the links to the individual press releases.
 ```{r}
-
+# for loop
 press_urls_loop <- c()
 for(page in 1:length(urls_un)){
    urls2 <- read_html(urls_un[page]) %>% html_nodes(".field__item a") %>% html_attr("href")     # refer to each of the five links with index n
@@ -401,8 +402,7 @@ for(page in 1:length(urls_un)){
 }
 
 
-
-# define function
+# function
 press_url <- function(n){
   url_list <- c()     
   url <- read_html(urls_un[n]) %>% html_nodes(".field__item a") %>% html_attr("href")     # refer to each of the five links with index n
@@ -425,6 +425,14 @@ start <- Sys.time()
 results_comp <- sapply(press_urls3, scrape_un)
 end <- Sys.time()
 end-start
+
+# with parallelization
+start <- Sys.time()
+plan("multisession", workers=10)
+results_comp <- future_map(press_urls3, scrape_un)
+end <- Sys.time()
+end-start
+
 
 # transpose matrix and store as data frame
 results_comp2 <- data.frame(t(results_comp))
