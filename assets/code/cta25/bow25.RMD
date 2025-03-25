@@ -5,6 +5,7 @@ if (!require('quanteda')) install.packages("quanteda")                        # 
 if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # if you need text statistics
 if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # if you want to plot textual relationships
 if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # if you want to run textual models like naive bayes
+if (!require('lexicon')) install.packages("lexicon")                          # lemmatization lexicon
 if (!require('caret')) install.packages("caret") # more advanced machine learning
 library(stm)                                                                  # structural topic models
 library(LSX)                                                                  # latent semantic scaling 
@@ -116,6 +117,37 @@ toks <- toks %>% tokens_remove(stopwords2)
 # again, 20 tokens in first document
 head(toks[[1]], 20)
 ```
+
+# ngrams 
+```{r}
+toks_ngram <- tokens_ngrams(toks, n = 2)
+head(toks_ngram, 30)
+```
+
+Often, we only transform some unigrams into ngrams, of those entities or names which seem important for our analysis.
+
+```{r}
+toks_ngram2 <- tokens_compound(toks, pattern=phrase(c("United Kingdom", "European Union", "of course", "House of Commons")))
+toks_ngram2_select <- tokens_select(toks_ngram2, pattern = phrase(c("United_Kingdom", "European_Union", "of_course", "House_of_Commons")))
+
+for(i in 1:5000){
+  if(length(toks_ngram2_select[[i]])>0){
+    print(toks_ngram2_select[[i]])
+  } else{
+    
+  }
+}
+```
+
+
+# Lemmatization
+```{r}
+toks_lemma <- tokens_replace(toks, pattern = hash_lemmas$token, replacement = hash_lemmas$lemma)
+
+toks[1:20]
+toks_lemma[1:20]
+```
+
 
 Now, we are ready to transform our character vectors into numeric representations. For most bags-of-words models, we want to transform it into a *d*ocument-*f*requency-*m*atrix (*dfm*). A dfm is a matrix whose rows correspond to the document and its columns to tokens. The cells denote how often a token appears in a text. 
 
@@ -332,7 +364,10 @@ Examples of these topics in the text would help, right?
 
 ```{r}
 findThoughts(stm1,
-             df$sentence,topics=11,n=15)
+             df$sentence,topics=11,n=4)
+
+findThoughts(stm1,
+             df$sentence,topics=15,n=4)
 ```
 
 We see some texts several times (that's an issue with Australia in which parties contested as electoral alliances on same programmes). But apart from that, it gives us a good idea on what the topic might be about.
@@ -435,6 +470,8 @@ As we often want to know how different actors talk about the same topic, we can 
 ```{r}
 stm2 <- stm(m_dfm, K = 20, seed=421, emtol=0.001, content=~parfam)
 saveRDS(stm2, "./stm_marpor_parfam.RDS")
+stm2 <- readRDS("./stm_marpor_parfam.RDS")
+
 labelTopics(stm2)
 ```
 
