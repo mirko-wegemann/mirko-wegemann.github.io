@@ -58,3 +58,6 @@ nav: false
 	<br>
 	<h4>Week 1: Introduction</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
+	<a href="{{ site.url }}assets/pdf/pcwe25/introduction.pdf">Slides</a><br><br>
+	<h4>Week 2: Concepts</h4>
+	In this session, we will discuss the method of comparison in political science and introduce some key concepts in the study of party competition.

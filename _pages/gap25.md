@@ -58,4 +58,4 @@ nav: false
 	<br>
 	<h4>Week 1: Introduction (09 April 2025)</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
-	
+	<a href="{{ site.url }}assets/pdf/gap25/introduction.pdf">Slides</a><br><br>
