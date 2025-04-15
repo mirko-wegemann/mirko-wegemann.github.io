@@ -371,3 +371,5 @@ jsonresume:
   - languages
   - interests
   - references
+
+excerpt_separator: ""
