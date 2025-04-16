@@ -62,5 +62,5 @@ nav: false
 	<h4>Week 2: Concepts</h4>
 	In this session, we will discuss the method of comparison in political science and introduce some key concepts in the study of party competition. <br>
 	<a href="{{ site.url }}assets/pdf/pcwe25/concepts.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/img/pcwe25/mindmap_good_research.png">Slides</a><br><br>
+    <a href="{{ site.url }}assets/img/pcwe25/mindmap_good_research.png">Mindmap on good research</a><br><br>
 	

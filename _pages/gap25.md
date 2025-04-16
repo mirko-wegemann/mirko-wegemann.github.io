@@ -62,6 +62,6 @@ nav: false
 	<h4>Week 2: Concepts</h4>
 	We will talk about about comparison in political science. Moreover, we will introduce crucial concepts in the study of gender in politics.  <br>
 	<a href="{{ site.url }}assets/pdf/gap25/concepts.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/img/gap25/good_research.png">Slides</a><br><br>
+    <a href="{{ site.url }}assets/img/gap25/good_research.png">Mindmap on good research</a><br><br>
     <h4>Week 3: Representation</h4>
 	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. 
