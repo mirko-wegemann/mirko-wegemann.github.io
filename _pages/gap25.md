@@ -59,3 +59,9 @@ nav: false
 	<h4>Week 1: Introduction (09 April 2025)</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
 	<a href="{{ site.url }}assets/pdf/gap25/introduction.pdf">Slides</a><br><br>
+	<h4>Week 2: Concepts</h4>
+	We will talk about about comparison in political science. Moreover, we will introduce crucial concepts in the study of gender in politics.  <br>
+	<a href="{{ site.url }}assets/pdf/gap25/concepts.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/img/gap25/good_research.png">Slides</a><br><br>
+    <h4>Week 3: Representation</h4>
+	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. 
