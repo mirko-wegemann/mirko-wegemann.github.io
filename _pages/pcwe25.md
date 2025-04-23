@@ -63,4 +63,6 @@ nav: false
 	In this session, we will discuss the method of comparison in political science and introduce some key concepts in the study of party competition. <br>
 	<a href="{{ site.url }}assets/pdf/pcwe25/concepts.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/img/pcwe25/mindmap_good_research.png">Mindmap on good research</a><br><br>
-	
+	<h4>Week 3: Political Cleavages</h4>
+	Have the conflict lines in Western societies changed over times? We will discuss the idea of political cleavages and their recent transformations. In the second part of the session, we will also discuss data sources we can use to analyse voters. <br>
+	<a href="{{ site.url }}assets/code/pcwe25/voters.Rmdf">R Code</a><br>
