@@ -1,0 +1,425 @@
+# Setup 
+In the following code snippet, we install the relevant packages (if not already installed) and load them into our environment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # data wrangling
+if (!require('marginaleffects')) install.packages("marginaleffects") # marginaleffects
+```
+
+# Import and description of the data
+We import our data and get a brief overview into the variables it contains.
+
+```{r}
+df <- read.csv("ESS11.csv")
+summary(df)
+```
+
+
+# Descriptive statistics
+To get an idea of the structure of variables, we can use the table() command for variables.
+
+```{r}
+table(df$prtcleat)        # Which party Austrians feel close to...
+```
+
+We'll only get numeric values which we can transform to character labels for better visualization (just follow the codebook here). Some labels (here: 66, 77 and 88) denote so-called missing values, i.e., values which are usually not suitable for analysis (such as: not applicable, don't know, coding error, etc.).
+
+We can use dplyr from the tidyverse to clean our variable.
+```{r}
+df <- df %>%
+  mutate(ptv_austria = case_when(prtcleat == 1 ~ "SPÖ",
+                              prtcleat == 2 ~ "ÖVP",
+                              prtcleat == 3 ~ "FPÖ",
+                              prtcleat == 4 ~ "JETZT",
+                              prtcleat == 5 ~ "GRÜNE",
+                              prtcleat == 6 ~ "KPÖ",
+                              prtcleat == 7 ~ "NEOS",
+                              prtcleat == 8 ~ "Others"
+                              ))
+```
+
+Let's try to plot the party vote with ggplot -- the visualization command from the tidyverse.
+
+```{r}
+df %>%
+  filter(!is.na(ptv_austria)) %>%
+  ggplot(aes(ptv_austria)) +
+  geom_bar()
+```
+
+
+***Your Turn***
+Choose a country and try to repeat the steps to visualize the distribution of the vote choice. 
+
+```{r}
+
+```
+
+
+# Bivariate statistics
+
+We have only plotted the distribution of one variable so far. However, we are often interested in relations between two or even more variables.
+
+Let's create a correlation matrix between two variables - one is left-right and the other one is the income. Is there a relationship between income and political attitudes?
+
+```{r}
+# first, check the variables:
+table(df$lrscale)
+table(df$hinctnta) # only available in deciles (not optimal, but ok for now)
+
+df <- df %>%
+  mutate(lrscale = ifelse(lrscale > 10, NA, lrscale),
+         hinctnta = ifelse(hinctnta > 10, NA, hinctnta)) # easy way to change values (all larger than 10 in these cases) to NA 
+
+df %>%
+  filter(!is.na(lrscale) & !is.na(hinctnta)) %>% # we can't create a correlation for missing values, so remove them
+  summarise(cor(lrscale, hinctnta))
+```
+This relationship is almost non-existent.
+
+
+
+***Your Turn***
+Try the same for education (eisced). Be aware of missing values! 
+
+```{r}
+table(df$eisced)
+```
+
+
+***Solution***
+```{r}
+df <- df %>%
+  mutate(edu = ifelse(eisced<55, NA, eisced)) 
+
+df %>%
+  filter(!is.na(lrscale) & !is.na(edu)) %>% 
+  summarise(cor(lrscale, edu)) # strictly speaking, education is not a numeric variable (it's categorical, so other measures like kendall's tau or regression frameworks would be more appropriate)
+```
+
+
+
+# Regression framework
+
+Let us try to map the influence of the occupation on left-right position (coming closer to the article by Marks et al. 2023).
+
+To create the social classes, there is a bit more manipulation necessary. The following script is based on Oesch's class scheme (https://people.unil.ch/danieloesch/scripts/)
+```{r}
+df$isco_mainjob <- df$isco08
+df$isco_mainjob <- ifelse(df$isco_mainjob %in% c(66666,77777,88888,99999),-9, df$isco_mainjob)
+
+#### Recode employment status for respondents
+df$emplrel_r <- df$emplrel
+df$emplrel_r <- ifelse(df$emplrel_r %in% c(6,7,8,9),9, df$emplrel_r)
+
+
+df$emplno_r <- df$emplno
+df$emplno_r[is.na(df$emplno_r)] <- 0
+df$emplno_r[df$emplno_r >= 1 & df$emplno_r <= 9] <- 1
+df$emplno_r[df$emplno_r >= 10 & df$emplno_r <= 66665] <- 2
+
+df$selfem_mainjob <- NA
+df$selfem_mainjob[df$emplrel_r == 1 | df$emplrel_r == 9] <- 1
+df$selfem_mainjob[df$emplrel_r == 2 & df$emplno_r == 0] <- 2
+df$selfem_mainjob[df$emplrel_r == 3] <- 2
+df$selfem_mainjob[df$emplrel_r == 2 & df$emplno_r == 1] <- 3
+df$selfem_mainjob[df$emplrel_r == 2 & df$emplno_r == 2] <- 4
+
+
+#################################################
+# Create Oesch class schema for respondents
+#################################################
+
+df$class16_r <- -9
+
+# Large employers (1)
+
+df$class16_r[df$selfem_mainjob == 4] <- 1
+
+# Self-employed professionals (2)
+
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2000 & df$isco_mainjob <= 2162] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2164 & df$isco_mainjob <= 2165] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2200 & df$isco_mainjob <= 2212] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob == 2250] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2261 & df$isco_mainjob <= 2262] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2300 & df$isco_mainjob <= 2330] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2350 & df$isco_mainjob <= 2352] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2359 & df$isco_mainjob <= 2432] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2500 & df$isco_mainjob <= 2619] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob == 2621] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2630 & df$isco_mainjob <= 2634] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2636 & df$isco_mainjob <= 2640] <- 2
+df$class16_r[(df$selfem_mainjob == 2 | df$selfem_mainjob == 3) & df$isco_mainjob >= 2642 & df$isco_mainjob <= 2643] <- 2
+
+# Small business owners with employees (3)
+
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 1000 & df$isco_mainjob <= 1439] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2163] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2166] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2220 & df$isco_mainjob <= 2240] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2260] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2263 & df$isco_mainjob <= 2269] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2340 & df$isco_mainjob <= 2342] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2353 & df$isco_mainjob <= 2356] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2433 & df$isco_mainjob <= 2434] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2620] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2622] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2635] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob == 2641] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 2650 & df$isco_mainjob <= 2659] <- 3
+df$class16_r[df$selfem_mainjob == 3 & df$isco_mainjob >= 3000 & df$isco_mainjob <= 9629] <- 3
+
+# Small business owners without employees (4)
+
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 1000 & df$isco_mainjob <= 1439] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2163] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2166] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2220 & df$isco_mainjob <= 2240] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2260] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2263 & df$isco_mainjob <= 2269] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2340 & df$isco_mainjob <= 2342] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2353 & df$isco_mainjob <= 2356] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2433 & df$isco_mainjob <= 2434] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2620] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2622] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2635] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob == 2641] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 2650 & df$isco_mainjob <= 2659] <- 4
+df$class16_r[df$selfem_mainjob == 2 & df$isco_mainjob >= 3000 & df$isco_mainjob <= 9629] <- 4
+
+# Technical experts (5)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2100 &  df$isco_mainjob <= 2162] <- 5
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2164 &  df$isco_mainjob <= 2165] <- 5
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2500 &  df$isco_mainjob <= 2529] <- 5
+
+# Technicians (6)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3100 &  df$isco_mainjob <= 3155] <- 6
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3210 &  df$isco_mainjob <= 3214] <- 6
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3252] <- 6
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3500 &  df$isco_mainjob <= 3522] <- 6
+
+# Skilled manual (7)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 6000 &  df$isco_mainjob <= 7549] <- 7
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 8310 &  df$isco_mainjob <= 8312] <- 7
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 8330] <- 7
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 8332 &  df$isco_mainjob <= 8340] <- 7
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 8342 &  df$isco_mainjob <= 8344] <- 7
+
+# Low-skilled manual (8)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 8000 &  df$isco_mainjob <= 8300] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 8320 &  df$isco_mainjob <= 8321] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 8341] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 8350] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 9200 &  df$isco_mainjob <= 9334] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 9600 &  df$isco_mainjob <= 9620] <- 8
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 9622 &  df$isco_mainjob <= 9629] <- 8
+
+# Higher-grade managers and administrators (9)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 1000 &  df$isco_mainjob <= 1300] <- 9
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 1320 &  df$isco_mainjob <= 1349] <- 9
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2400 &  df$isco_mainjob <= 2432] <- 9
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2610 &  df$isco_mainjob <= 2619] <- 9
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2631] <- 9
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 100 &  df$isco_mainjob <= 110] <- 9
+
+# Lower-grade managers and administrators (10)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 1310 &  df$isco_mainjob <= 1312] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 1400 &  df$isco_mainjob <= 1439] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2433 &  df$isco_mainjob <= 2434] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3300 &  df$isco_mainjob <= 3339] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3343] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3350 &  df$isco_mainjob <= 3359] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3411] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5221] <- 10
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 200 &  df$isco_mainjob <= 210] <- 10
+
+# Skilled clerks (11)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3340 &  df$isco_mainjob <= 3342] <- 11
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3344] <- 11
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 4000 &  df$isco_mainjob <= 4131] <- 11
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 4200 &  df$isco_mainjob <= 4221] <- 11
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 4224 &  df$isco_mainjob <= 4413] <- 11
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 4415 &  df$isco_mainjob <= 4419] <- 11
+
+# Unskilled clerks (12)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 4132] <- 12
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 4222] <- 12
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 4223] <- 12
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5230] <- 12
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 9621] <- 12
+
+# Socio-cultural professionals (13)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2200 &  df$isco_mainjob <= 2212] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2250] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2261 &  df$isco_mainjob <= 2262] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2300 &  df$isco_mainjob <= 2330] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2350 &  df$isco_mainjob <= 2352] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2359] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2600] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2621] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2630] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2632 &  df$isco_mainjob <= 2634] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2636 &  df$isco_mainjob <= 2640] <- 13
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2642 &  df$isco_mainjob <= 2643] <- 13
+
+# Socio-cultural semi-professionals (14)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2163] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2166] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2220 &  df$isco_mainjob <= 2240] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2260] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2263 &  df$isco_mainjob <= 2269] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2340 &  df$isco_mainjob <= 2342] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2353 &  df$isco_mainjob <= 2356] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2620] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2622] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2635] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 2641] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 2650 &  df$isco_mainjob <= 2659] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3200] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3220 &  df$isco_mainjob <= 3230] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3250] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3253 &  df$isco_mainjob <= 3257] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3259] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3400 &  df$isco_mainjob <= 3410] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3412 &  df$isco_mainjob <= 3413] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3430 &  df$isco_mainjob <= 3433] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3435] <- 14
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 4414] <- 14
+
+# Skilled service (15)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3240] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3251] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3258] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 3420 &  df$isco_mainjob <= 3423] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 3434] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5000 &  df$isco_mainjob <= 5120] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5140 &  df$isco_mainjob <= 5142] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5163] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5165] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5200] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5220] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5222 &  df$isco_mainjob <= 5223] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5241 &  df$isco_mainjob <= 5242] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5300 &  df$isco_mainjob <= 5321] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5400 &  df$isco_mainjob <= 5413] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5419] <- 15
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 8331] <- 15
+
+# Low-skilled service (16)
+
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5130 &  df$isco_mainjob <= 5132] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5150 &  df$isco_mainjob <= 5162] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5164] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5169] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5210 &  df$isco_mainjob <= 5212] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5240] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5243 &  df$isco_mainjob <= 5249] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 5322 &  df$isco_mainjob <= 5329] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 5414] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob == 8322] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 9100 &  df$isco_mainjob <= 9129] <- 16
+df$class16_r[df$selfem_mainjob == 1 & df$isco_mainjob >= 9400 &  df$isco_mainjob <= 9520] <- 16
+
+
+df$class16_r[df$class16_r == -9] <- NA
+df <- df %>%
+  mutate(class16_r = case_when(class16_r==1 ~ "Large employers",
+                             class16_r==2 ~ "Self-employed professionals",
+                             class16_r==3 ~ "Small business owners with employees",
+                             class16_r==4 ~ "Small business owners without employees",
+                             class16_r==5 ~ "Technical experts",
+                             class16_r==6 ~ "Technicians",
+                             class16_r==7 ~ "Skilled manual",
+                             class16_r==8 ~ "Low-skilled manual",
+                             class16_r==9 ~ "Higher-grade managers and administrators",
+                             class16_r==10 ~ "Lower-grade managers and administrators",
+                             class16_r==11 ~ "Skilled clerks",
+                             class16_r==12 ~ "Unskilled clerks",
+                             class16_r==13 ~ "Socio-cultural professionals",
+                             class16_r==14 ~ "Socio-cultural professionals",
+                             class16_r==15 ~ "Skilled service",
+                             class16_r==16 ~ "Low-skilled service"))
+
+
+df$class8_r <- NA
+df$class8_r[df$class16_r <= "Self-employed professionals"] <- 1
+df$class8_r[df$class16_r == "Small business owners with employees" | df$class16_r == "Small business owners without employees"] <- 2
+df$class8_r[df$class16_r == "Technical experts" | df$class16_r == "Technicians"] <- 3
+df$class8_r[df$class16_r == "Skilled manual" | df$class16_r == "Low-skilled manual"] <- 4
+df$class8_r[df$class16_r == "Higher-grade managers and administrators" | df$class16_r == "Lower-grade managers and administrators"] <- 5
+df$class8_r[df$class16_r == "Skilled clerks" | df$class16_r == "Unskilled clerks"] <- 6
+df$class8_r[df$class16_r == "Socio-cultural professionals" | df$class16_r == "Socio-cultural professionals"] <- 7
+df$class8_r[df$class16_r == "Skilled service" | df$class16_r == "Low-skilled service"] <- 8
+
+df <- df %>%
+  mutate(class8_r = case_when(class8_r==1 ~ "Self-employed professionals and large employers",
+                            class8_r==2 ~ "Small business owners",
+                            class8_r==3 ~ "Technical (semi-)professionals",
+                            class8_r==4 ~ "Production workers",
+                            class8_r==5 ~ "(Associate) managers",
+                            class8_r==6 ~ "Clerks",
+                            class8_r==7 ~ "Socio-cultural (semi-)professionals",
+                            class8_r==8 ~ "Service workers"))
+
+# we transform the variable to a factor which is easier to handle in regression analyses
+df <- df %>%
+  mutate(class8_r = as.factor(class8_r),
+         class8_r = relevel(class8_r, ref="Production workers")) # let's set production workers as a "reference category" to compare other groups to construction workers
+```
+
+Regress!
+```{r}
+m1 <- lm(lrscale ~ class8_r, df)
+summary(m1)
+
+
+# plot! (here only for some selected groups, we could add more or all)
+pred_val <- predictions(m1, newdata = datagrid(class8_r = c("(Associate) managers", "Clerks", "Socio-cultural (semi-)professionals", 
+                                                   "Service workers", "Production workers")))
+pred_val %>%
+  ggplot(aes(class8_r, estimate)) + 
+  geom_point() + geom_errorbar(aes(ymin=conf.low, ymax=conf.high))
+```
+
+We should be aware that a bivariate regression cannot tell us much about causality. It's possible that the relationship is spurious - class might actually correlate a lot with other items like education, income etc. which might confound our relationship.
+
+***Your Turn***
+
+If you want, add more variables to the regression and see how coefficients change.
+
+```{r}
+
+```
+
+
+***Solution***
+
+```{r}
+df <- df %>%
+  mutate(gender = ifelse(gndr==1, "Male", "Female"),
+         age = ifelse(agea<999,agea,NA),
+         edu_cat = as.factor(case_when(eisced == 1 ~ "Less than lower secondary",
+                             eisced == 2 ~ "Lower secondary",
+                             eisced == 3 ~ "Lower tier upper secondary",
+                             eisced == 4 ~ "Upper tier upper secondary",
+                             eisced == 5 ~ "Advanced vocational, sub-degree",
+                             eisced == 6 ~ "Lower tertiary",
+                             eisced == 7 ~ "Higher tertiary")),
+         edu_cat = relevel(edu_cat, ref="Less than lower secondary"))
+
+m1 <- lm(lrscale ~ class8_r + edu_cat + gender + age, df)
+summary(m1)
+```
