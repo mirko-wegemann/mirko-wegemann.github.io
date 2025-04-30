@@ -67,5 +67,6 @@ nav: false
 	Have the conflict lines in Western societies changed over times? We will discuss the idea of political cleavages and their recent transformations.  <br>
 	<a href="{{ site.url }}assets/pdf/pcwe25/realignment.pdf">Slides</a><br>
 	<h4>Week 4: Polarization</h4>
-	Do Western societies become more polarized? How do actors like the far-right contribute to polarization? We will first deal with these questions before discussing data sources on voters we can use to analyse voters.
+	Do Western societies become more polarized? How do actors like the far-right contribute to polarization? We will first deal with these questions before discussing data sources on voters we can use to analyse voters. <br> 
+    <a href="{{ site.url }}assets/pdf/pcwe25/polarization.pdf">Slides</a><br>
 	<a href="{{ site.url }}assets/code/pcwe25/voters.Rmd">R Code</a><br>

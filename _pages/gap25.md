@@ -64,5 +64,9 @@ nav: false
 	<a href="{{ site.url }}assets/pdf/gap25/concepts.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/img/gap25/good_research.png">Mindmap on good research</a><br><br>
     <h4>Week 3: Representation</h4>
-	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. 
-	<a href="{{ site.url }}assets/pdf/gap25/representation.pdf">Slides</a><br>
+	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. <br>
+	<a href="{{ site.url }}assets/pdf/gap25/representation.pdf">Slides</a><br><br>
+    <h4>Week 4: Norms</h4>
+    Norms are essential for social order. They shape how we think and behave. In this week, we'll discuss what norms are, how they evolve and how they are transmitted to the next generation while discussing their significance in the context of gender. <br> 
+    <a href="{{ site.url }}assets/pdf/gap25/norms.pdf">Slides</a><br>
+

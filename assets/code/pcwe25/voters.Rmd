@@ -420,6 +420,36 @@ df <- df %>%
                              eisced == 7 ~ "Higher tertiary")),
          edu_cat = relevel(edu_cat, ref="Less than lower secondary"))
 
-m1 <- lm(lrscale ~ class8_r + edu_cat + gender + age, df)
-summary(m1)
+m2 <- lm(lrscale ~ class8_r + edu_cat + gender + age, df)
+summary(m2)
 ```
+
+
+# Measuring policy polarization
+The European Social Survey does not have appropriate measures regarding affective polarization (at least in Wave 11). However, it allows to conceptualize policy polarization as Bischof and Wagner (2019) did. 
+
+```{r}
+df <- df %>%
+  mutate(lr_pol = (lrscale - median(lrscale, na.rm=T))^2)
+
+# individual distribution
+df %>%
+  ggplot(aes(lr_pol)) + 
+  geom_density()
+
+# country-level aggregate
+df %>%
+  group_by(cntry) %>%
+  summarise(lr_pol_cntry = mean(lr_pol, na.rm=T)) %>%
+  ggplot(aes(reorder(cntry, -lr_pol_cntry), lr_pol_cntry)) +
+  geom_col()
+
+
+# explanations of polarization on an individual level
+m3 <- lm(lr_pol ~ class8_r + edu_cat + gender + age, df)
+summary(m3)
+
+# let's see what happens if we control for country-specific levels of polarization
+m4 <- lm(lr_pol ~ class8_r + edu_cat + gender + age + cntry, df)
+summary(m4)
+``` 
