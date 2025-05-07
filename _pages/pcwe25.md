@@ -73,4 +73,4 @@ nav: false
     <h4>Week 5: Changing Contexts</h4>
     How did globalization affect citizens' grievances? Do those losing from labor market transformations vote for anti-system parties? We will approach these questions from two empirical readings on technological change and labor market risk. <br> 
     <a href="{{ site.url }}assets/pdf/pcwe25/technological_change.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/img/pcwe25/mindmap_context">Mindmap on the readings</a><br>
+    <a href="{{ site.url }}assets/img/pcwe25/mindmap_context.png">Mindmap on the readings</a><br>
