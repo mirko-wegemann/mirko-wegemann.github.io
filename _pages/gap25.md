@@ -68,5 +68,8 @@ nav: false
 	<a href="{{ site.url }}assets/pdf/gap25/representation.pdf">Slides</a><br><br>
     <h4>Week 4: Norms</h4>
     Norms are essential for social order. They shape how we think and behave. In this week, we'll discuss what norms are, how they evolve and how they are transmitted to the next generation while discussing their significance in the context of gender. <br> 
-    <a href="{{ site.url }}assets/pdf/gap25/norms.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/pdf/gap25/norms.pdf">Slides</a><br><br>
+     <h4>Week 5: Legacies</h4>
+    How do gender norms come into being? We focus on an application of cultural transmission, arguing that an agricultural reform -- the emergence of the plough -- has reinforced gendered household division with lasting effects up until today. <br> 
+    <a href="{{ site.url }}assets/pdf/gap25/legacies.pdf">Slides</a><br>
 

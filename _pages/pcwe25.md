@@ -70,3 +70,7 @@ nav: false
 	Do Western societies become more polarized? How do actors like the far-right contribute to polarization? We will first deal with these questions before discussing data sources on voters we can use to analyse voters. <br> 
     <a href="{{ site.url }}assets/pdf/pcwe25/polarization.pdf">Slides</a><br>
 	<a href="{{ site.url }}assets/code/pcwe25/voters.Rmd">R Code</a><br>
+    <h4>Week 5: Changing Contexts</h4>
+    How did globalization affect citizens' grievances? Do those losing from labor market transformations vote for anti-system parties? We will approach these questions from two empirical readings on technological change and labor market risk. <br> 
+    <a href="{{ site.url }}assets/pdf/pcwe25/technological_change.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/img/pcwe25/mindmap_context">Mindmap on the readings</a><br>
