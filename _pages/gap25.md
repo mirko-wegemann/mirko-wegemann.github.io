@@ -71,5 +71,7 @@ nav: false
     <a href="{{ site.url }}assets/pdf/gap25/norms.pdf">Slides</a><br><br>
      <h4>Week 5: Legacies</h4>
     How do gender norms come into being? We focus on an application of cultural transmission, arguing that an agricultural reform -- the emergence of the plough -- has reinforced gendered household division with lasting effects up until today. <br> 
-    <a href="{{ site.url }}assets/pdf/gap25/legacies.pdf">Slides</a><br>
-
+    <a href="{{ site.url }}assets/pdf/gap25/legacies.pdf">Slides</a><br><br>
+    <h4>Week 6: Institutions</h4>
+    This week, we discuss the role of political institutions, such as the electoral system and the candidate selection process, for the participation and representation of women in politics. <br> 
+    <a href="{{ site.url }}assets/pdf/gap25/institutions.pdf">Slides</a><br><br>
