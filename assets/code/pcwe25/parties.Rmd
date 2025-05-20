@@ -1,0 +1,268 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")    # data wrangling
+if (!require('quanteda')) install.packages("quanteda")        # text analysis
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")        # text analysis (plots)
+if (!require("manifestoR")) install.packages("manifestoR")  # Manifesto Project API wrapper
+if (!require('usethis')) install.packages("usethis")        # open environment files (for secret API keys)
+edit_r_environ()
+```
+
+# Import
+
+In the following, we will work with the Manifesto Project, a large database that classifies the party platforms of Western democracies into several policy categories.
+
+First, we import the files. There are two different methods for this:
+
+1.) If we have already downloaded the data, we can simply load it into the environment.
+
+```{r}
+df <- read.csv("./MPDataset_MPDS2024a.csv")
+```
+
+2.) If we have API access to the Manifesto Project, we can also download the data automatically.
+For a step-by-step tutorial → https://cran.r-project.org/web/packages/manifestoR/vignettes/manifestoRworkflow.pdf.
+
+```{r}
+# Set API-Key
+mp_setapikey(key=Sys.getenv("MP_API_KEY"))
+
+# Download main dataset
+df <-  mp_maindataset()
+```
+
+# Some cosmetic fixes
+
+We'll work with party families later. When downloading the data, we only have their numeric labels. Let's transform them into party family names based on the Manifesto Project Codebook.
+
+```{r}
+df <- df %>%
+  mutate(parfam_n = case_when(
+    parfam == 10 ~ "Ecological",
+    parfam == 20 ~ "Socialist",
+    parfam == 30 ~ "Social Dem.",
+    parfam == 40 ~ "Liberal",
+    parfam == 50 ~ "Christian Dem.",
+    parfam == 60 ~ "Conservative",
+    parfam == 70 ~ "Nationalist",
+    parfam == 80 ~ "Agrarian",
+    parfam == 90 ~ "Ethnic",
+    parfam == 95 ~ "Special Issue",
+    parfam == 98 ~ "Electoral Alliances",
+    parfam == 999 ~ "NA")) 
+```
+
+# Descriptive Insight into Data
+
+As done for the demand-side analyses, we should first get a glimpse into the data before starting. 
+
+```{r}
+View(df)
+```
+
+We do have data on party-election level. For each party and each election, a party programme was classified into different categories.
+
+We can make use of summary()-statistics. For instance, how much do parties demand measures for environmental protection (per501) in their programmes?  
+
+```{r}
+summary(df$per501)
+```
+
+...and which parties talk(ed) about it the most?
+
+```{r}
+df %>%
+  arrange(-per501) %>%      # order the data [- var means descending order; drop the - and you'll get ascending order]
+  select(per501, partyname, countryname, edate, parfam)
+```
+
+Not surprising, is it? 
+
+The Manifesto Project follows the salience theory of Budge and Farlie (1983). To obtain a positional measure, we can relate the positive and negative statements on a specific issue area to each other. On the environment, there's only a pro-environmental code available. Let's switch to per406 (protectionism: positive) and per406 (protectionism: negative).
+
+There are various ways to do this.
+
+The most straightforward way: simply subtracting the negative from the positive category divided by the total mentions of the topic. 
+
+```{r}
+# Let's assign the new variable to our data frame, this is done with <- 
+df <- df %>%
+  mutate(protectionism = (per406-per407)/(per406+per407)) 
+
+# ...and now, let's see which parties have the most pro-welfare position
+df %>%
+  arrange(-protectionism) %>%
+  select(protectionism, per406, per407, partyname, countryname, edate, parfam)
+
+# quite a lot, huh? that's not really informative, let's rather plot the data
+df %>%
+  ggplot(aes(protectionism)) + 
+  geom_histogram() + theme_light()
+
+# seems as if there's a lot of polarization going on. Let's plot averages for each party family to get a more informative picture
+df %>%
+  group_by(parfam_n) %>%                                            # we group_by party family, telling R that we want to cluster the data by p. family
+  summarise(avg_protectionism=mean(protectionism, na.rm=T)) %>%            # now, we tell R that we want to retrieve the mean 
+  ggplot(aes(parfam_n, avg_protectionism)) +    
+  geom_col() + theme_light() + theme(axis.text.x = element_text(angle = 30))
+
+```
+
+
+As always, there are more advanced methods. The main issue with the prior approach is that there are boundaries. Due to these boundaries, we can't establish differences in party positions depending on how much more they talk about an issue. 
+
+A solution is to use the difference between the logged transformation of the left and right categories. 
+
+Let's compare both solutions.
+
+```{r}
+df <- df %>%
+  mutate(protectionism_logged = log(per406+.5)-log(per407+.5)) 
+
+# let's compare both approaches
+df %>%
+  arrange(-protectionism_logged) %>%
+  select(protectionism, protectionism_logged, per406, per407, partyname, countryname, edate, parfam)
+
+# how does the distribution look now?
+df %>%
+  ggplot(aes(protectionism_logged)) + 
+  geom_histogram() + theme_light()
+
+# and by party family?
+df %>%
+  group_by(parfam_n) %>%   
+  summarise(avg_protectionism_logged=mean(protectionism_logged, na.rm=T)) %>%  
+  ggplot(aes(parfam_n, avg_protectionism_logged)) +    
+  geom_col() + theme_light() + theme(axis.text.x = element_text(angle = 30))
+```
+***Now You***
+You can do all sorts of analyses of party emphasis and positioning in different issue areas. Re-run an analysis with a policy category of your interest. 
+
+```{r}
+
+```
+
+
+# Work with textual data
+
+As you've seen with Schwörer's paper: one of the big advantages of the Manifesto Project is its huge corpus. We can use it for textual analysis as well. 
+
+Maybe we want to replicate Schwörer's paper but make some adjustments to the dictionary? Let's limit our analysis to Germany, just for simplicity. 
+
+It makes sense to download two data sources - once for parties, once for their text.
+We will "merge" the data set by a common party id. 
+
+The left_join command is very neat and whenever you want to combine different data sources, you'll encounter it.
+
+```{r}
+# Download all party data
+parties <- mp_parties()
+
+# Download all data for Germany
+german_mp <- mp_corpus_df(countryname=="Germany")
+
+# Merge corpus data with metadata
+df_mp <- left_join(german_mp, parties, by=c("party"))
+
+View(df_mp)
+```
+
+# Transformation to numeric vectors
+
+A powerful package for the analysis of textual data is quanteda, they also have a superb documentation (http://quanteda.io). 
+
+Before we can start with simple analysis, we need to transform the data into the right structure - a tokens and a document-feature matrix.
+
+```{r}
+# a tokens object (we remove punctuation, numbers, symbols and very frequent, so-called stopwords)
+mp_toks <- tokens(df_mp$text,
+                  remove_punct = T,
+                  remove_numbers = T,
+                  remove_symbols = T) %>%
+  tokens_remove(stopwords(language="de"))
+head(mp_toks)
+
+# a dfm object
+mp_dfm <- dfm(mp_toks, tolower=T)
+head(mp_dfm)
+
+# add meta information to the dfm 
+docvars(mp_dfm, "party") <- df_mp$name
+docvars(mp_dfm, "election") <- df_mp$date
+```
+
+These transformations can be refined a lot -> see their documentation and various papers like Grimmer 2013; Denny, Spirling 2017 on that issue). But for now, that's fine, let's do a wordcloud first.
+
+```{r}
+textplot_wordcloud(mp_dfm)
+```
+
+Then, let's try to run a dictionary analysis. We could simply replicate the analysis by Schwörer. 
+```{r}
+climate_dict <- dictionary(list(climate=c("klima*", "erhitz*", "erwärm*", "treibhaus*", "glashaus*", "aufheiz*", "temperatur*")))
+
+results <- dfm_lookup(mp_dfm, climate_dict)
+
+res <- convert(results, to="data.frame")
+meta <- data.frame(docvars(results))
+res_df <- bind_cols(meta, res)
+```
+
+Let's look into the results. 
+How often have parties make references to the climate?
+```{r}
+table(res_df$climate)
+```
+
+...not really often.
+Let's further aggregate by party/election and see which party made most statements on climate.
+```{r}
+res_df <- res_df %>%
+    mutate(climate_binary = ifelse(climate>=1,1,0))    # let's create a binary version of the variable first
+
+
+res_df %>%
+  group_by(party, election) %>%
+  summarise(n_climate = sum(climate_binary, na.rm=T)) 
+```
+
+Of course, we can plot these data again.
+```{r}
+res_df %>%
+  group_by(party, election) %>%
+  summarise(n_climate = sum(climate_binary, na.rm=T)) %>%
+  ggplot(aes(election, n_climate, color=party)) + 
+  geom_step()
+
+
+# and for a cleaner version, let's focus only on the main parties on nowadays political landscape
+res_df %>%
+  filter(party %in% c("Alternative für Deutschland", "Bündnis‘90/Die Grünen", "Christlich-Demokratische Union/Christlich-Soziale Union", "Die Linke", "Freie Demokratische Partei", "Sozialdemokratische Partei  Deutschlands")) %>%
+  group_by(party, election) %>%
+  summarise(n_climate = sum(climate_binary, na.rm=T)) %>%
+  ggplot(aes(election, n_climate, color=party)) + 
+  geom_point() + geom_step()
+```
+
+There are several ways to improve the graph. Specifically, we might want to have relative instead of absolute counts.
+
+```{r}
+res_df %>%
+  group_by(party, election) %>%
+  filter(party %in% c("Alternative für Deutschland", "Bündnis‘90/Die Grünen", "Christlich-Demokratische Union/Christlich-Soziale Union", "Die Linke", "Freie Demokratische Partei", "Sozialdemokratische Partei  Deutschlands"),
+         election>199801) %>%
+  summarise(n_statements = n(),
+            n_climate = sum(climate_binary, na.rm=T)) %>%
+  mutate(climate_share = (n_climate/n_statements)*100) %>%
+  ggplot(aes(election, climate_share, color=party)) + 
+  geom_point() + geom_step()
+```
+
+
+***Now You***
+Conduct a dictionary analysis on your own -- either refine the environmental dictionary or use an alternative category (e.g., the populism dictionary by Pauwels/Rooduijn 2011, https://www.tandfonline.com/doi/full/10.1080/01402382.2011.616665). 
+
+```{r}
+
+```
