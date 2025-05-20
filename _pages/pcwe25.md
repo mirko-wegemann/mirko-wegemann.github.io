@@ -57,12 +57,12 @@ nav: false
 	<h3>Material</h3>
 	<br>
     <h4>Crash course on R</h4>
-    There are various YouTube tutorials and <a href="https://r4ds.hadley.nz/">Handbooks</a> you can consult to learn R. I also created a very simple introductory script you could download alongside the sample data to get a first glimpse into basic functions of R. 
+    There are various YouTube tutorials and <a href="https://r4ds.hadley.nz/">Handbooks</a> you can consult to learn R. I also created a very simple introductory script you could download alongside the sample data to get a first glimpse into basic functions of R. <br> 
     <a href="{{ site.url }}assets/code/pcwe25/introduction.Rmd">R Code (Introduction)</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/allb18.dta">Survey data</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/speeches_german.RDS">Textual data</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/test_set.csv">Example .csv-data</a><br>
-    <a href="{{ site.url }}assets/code/pcwe25/unemployment_1222.xlsx">Example .xlsx-data</a><br><br>
+    <a href="{{ site.url }}assets/code/pcwe25/unemployment_1222.xlsx">Example .xlsx-data</a><br>
     <a href="{{ site.url }}assets/pdf/pcwe25/pcwe_syllabus.pdf">Our syllabus as an example of a .pdf file</a><br><br>
 
 	<h4>Week 1: Introduction</h4>
