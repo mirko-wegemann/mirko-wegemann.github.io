@@ -56,6 +56,15 @@ nav: false
 	<br>
 	<h3>Material</h3>
 	<br>
+    <h4>Crash course on R</h4>
+    There are various YouTube tutorials and <a href="https://r4ds.hadley.nz/">Handbooks</a> you can consult to learn R. I also created a very simple introductory script you could download alongside the sample data to get a first glimpse into basic functions of R. 
+    <a href="{{ site.url }}assets/code/pcwe25/introduction.Rmd">R Code (Introduction)</a><br>
+    <a href="{{ site.url }}assets/code/pcwe25/allb18.dta">Survey data</a><br>
+    <a href="{{ site.url }}assets/code/pcwe25/speeches_german.RDS">Textual data</a><br>
+    <a href="{{ site.url }}assets/code/pcwe25/test_set.csv">Example .csv-data</a><br>
+    <a href="{{ site.url }}assets/code/pcwe25/unemployment_1222.xlsx">Example .xlsx-data</a><br><br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/pcwe_syllabus.pdf">Our syllabus as an example of a .pdf file</a><br><br>
+
 	<h4>Week 1: Introduction</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
 	<a href="{{ site.url }}assets/pdf/pcwe25/introduction.pdf">Slides</a><br><br>
@@ -77,3 +86,8 @@ nav: false
     <h4>Week 6: Roundtable</h4>
     Do citizens behave rationally when casting their vote? In this week, we will discuss your essays. <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/roundtable1.pdf">Slides</a><br><br>
+    <h4>Week 7: Issue Competition</body</body>h4>
+    In this week, we will switch the perspective and focus on the strategic behavior of political parties. In the first session of this bloc, we will focus on issue competition of parties. Moreover, we will access data from the <a href="https://manifesto-project.wzb.eu/datasets">Manifesto Project</a> (please register and download the .csv-file in preparation of the session). <br>
+    <a href="{{ site.url }}assets/code/pcwe25/parties.Rmd">R Code</a><br><br>
+
+

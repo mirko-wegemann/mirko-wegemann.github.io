@@ -1,0 +1,404 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # data wrangling
+if (!require('openxlsx')) install.packages("openxlsx") # import xlsx files
+if (!require('haven')) install.packages("haven") # import stata files, option 1
+if (!require('readstata13')) install.packages("readstata13") # import stata files, option 2
+if (!require('tesseract')) install.packages("tesseract") # import pdf files
+if (!require('pdftools')) install.packages("pdftools") # import pdf files
+if (!require('marginaleffects')) install.packages("marginaleffects") # plot regression models
+```
+
+# R-Crashkurs
+
+Willkommen zu dem Crashkurs in R. In diesem Markdown-Script werden wir einige grundlegende Funktionen kennenlernen, um Daten zu importieren, bearbeiten, analysieren und visualisieren. 
+
+Bevor wir uns an das Eingemachte machen, hier ein sogenannter *Code-Chunk*.
+```{r}
+print("Hallo Welt!")
+```
+
+Wie wir sehen hebt sich der *Code-Chunk* farblich von unserem Text ab. Wir führen ihn immer auf einer neuen Zeile mit ```{r} ein und beenden ihn mit ```. In dem Snippet können wir eine beliebigen Anzahl an Code schreiben, die wir über den rechtsgerichteten Pfeil in Zeile 17 ausführen können.  
+
+
+## Import von Dateien
+In einem ersten Schritt werden wir Dateien in unsere Umgebung laden. 
+
+### Import von RDS-Files
+Intern nutzen wir oftmals das .RDS-Format, um große Datensätze, welche wir im Vorfeld abgespeichert haben, in unsere Umgebung zu laden. 
+
+```{r}
+df <- readRDS("speeches_german.RDS")
+summary(df)
+```
+
+In diesem Fall haben wir einen Datensatz mit mehreren Variablen in unsere Umgebung geladen. In R nennen wir das Format *data.frame*. Über die integrierte summary()-Funktion können wir uns einen schnellen Überblick über die enthaltenen Variablen machen.
+
+### Import von Excel-Files
+Wenn wir Dateien aus dem Internet herunterladen, stoßen wir oftmals auf.csv-Files (comma-separated values). Für CSV-Dateien können wir wieder auf vorinstallierte Funktionen zurückgreifen. 
+
+```{r}
+df2 <- read.csv("./test_set.csv", sep=",")
+summary(df2)
+```
+
+Wie wir sehen, nutzen wir bei dieser Funktion oftmals eine sogenannte Option (nach dem Komma). Durch sep="," geben wir an, wie die einzelnen Spalten im .csv-Format voneinander getrennt sind (in diesem Fall durch ein Komma). Gängige andere Trennungen sind Semikolons oder Leerzeichen.
+
+Excel-Dateien (.xlsx) sind etwas komplexer strukturiert. Base R kann sie nicht gut importieren. Es empfiehlt sich oftmals sie in Excel als .csv zu konvertieren. Sollte dies nicht möglich sein, können wir auf ein user-written Package (*openxlsx*) zurückgreifen. 
+
+```{r}
+df3 <- read.xlsx("./unemployment_1222.xlsx")
+```
+
+### Import von anderen Dateitypen
+
+Teilweise liegen die Dateien in anderen proprietären Formaten vor. Hier importieren wir beispielsweise eine Stata-Datei in R. Wir können dies entweder durch die Funktion *read_dta* aus dem Package *haven* oder mithilfe von *read.dta13* aus *readstata13* lösen. 
+
+```{r}
+# with haven (aus dem tidyverse)
+df4 <- read_dta("./allb18.dta")
+table(df4$eastwest)
+
+# with readstata13 
+df4 <- read.dta13("./allb18.dta")
+table(df4$eastwest)
+```
+
+Wir können auch .pdf-Dateien importieren. Dafür benötigen wir einen OCR (optical character recognition)-Reader. 
+
+```{r}
+syllabus <- pdf_ocr_text("pcwe_syllabus.pdf")
+syllabus[1]
+```
+
+## Datenaufbereitung
+Oftmals müssen wir Daten in unterschiedlicher Weise transformieren. Beispielsweise können wir Variablennamen umbenennen, Datensätze filtern oder neue Variablen auf Basis existenter Daten generieren. In R gibt es dazu verschiedene Möglichkeiten, angefangen von *baseR*, den bereits implementierten Funktionen, welche mit der Installation von R kommen. Für einen leichteren Einstieg empfiehlt sich aber *dplyr*, die Datentransformationslösung aus dem *tidyverse*. Teils werden beide Möglichkeiten hier vorgestellt.
+
+### Anzeigen vom Variableninhalt
+Bevor wir Variablen transformieren, möchten wir oftmals gerne einen Einblick in deren Struktur bekommen. Hierzu gibt es verschiedene Möglichkeiten. 
+
+Wenn wir uns beispielsweise den Datensatz im Viewer von RStudio anschauen wollen, können wir einfach die Funktion *View()* nutzen. 
+```{r}
+View(df4)
+```
+
+
+Wenn wir uns eine Variable anschauen wollen, macht es selten Sinn, uns alle Werte ausgeben zu lassen. Wir können uns aber (wie weiter oben) die ersten Fälle anzeigen lassen. 
+```{r}
+head(df4$eastwest)
+```
+
+Statt des Dollarsymbols können wir auch den Variablennamen in eckige Klammern setzen.
+```{r}
+head(df4[,"eastwest"])
+```
+
+Außerdem können wir eine *summary()* der Variablen einholen, z.B. der Variablen di01a, welche das Nettoeinkommen von Teilnehmenden abfragt.
+```{r}
+summary(df4$di01a)
+```
+
+Einige Nummern scheinen wenig Sinn zu machen. -50 Einkommen? Wenn wir in das Codebook des Allbus 2018 schauen, sehen wir, dass -50 "Kein Einkommen" bedeutet, -41 einem Datenfehler entspricht und -7 "Verweigert" bedeutet. 
+
+
+### Erstellen neuer Variablen
+Wir können mit diesen Fällen auf unterschiedliche Weise umgehen. 
+Beispielsweise können wir die "Kein Einkommen" als 0 definieren. 
+
+Im Folgenden führen wir für die Variablenmodifikation den pipe-Operator ein. Die grundlegende Logik ist, dass Datenoperationen nacheinander ausgeführt werden.
+```{r}
+df4 <- df4 %>%
+  mutate(di01a = case_when(di01a==-50 ~ 0,
+                           TRUE ~ di01a))
+
+summary(df4$di01a)
+
+# mit base R
+df4$di01a <- ifelse(df4$di01a==-50, 0, df4$di01a)
+
+# oder:
+attach(df4)
+df4$di01a <- ifelse(di01a==-50, 0, di01a)
+detach(df4)
+```
+
+Das hat geklappt. Mit den anderen Werten können wir nicht viel anfangen. Wir können sie als Missing Value (NA) codieren. 
+```{r}
+df4 <- df4 %>%
+  mutate(di01a = case_when(di01a<0 ~ NA,
+                           TRUE ~ di01a))
+
+summary(df4$di01a)
+```
+
+### Filtern von Datensätzen
+Manchmal sind wir nur in eine bestimmte Kategorie an Daten interessiert. Möglicherweise wollen wir eine Analyse durchführen, die sich nur auf Ostdeutsche bezieht. Dafür können wir den gesamten Datensatz filtern. Aber Achtung: wir können diesen Schritt nicht rückgängig machen. Es macht also Sinn, dem neuen Datensatz einen neuen Namen zu geben, damit wir den alten nicht überschreiben. 
+```{r}
+# mit tidyR
+df5 <- df4 %>%
+  filter(eastwest=="NEUE BUNDESLAENDER")
+
+# mit baseR 
+df5 <- subset(df4, eastwest=="NEUE BUNDESLAENDER")
+```
+
+Wir sehen im linken oberen Pane, dass ein neues Objekt generiert worden ist. Es enthält deutlich weniger Beobachtungen - nur diejenigen, welche aus Ostdeutschland kommen. 
+
+### Gruppierung von Daten
+Wir kommen aber erst einmal zurück zu unserem alten Datensatz df4. Nun denkt an folgende Operation. Wir wollen den jeweiligen Durchschnitt im Einkommen für Ost- und Westdeutschland anzeigen. Wir können das durch eine Kombination aus den *dplyr*-Funktionen *group_by()* und *summarise()* erzielen. 
+```{r}
+df4 %>%
+  group_by(eastwest) %>%
+  summarise(average_income = mean(di01a))
+```
+
+Das hat nicht geklappt. Der Grund dafür ist, dass R nicht mit Missing Values umgehen kann. Haben wir ein Missing Value, wird das Ergebnis einer jeden mathematischen Operation ein Missing Value sein. Es gibt aber Abhilfe. 
+
+```{r}
+df4 %>%
+  group_by(eastwest) %>%
+  summarise(average_income = mean(di01a, na.rm=T))
+```
+
+Die Option *na.rm=T* ignoriert alle Missing Values. Das Durchschnittseinkommen in Westdeutschland ist deutlich höher als im Osten des Landes.
+
+Nun können wir weiter denken: eventuell wollen wir berechnen, wie weit jede Person vom Durchschnitteinkommen in dem Teil der Republik, in dem sie lebt, abweicht. 
+Hierfür benötigen wir zwei Schritte: 
+  1. Neue Variable Durchschnittseinkommen
+  2. Neue Variable: Differenz zwischen Durchschnittseinkommen und eigenem Einkommen
+
+```{r}
+df4 <- df4 %>%
+  group_by(eastwest) %>%
+  mutate(average_income = mean(di01a, na.rm=T),
+         diff_income = di01a - average_income)
+
+summary(df4$diff_income)
+```
+
+
+### Sortieren und Anzeigen von Variablen
+Manchmal wollen wir uns eine Variable einfach nur anzeigen lassen, anstatt sie in einem neuen Objekt zu speichern. Zum Beispiel können wir uns die Ausprägungen auf der Einkommensvariable anzeigen lassen. 
+```{r}
+df4 %>%
+  select(di01a)
+```
+
+Wir können den Vektor auch nach Größe sortieren (hier absteigend).
+```{r}
+df4 %>%
+  arrange(desc(di01a)) %>%
+  select(di01a)
+```
+
+
+### Regular Expressions
+Bevor wir uns ein echtes Beispiel anschauen und Datenmanipulationen mit R durchführen, schauen wir uns die Funktionsweise von RegEx mithilfe der Funktion *str_view()* an. Diese Funktion ist sehr hilfreich, insbesondere, wenn wir unsere Patterns testen wollen.
+
+```{r}
+words <- c("Parlament", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "[a-z]")
+```
+
+Mit dem obigen Befehl würden wir jeden Buchstaben einzeln extrahieren, d.h., wenn wir diese in einen Vektor schreiben, besteht dieser aus n-Buchstaben. Wenn wir ganze Wörter ansteuern wollen, benötigen wir einen Quantifier:
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "[a-z]+")
+```
+
+```{r}
+str_view(words, "[^a-z]+")
+```
+
+Mit dem logischen "Oder" können wir verschiedene Muster definieren. 
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_view(words, "Bundestag|Wahlperiode")
+```
+
+
+Wir haben vorhin den Syllabus importiert und dabei bemerkt, dass nicht alle Zeichen so wie wir es gerne hätten importiert worden sind. Beispielsweise gibt es viele Zeilenumbrüche, die lediglich als "\n" markiert sind. Um Text zu bereinigen, sind Regular Expressions sehr hilfreich. Regular Expressions sind Funktionen, welche Text in einer abstrakten Form betrachten. 
+
+Beispielsweise könnten wir alle Zahlen aus dem Syllabus durch den Ausdruck \\d exportieren. 
+```{r}
+digits <- str_extract_all(syllabus, "\\d")
+```
+
+So extrahieren wir jede Zahl einzeln. Wenn wir die Zahlenfolgen extrahieren wollen, müssen wir angeben, dass wir mehr als eine Zahl extrahieren wollen. 
+```{r}
+digits2 <- str_extract_all(syllabus, "\\d{1,}")
+```
+
+Wir haben im Vorfeld festgestellt, dass der Text viele Zeilenumbrüche als "\n" enthällt. 
+```{r}
+str_count(syllabus, "\n")
+```
+
+In der Regel benötigen wir diese nicht als zusätzliche Information. Wir können diese also entfernen. 
+```{r}
+syllabus2 <- str_remove_all(syllabus, "\n")
+syllabus2[1]
+```
+
+Wenn wir die Zeilenumbrüche entfernen, verlieren wir teils die Trennung zwischen Wörtern. Besser ist es, die Zeilenumbrüche durch ein Leerzeichen zu ersetzen. 
+```{r}
+syllabus2 <- str_replace_all(syllabus, "\n", " ")
+syllabus2[1]
+```
+
+Wir können Muster in runde Klammern schreiben, um diese einzeln zu erfassen. So können wir beispielsweise die Reihenfolge von Wörtern in einem String verändern.
+```{r}
+words <- c("Deutscher Bundestag", "17. Wahlperiode", "Tagesorientierungspunkt")
+str_replace(words, "(\\w+) (\\w+)", "\\2 \\1")
+```
+
+Wir haben auch bemerkt, dass unser Dokument in einen Character-Vektor mit 9 Elementen importiert wird. Wenn wir die Seiten wieder zusammenfügen wollen, nutzen wir den folgenden Code.
+```{r}
+syllabus3 <- str_flatten(syllabus2)
+syllabus3
+```
+
+Möglicherweise wollen wir aber auch den Text trennen, bspw. in Sätze. Wir lernen hierfür noch bessere Möglichkeiten kennen, aber eine Möglichkeit wäre die Funktion str_split()
+```{r}
+syllabus_sent <- str_split(syllabus3, "\\.")
+```
+
+
+Auch dieses Datenformat können wir noch etwas besser nutzbar machen.
+```{r}
+syllabus_sent2 <- unlist(syllabus_sent)
+
+syllabus_sent3 <- data.frame(syllabus_sent)
+```
+
+
+Entfernen von "Missing Values".
+```{r}
+df4 <- df4 %>%
+  mutate(di01a = ifelse(di01a==-50,0,di01a),
+         di05 = ifelse(di05==-50,0,di05),
+         incc = ifelse(incc==-50,0,incc))
+```
+
+## Visualisierung
+Im Verlaufe des Seminars werden wir öfters unsere Ergebnisse versuchen zu visualisieren. In einigen Fällen haben die Packages, die wir nutzen bereits built-in Funktionen. Teils müssen wir aber auch selbst unsere Grafiken erstellen. Hierfür bietet sich ggplot2 vom tidyverse an. 
+
+Kommen wir zurück zum Haushaltseinkommen. Wir könnten bspw. die Verteilung als Histogram plotten. 
+```{r}
+# base R
+hist(df4$di05)
+
+# ggplot
+df4 %>%
+  ggplot(aes(di05)) +
+  geom_histogram() 
+```
+
+Im obigen Beispiel gibt es keinen großen Vorteil von ggplot. Das nachfolgende Beispiel zeigt allerdings, wie flexibel ggplot ist. 
+```{r}
+df4 %>%
+  ggplot(aes(di05)) +
+  geom_histogram() + geom_vline(xintercept = mean(df4$di05, na.rm=T)) + xlab("Einkommen") + theme_light()
+```
+
+
+## Regressionsanalysen
+Oftmals sind wir daran interessiert, auf Basis unserer Daten Zusammenhänge zwischen zweier (oder mehrerer Variablen) zu erörtern. Das geht mit R in unterschiedlicher Weise. 
+
+Eine einfache Korrelationsmatrix können wir uns bspw. durch cor() anzeigen lassen.
+```{r}
+df4 %>%
+  ungroup() %>%
+  filter(!is.na(di01a) & !is.na(di05)) %>%
+  summarise(cor(di01a,di05))
+```
+
+Wenig überraschend: das Einkommen eines Befragten korreliert hoch mit dem Haushaltseinkommen (zu dem die befragte Person ja selber beiträgt).
+
+Wir können auch einen t-Test für bivariate Zusammenhänge rechnen.
+```{r}
+t.test(df4$di01a, df4$di05)
+```
+
+Bevor wir uns noch kurz mit multivariaten Zusammenhängen beschäftigen, visualisieren wir bivariate Zusammenhänge mit ggplot. 
+```{r}
+df4 %>% 
+  ggplot(aes(di01a, di05)) +
+  geom_point() + geom_smooth()
+```
+
+### Lineare Regressionsanalysen 
+Am Schluss noch kurz zu der Umsetzung von Regressionsanalysen in R. 
+Diese sind relativ einfach über lm() umzusetzen. 
+Zuvor sollten wir aber noch ein paar Variablen vorbereiten. 
+```{r}
+table(df4$educ)      # Schulabschluss
+table(df4$sex)       # Geschlecht (dichotom)
+summary(df4$age)     # Alter
+summary(df4$S01)     # schulische Bildung in Jahren
+summary(df4$fisei88) # Status des Vaters
+summary(df4$misei88) # Status der Mutter
+
+df4 <- df4 %>%
+  mutate(educ = as.factor(ifelse(educ %in% c("KEINE ANGABE", "ANDERER ABSCHLUSS", "NOCH SCHUELER"), NA, educ)),
+         age = ifelse(age<0, NA, age),
+         S01 = ifelse(S01<0, NA, S01),
+         sex = as.factor(sex),
+         fisei = ifelse(fisei88<0, NA, fisei88),
+         misei = ifelse(misei88<0, NA, misei88))
+```
+
+Nun können wir eine multivariate Regression schätzen. 
+```{r}
+m1 <- lm(di01a ~ sex + age + eastwest + S01 + fisei + misei, data = df4)
+summary(m1)
+```
+
+...eine letzte Erweiterung. Im obigen Modell gelten die Effekte unter Kontrolle der anderen Effekte. In der Realität bedingen sie sich aber oftmals. Beispielsweise ist es denkbar, dass Bildung einen unterschiedlichen Effekt für Männer und Frauen hat. Diese Interaktionseffekte können wir recht einfach modellieren.
+```{r}
+m2 <- lm(di01a ~ sex*S01 + age + eastwest + fisei + misei, data = df4)
+summary(m2)
+```
+
+Wir können zwar schon einen Effekt anhand des Regressionsoutputs erkennen. Noch besser ist es aber, diesen Zusammenhang zu plotten. 
+```{r}
+preds <- predictions(m2, newdata = datagrid(sex=c("MANN", "FRAU"), S01=c(0,5,10,15,20,25,30)))
+preds %>% 
+  ggplot(aes(S01, estimate, color=sex)) + 
+  geom_point() + geom_line() + theme_light()
+```
+
+
+### Logistische Regressionen 
+
+R ermöglicht es uns auch, Analysen von dichotomen abhängigen Variablen durchzuführen. Die Frage ist hierbei, wie sich die Chance des Auftretens von Y bei Veränderung in X ändert. 
+
+Wir versuchen im Folgenden, mögliche Determinanten der Wahlbeteiligung zu identifizieren.
+
+Eine kurze Vorbereitung der Variablen.
+
+```{r}
+table(df4$pv03)
+
+df4 <- df4 %>%
+  mutate(vote = case_when(pv03 == "KEINE ANGABE" ~ NA,
+                                                 pv03 == "NEIN" ~ 0,
+                                                 pv03 == "JA" ~ 1))
+table(df4$vote)
+```
+
+
+Nun können wir das Modell schätzen und uns die Ergebnisse anzeigen lassen. 
+```{r}
+m1_log <- glm(vote ~ sex + age + S01 + eastwest + di01a, data=df4, family="binomial")
+summary(m1_log)
+```
+
+Je mehr Menschen verdienen, desto eher gehen sie wählen. Dieselbe Richtung des Zusammenhangs gilt für Bildung. Geschlecht und Ost/West-Herkunft haben keinen Effekt auf die Wahlbeteiligung, das Alter schon. Je älter Menschen sind, desto eher gehen sie wählen.
+
+```{r}
+preds_log <- predictions(m1_log, newdata = datagrid(age=seq(18,100, 5)))
+preds_log %>% 
+  ggplot(aes(age, estimate)) + 
+  geom_point() + geom_line() + theme_light()
+```
