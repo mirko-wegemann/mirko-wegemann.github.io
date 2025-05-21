@@ -75,3 +75,6 @@ nav: false
     <h4>Week 6: Institutions</h4>
     This week, we discuss the role of political institutions, such as the electoral system and the candidate selection process, for the participation and representation of women in politics. <br> 
     <a href="{{ site.url }}assets/pdf/gap25/institutions.pdf">Slides</a><br><br>
+    <h4>Week 7: Demand-side biases</h4>
+    Do voters discriminate against female candidates? In this session, we will discuss, based on different survey experiment on voters' perceptions of political candidates, whether voters attach different levels of competency and expertise to female candidates than to male candidates, and how this shapes their political persuasion.  <br>
+    <a href="{{ site.url }}assets/pdf/gap25/demand.pdf">Slides</a><br><br>

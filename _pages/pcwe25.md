@@ -88,6 +88,7 @@ nav: false
     <a href="{{ site.url }}assets/pdf/pcwe25/roundtable1.pdf">Slides</a><br><br>
     <h4>Week 7: Issue Competition</h4> 
     In this week, we will switch the perspective and focus on the strategic behavior of political parties. In the first session of this bloc, we will focus on issue competition of parties. Moreover, we will access data from the <a href="https://manifesto-project.wzb.eu/datasets">Manifesto Project</a> (please register and download the .csv-file in preparation of the session). <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/issue_comp.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/parties.Rmd">R Code</a><br><br>
 
 
