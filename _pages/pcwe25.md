@@ -90,5 +90,9 @@ nav: false
     In this week, we will switch the perspective and focus on the strategic behavior of political parties. In the first session of this bloc, we will focus on issue competition of parties. Moreover, we will access data from the <a href="https://manifesto-project.wzb.eu/datasets">Manifesto Project</a> (please register and download the .csv-file in preparation of the session). <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/issue_comp.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/parties.Rmd">R Code</a><br><br>
-
+    <h4>Week 8: Social Groups</h4> 
+    Do parties appeal to social groups directly? We will engage with two strategies parties can employ: (1) group references and (2) strategic appointments of group representatives, and evaluate whether these affects parties' electoral fortunes.  <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/social_groups.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/code/pcwe25/survey_results.R">R Code (for survey)</a><br><br>
+    <a href="{{ site.url }}assets/code/pcwe25/data3.csv">Data (survey)</a><br><br>
 

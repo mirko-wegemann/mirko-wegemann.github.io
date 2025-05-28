@@ -78,3 +78,6 @@ nav: false
     <h4>Week 7: Demand-side biases</h4>
     Do voters discriminate against female candidates? In this session, we will discuss, based on different survey experiment on voters' perceptions of political candidates, whether voters attach different levels of competency and expertise to female candidates than to male candidates, and how this shapes their political persuasion.  <br>
     <a href="{{ site.url }}assets/pdf/gap25/demand.pdf">Slides</a><br><br>
+    <h4>Week 8: Candidates</h4>
+    Prior to this week, we have assumed that women are actually considering running for office. This week, we will analyse how structural factors reduce women's expressive ambition to run for office.  <br>
+    <a href="{{ site.url }}assets/pdf/gap25/elite.pdf">Slides</a><br><br>

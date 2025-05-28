@@ -1,0 +1,35 @@
+StartDate,EndDate,Status,IPAddress,Progress,Duration (in seconds),Finished,RecordedDate,ResponseId,RecipientLastName,RecipientFirstName,RecipientEmail,ExternalReference,LocationLatitude,LocationLongitude,DistributionChannel,UserLanguage,intro,"age ",housing_support_1,housing_importance_1,ga_industry_6,ga_migr_6,ga_pensioners_6,ga_women_6,ga_nurse_6,ga_police_6,ga_office_6,ga_journalist_6,ga_firefighter_6,ga_farmers_6,treatment
+Start Date,End Date,Response Type,IP Address,Progress,Duration (in seconds),Finished,Recorded Date,Response ID,Recipient Last Name,Recipient First Name,Recipient Email,External Data Reference,Location Latitude,Location Longitude,Distribution Channel,User Language,"Study about political policies
+
+Thank you for taking part in this survey!
+
+
+
+In the survey, we will show you political information, and we will ask you questions about the information you received, your background, and your opinions on various topics. 
+
+
+
+You can be sure that all your answers will remain anonymous. It is impossible to attribute answers to a specific person, and we are legally obliged to protect the anonymity of all participants.
+
+
+
+It takes about 5 minutes to complete the survey.
+
+
+
+This survey is conducted by researchers at the University of Münster.
+
+If you have any questions or comments, please feel free to contact us.
+
+
+
+Dr Mirko Wegemann, m.wegemann@uni-muenster.de",How old are you?,How much do you support the housing policy?,How important is the issue of housing to you?,What do you think of industrial workers?,What do you think of migrants?,What do you think of pensioners?,What do you think of women?,What do you think of nurses?,What do you think of police officers?,What do you think of office administrators?,What do you think of journalists?,What do you think of firefighters?,What do you think of farmers?,treatment
+"{""ImportId"":""startDate"",""timeZone"":""Europe/Berlin""}","{""ImportId"":""endDate"",""timeZone"":""Europe/Berlin""}","{""ImportId"":""status""}","{""ImportId"":""ipAddress""}","{""ImportId"":""progress""}","{""ImportId"":""duration""}","{""ImportId"":""finished""}","{""ImportId"":""recordedDate"",""timeZone"":""Europe/Berlin""}","{""ImportId"":""_recordId""}","{""ImportId"":""recipientLastName""}","{""ImportId"":""recipientFirstName""}","{""ImportId"":""recipientEmail""}","{""ImportId"":""externalDataReference""}","{""ImportId"":""locationLatitude""}","{""ImportId"":""locationLongitude""}","{""ImportId"":""distributionChannel""}","{""ImportId"":""userLanguage""}","{""ImportId"":""QID7""}","{""ImportId"":""QID1_TEXT""}","{""ImportId"":""QID4_1""}","{""ImportId"":""QID5_1""}","{""ImportId"":""QID10_6""}","{""ImportId"":""QID11_6""}","{""ImportId"":""QID12_6""}","{""ImportId"":""QID13_6""}","{""ImportId"":""QID15_6""}","{""ImportId"":""QID16_6""}","{""ImportId"":""QID17_6""}","{""ImportId"":""QID18_6""}","{""ImportId"":""QID19_6""}","{""ImportId"":""QID20_6""}","{""ImportId"":""treatment""}"
+2025-05-28 10:18:52,2025-05-28 10:20:57,IP Address,109.40.242.137,100,125,True,2025-05-28 10:20:57,R_83gks5U8j66TVa6,,,,,52.5181,13.403,qr,EN,I want to continue the survey,24,5,8,5,7,7,7,7,7,5,8,7,5,0
+2025-05-28 10:18:57,2025-05-28 10:21:27,IP Address,128.176.164.80,100,149,True,2025-05-28 10:21:27,R_8zIWaWuIkqGY4nu,,,,,51.972,7.6002,qr,EN,I want to continue the survey,23,7,8,8,7,8,10,9,7,7,8,9,5,1
+2025-05-28 10:18:56,2025-05-28 10:21:35,IP Address,81.185.162.147,100,158,True,2025-05-28 10:21:35,R_2pYT1wmj9nQ3wt3,,,,,45.748,4.85,qr,EN,I want to continue the survey,24,3,8,9,10,3,10,10,0,6,8,10,8,0
+2025-05-28 10:19:02,2025-05-28 10:21:52,IP Address,193.175.4.201,100,170,True,2025-05-28 10:21:53,R_8gUME0gcniS7U4h,,,,,51.972,7.6002,qr,EN,I want to continue the survey,24,7,9,6,8,8,9,8,6,7,9,9,8,1
+2025-05-28 10:18:49,2025-05-28 10:22:19,IP Address,128.176.164.17,100,209,True,2025-05-28 10:22:20,R_82wzTMHE8belmql,,,,,51.972,7.6002,qr,EN,I want to continue the survey,32,3,8,6,8,4,9,9,8,8,9,10,8,1
+2025-05-28 10:19:02,2025-05-28 10:22:30,IP Address,185.238.219.93,100,208,True,2025-05-28 10:22:30,R_8M0AqmGboBd0aJv,,,,,52.5203,13.3849,qr,EN,I want to continue the survey,25,6,7,6,5,3,8,8,7,5,4,10,7,0
+2025-05-28 10:19:02,2025-05-28 10:22:37,IP Address,176.1.22.137,100,215,True,2025-05-28 10:22:38,R_2dd0p8nof8ZOlGh,,,,,51.9302,7.6413,qr,EN,I want to continue the survey,24,3,10,9,5,5,5,5,5,5,5,5,5,0
+2025-05-28 10:19:13,2025-05-28 10:23:15,IP Address,128.176.164.68,100,241,True,2025-05-28 10:23:15,R_8371QMjaxwOqjUu,,,,,51.972,7.6002,qr,EN,I want to continue the survey,22,,6,8,8,7,10,10,10,8,9,10,9,1
