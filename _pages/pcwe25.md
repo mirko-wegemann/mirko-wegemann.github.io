@@ -93,6 +93,6 @@ nav: false
     <h4>Week 8: Social Groups</h4> 
     Do parties appeal to social groups directly? We will engage with two strategies parties can employ: (1) group references and (2) strategic appointments of group representatives, and evaluate whether these affects parties' electoral fortunes.  <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/social_groups.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/code/pcwe25/survey_results.R">R Code (for survey)</a><br><br>
+    <a href="{{ site.url }}assets/code/pcwe25/survey_results.R">R Code (for survey)</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/data3.csv">Data (survey)</a><br><br>
 
