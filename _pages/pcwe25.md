@@ -98,4 +98,4 @@ nav: false
     <h4>Week 9: Challenger Parties</h4> 
     In this week, we zoom in on the interactions between challenger and mainstream parties. We critically evalute different conceptualizations of challengers and learn how they innovate the party system agenda.  <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/challengers.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/code/pcwe25/mindmap_challengers.png">Mindmap (Challengers)</a><br><br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/mindmap_challengers.png">Mindmap (Challengers)</a><br><br>
