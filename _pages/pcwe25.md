@@ -99,3 +99,6 @@ nav: false
     In this week, we zoom in on the interactions between challenger and mainstream parties. We critically evalute different conceptualizations of challengers and learn how they innovate the party system agenda.  <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/challengers.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/pdf/pcwe25/mindmap_challengers.png">Mindmap (Challengers)</a><br><br>
+    <h4>Week 10: Roundtable 2</h4> 
+    In our second roundtable session, we discuss whether mainstream parties should accommodate their challengers.  <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/roundtable2.pdf">Slides</a><br><br>
