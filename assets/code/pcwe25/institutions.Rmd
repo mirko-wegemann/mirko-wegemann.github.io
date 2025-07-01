@@ -1,0 +1,122 @@
+# Setup 
+In the following code snippet, we install the relevant packages (if not already installed) and load them into our environment.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # data wrangling
+if (!require('openxlsx')) install.packages("openxlsx") # import .xlsx files
+if (!require('marginaleffects')) install.packages("marginaleffects") # marginaleffects
+```
+
+# Import and description of the data
+We import our data and get a brief overview into the variables it contains.
+
+```{r}
+df <- read.xlsx("ipu.xlsx", startRow = 11)
+colnames(df) <- tolower(colnames(df))
+summary(df)
+```
+
+
+# Descriptive statistics
+Let's get a glimpse into the distribution of different electoral systems
+```{r}
+table(df$electoral.system)
+table(df$`electoral.system.sub-categories`)
+```
+There is an almost balanced distribution between proportional and plurality systems across the world. Some systems follow a mixed approach. A substantial amount of systems cannot be classified (probably missing information). If we dive into the peculiarities of the systems, we can see that first-past-the-post and list proportional representation are most prominent. 
+
+In line with the articles we discussed this week, we can analyse (superficially) how many parties competed in the elections.
+
+```{r}
+df <- df %>%
+  mutate(number_parties = as.numeric(number.of.parties.contesting.the.election))
+summary(df$number_parties)
+```
+On average, 22 parties compete in an election - meaningful or not.
+
+Who are the outliers?
+```{r}
+df %>%
+  arrange(number_parties) %>%
+  select(country.name, number_parties, electoral.system) %>%
+  filter(!is.na(number_parties)) %>%
+  tail(5)
+```
+
+Most parties compete in Haiti - actually a plurality-based system. 
+
+Is there any association between the number of parties and electoral systems?
+```{r}
+# let's only compare plurality and proportional
+df_sub <- df %>%
+  filter(electoral.system %in% c("Plurality/majority", "Proportional representation"))
+
+# general comparison
+m1 <- lm(number_parties ~ electoral.system, df_sub)
+summary(m1)
+```
+
+On average, there is no effect. What could be the reason? 
+
+It would be better if we had data on the effective number of parties. 
+The Quality of Government Dataset can help us out! But how do we connect the data?
+
+### Merging
+
+In statistical language, we speak of merging when combining datasets. 
+
+Let's first import the other dataset and filter it to the most recent election only.
+```{r}
+df2 <- read.xlsx("qogdata.xlsx")
+
+df2 <- df2 %>%
+  filter(!is.na(cpds_enpv)) %>%   # drop cases which do not have any effective number of parties value
+  group_by(cname) %>%
+  select(cname, cpds_enpv, ipu_l_sw, gol_enep, wdi_wip, year) %>%
+  mutate(year = as.factor(year))
+
+by <- join_by(country.name == cname)
+df_combined <- left_join(df, df2, by=by)
+```
+
+
+```{r}
+# only keep countries with plurality or proportional
+df_combined_sub <- df_combined %>%
+  filter(electoral.system %in% c("Plurality/majority", "Proportional representation"))
+
+# without country and year controls
+m2 <- lm(cpds_enpv ~ electoral.system, df_combined_sub)
+summary(m2)
+
+# with country and year controls
+m3 <- lm(cpds_enpv ~ electoral.system + country.name + year, df_combined_sub)
+summary(m3)
+
+
+# with other indicator of effective number of parties (less missing values)
+m4 <- lm(gol_enep ~ electoral.system + country.name + year, df_combined_sub)
+summary(m4)
+
+# very similar
+```
+Now we find a positive effect. On average, there's almost one (effective) party more in proportional electoral systems. If we take country-specific and temporal variation into account, the effect is even more pronounced.
+
+
+### Discover alternative outcomes
+```{r}
+#effect on female representation
+m5 <- lm(ipu_l_sw ~ electoral.system, df_combined_sub)
+summary(m5)
+
+# with country and year controls
+m6 <- lm(ipu_l_sw ~ electoral.system + country.name + year, df_combined_sub)
+summary(m6)
+
+# alternative indicator: porportion of seats held by women in nat. parliaments (by world development indicators)
+m7 <- lm(wdi_wip ~ electoral.system + country.name + year, df_combined_sub)
+summary(m7)
+
+# very similar
+```
