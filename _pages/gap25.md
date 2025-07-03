@@ -87,3 +87,6 @@ nav: false
      <h4>Week 10: Role Models</h4>
     Do women in office serve as role models for potential future female candidates? In this session, we will assess the idea of "critical masses", and how they (might) contribute to women's decision of pursuing a political career. <br>
     <a href="{{ site.url }}assets/pdf/gap25/role_models.pdf">Slides</a><br><br>
+     <h4>Week 11: Language</h4>
+    How does language affect our thinking, and does gender-inclusive language change mental representations about gendered stereotypes? This week, we will assess the current prevalence of gender-inclusive language in the public discourse and its effect on the masses. <br>         
+    <a href="{{ site.url }}assets/pdf/gap25/language.pdf">Slides</a><br><br>

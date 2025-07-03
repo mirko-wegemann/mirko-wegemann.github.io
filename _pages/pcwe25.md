@@ -104,4 +104,5 @@ nav: false
     <a href="{{ site.url }}assets/pdf/pcwe25/roundtable2.pdf">Slides</a><br><br>
     <h4>Week 11: Electoral Systems</h4> 
     We are shifting to the final part of the seminar where we focus on political institutions. In this session, we will discuss the effect of electoral system change on voting behavior. Moreover, we will do a short input session on institutional data.  <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/electoral_systems.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/institutions.Rmd">Code</a><br><br>
