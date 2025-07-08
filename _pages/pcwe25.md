@@ -48,7 +48,7 @@ nav: false
 <body>
     <h3>Content</h3><br>
     <p>This seminar zeros in on the role of political parties for democracies in Western Europe. After a brief recap on their origins and functions in the democratic system, we will proceed in three blocks. In a first block, we will focus on the demand side, discussing existing approaches explaining voting behaviour. Do voters try to maximize their own utility when voting for a party or do they rather follow their peers or more emotional motives? We will then proceed by analysing political parties as strategic actors. How do parties find their niche in existing party systems, under which conditions do they decide to change their position on a political issue? Finally, in a third block, we will discuss the impact of political institutions, such as the electoral system, on party competition. When do electoral systems increase party system fragmentation, which systems lead to a personalization of political parties? </p>
-    You can download the most recent version of the syllabus <a href="{{ site.url }}assets/pdf/pcwe25/pcwe_syllabus.pdf">here</a>.
+    You can download the most recent version of the syllabus <a href="{{ site.url }}assets/pdf/pcwe25/pcwe_syllabus.pdf">here</a>. If you plan to submit a term paper in the context of the seminar, please note the following <a href="{{ site.url }}assets/pdf/pcwe25/tp_requirements.pdf">guidelines</a>. 
     <br>
 
 	The seminar takes place weekly, on Wednesday (10:15-11:45) in seminar room SCH 100.107.  

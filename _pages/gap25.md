@@ -48,7 +48,7 @@ nav: false
 <body>
     <h3>Content</h3><br>
     <p>This seminar deals with the (under)representation of women in politics. The course follows an empirical, comparativist approach. After reaching a basic understanding of crucial concepts in the study of gender, we will assess how a lack of women in politics translates into a gap in substantive representation. Moreover, we will assess how gender norms, a crucial determinant of women's underrepresentation in politics, are transmitted intergenerationally. In the second part of the seminar, we will read several papers that test how gender inequalities are affected by cultural and institutional factors, and how how gender gaps are maintained through demand- and supply-side dynamics. In a final block, we will critically evaluate different mechanisms tackling gender inequalities in politics, such as quotas, role models and language.  </p>
-    You can download the most recent version of the syllabus <a href="{{ site.url }}assets/pdf/gap25/gap_syllabus.pdf">here</a>.
+    You can download the most recent version of the syllabus <a href="{{ site.url }}assets/pdf/gap25/gap_syllabus.pdf">here</a>. If you plan to submit a term paper in the context of the seminar, please note the following <a href="{{ site.url }}assets/pdf/gap25/tp_requirements.pdf">guidelines</a>. 
     <br>
 
 	The seminar takes place weekly, on Wednesday (16:15-17:45) in seminar room SCH 100.124.  
