@@ -90,3 +90,7 @@ nav: false
      <h4>Week 11: Language</h4>
     How does language affect our thinking, and does gender-inclusive language change mental representations about gendered stereotypes? This week, we will assess the current prevalence of gender-inclusive language in the public discourse and its effect on the masses. <br>         
     <a href="{{ site.url }}assets/pdf/gap25/language.pdf">Slides</a><br><br>
+    <h4>Week 12: Wrap-Up</h4>
+    In our final session, we discuss students' term paper ideas. Moreover, we'll take time to reflect on our learning outcomes. <br>         
+    <a href="{{ site.url }}assets/pdf/gap25/wrapup.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/pdf/gap25/reflection.pdf">Reflection</a><br><br>
