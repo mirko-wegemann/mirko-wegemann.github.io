@@ -106,3 +106,6 @@ nav: false
     We are shifting to the final part of the seminar where we focus on political institutions. In this session, we will discuss the effect of electoral system change on voting behavior. Moreover, we will do a short input session on institutional data.  <br>
     <a href="{{ site.url }}assets/pdf/pcwe25/electoral_systems.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/code/pcwe25/institutions.Rmd">Code</a><br><br>
+     <h4>Week 12: Legislatures</h4> 
+    In our final substantive session, we will talk about parliamentary rules and how they shape debates and party behavior.  <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/legislatures.pdf">Slides</a><br>
