@@ -108,4 +108,8 @@ nav: false
     <a href="{{ site.url }}assets/code/pcwe25/institutions.Rmd">Code</a><br><br>
      <h4>Week 12: Legislatures</h4> 
     In our final substantive session, we will talk about parliamentary rules and how they shape debates and party behavior.  <br>
-    <a href="{{ site.url }}assets/pdf/pcwe25/legislatures.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/legislatures.pdf">Slides</a><br><br>
+    <h4>Week 13: Wrap-Up</h4> 
+    This last session deals with student projects for their term papers and reflects about the learning outcomes of the seminar.  <br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/wrapup.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/pdf/pcwe25/feedback_pcwe.pdf">Feedback on Learning Outcomes</a><br><br>
