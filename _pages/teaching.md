@@ -14,7 +14,7 @@ children:
   - title: Party Competition in WE (Münster 25)
     permalink: /teaching/pcwe25
   - title: Political Parties in a Comparative Perspective (Münster 25/26)
-    permalink: /teaching/ppcp25
+    permalink: /teaching/ppcp2526
   - title: Challenges to Democracy (Münster 25/26)
-    permalink: /teaching/ctd25
+    permalink: /teaching/ctd2526
 ---

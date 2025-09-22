@@ -6,11 +6,12 @@ description:
 nav: false
 ---
 
- <strong>Computational Text Analysis</strong><br>
-Doctoral-level workshop, European University Institute, 2024 <br>
-Lecturer, March 2024 <br> 
+<strong>Computational Text Analysis</strong><br>
+Doctoral-level workshop, European University Institute, 2025 <br>
+Lecturer, March 2025 <br>
 <a href="{{ site.url }}teaching/cta25">Materials</a> <br>
 [Teaching Evaluation][4]
+
 [4]:{{ site.url }}assets/pdf/cta25/evaluation_cta25.pdf
 
 
