@@ -6,6 +6,25 @@ description:
 nav: false
 ---
 
+<strong>Party Competition in Western Europe</strong><br>
+Graduate course, University of Münster, 2025 <br>
+Lecturer, Summer Term 2025 <br>
+<a href="{{ site.url }}teaching/pcwe25">Materials</a> <br>
+[Teaching Evaluation][6]
+
+[6]:{{ site.url }}assets/pdf/cta25/evaluation_pcwe25.pdf
+
+
+<strong>Gender and Political Representation</strong><br>
+Undergraduate course, University of Münster, 2025 <br>
+Lecturer, Summer Term 2025 <br>
+<a href="{{ site.url }}teaching/gap25">Materials</a> <br>
+[Teaching Evaluation][5]
+
+[5]:{{ site.url }}assets/pdf/cta25/evaluation_gap25.pdf
+
+
+
 <strong>Computational Text Analysis</strong><br>
 Doctoral-level workshop, European University Institute, 2025 <br>
 Lecturer, March 2025 <br>
