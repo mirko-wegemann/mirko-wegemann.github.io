@@ -12,7 +12,7 @@ Lecturer, Summer Term 2025 <br>
 <a href="{{ site.url }}teaching/pcwe25">Materials</a> <br>
 [Teaching Evaluation][6]
 
-[6]:{{ site.url }}assets/pdf/cta25/evaluation_pcwe25.pdf
+[6]:{{ site.url }}assets/pdf/pcwe25/evaluation_pcwe25.pdf
 
 
 <strong>Gender and Political Representation</strong><br>
@@ -21,7 +21,7 @@ Lecturer, Summer Term 2025 <br>
 <a href="{{ site.url }}teaching/gap25">Materials</a> <br>
 [Teaching Evaluation][5]
 
-[5]:{{ site.url }}assets/pdf/cta25/evaluation_gap25.pdf
+[5]:{{ site.url }}assets/pdf/gap25/evaluation_gap25.pdf
 
 
 
