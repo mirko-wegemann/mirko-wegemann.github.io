@@ -62,6 +62,7 @@ of local party competition in an era of growing party system fragmentation. </p>
 </blockquote>
 
 
+{% comment %}
 <strong>Who should tell them? The effect of social group cues on political persuasion</strong><br>
 <em> Draft available upon request </em><br>
 <blockquote> 
@@ -84,7 +85,7 @@ by a policy. The more important citizens consider an issue, the less persuasive 
 by the proposed policy. Overall, these findings directly speak to our understanding of descriptive representation
 in policy justifications and its potential for strategic manipulation. </p>
 </blockquote>
-
+{% endcomment %}
 
 <strong>Reminiscing the good old days. How far-right parties deter the female losers of technological change.</strong><br>
 <p style="font-size:13px;"> with <a style="font-size: 13px;" href="https://www.eui.eu/people?id=leon-kustermann">Leon David Küstermann</a></p> 
