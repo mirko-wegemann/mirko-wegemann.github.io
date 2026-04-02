@@ -58,8 +58,8 @@ nav: false
 	<br>
 	<h4>Week 1: Introduction (15 April 2026)</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
-	<a href="{{ site.url }}assets/pdf/gap26/introduction.pdf">Slides</a><br><br>
-	<!--- <h4>Week 2: Concepts</h4>
+	<!--- <a href="{{ site.url }}assets/pdf/gap26/introduction.pdf">Slides</a><br><br>
+	<h4>Week 2: Concepts</h4>
 	We will talk about about comparison in political science. Moreover, we will introduce crucial concepts in the study of gender in politics.  <br>
 	<a href="{{ site.url }}assets/pdf/gap26/concepts.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/img/gap26/good_research.png">Mindmap on good research</a><br><br>
