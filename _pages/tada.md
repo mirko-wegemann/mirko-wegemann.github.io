@@ -50,10 +50,9 @@ nav: false
     <p>
     This methods seminar provides an introduction to quantitative text analysis, a type of content analysis that examines texts based on numerical similarities. Over the course of the seminar, students will learn (1) how to collect text data from publicly accessible websites, (2) how to prepare raw material for different types of analyses, and (3) how to apply various techniques of quantitative text analysis. Students will develop a basic understanding of how the discipline has evolved over recent years, from simple bags-of-words approaches to more recent developments in text analysis (such as transformers or large language models). The individual sessions will be practice-oriented and will give students the opportunity to carry out their own project as part of the seminar. In doing so, they will develop their own research question, formulate theoretical expectations, gather research data, and apply an appropriate method of quantitative text analysis.
     </p>
-    You can download the syllabus <a href="{{ site.url }}assets/pdf/tada/tada_syllabus.pdf">here</a>.
+    You can download the syllabus <a href="{{ site.url }}assets/pdf/tada26/tada_syllabus.pdf">here</a>.
     <br>
-
-	The seminar takes place weekly on Wednesday at 4-6pm in seminar room 100.125. To participate in the seminar, students need to bring their own laptops/tablets.
+    The seminar takes place weekly on Wednesday at 4-6pm in seminar room 100.125. To participate in the seminar, students need to bring their own laptops/tablets.
     <br><br>
     <h3>Materials</h3>
     To run the sample code, the files should first be saved locally and an .Rproj file should be created within the same directory structure. By double-clicking the .Rproj file, RStudio will open, from which the .Rmd file can then be accessed. A short guide can be found, for example, <a href="https://intro2r.com/rsprojs.html">here</a>.
