@@ -59,32 +59,35 @@ nav: false
 	<br>
 	<h4>Week 1: Introduction</h4>
     In this week, we will talk about the structure of the seminar, its expectations and your intended learning outcomes. We may also install R and RStudio. 
-	<!--- 
-    a href="{{ site.url }}assets/pdf/qta/introduction.pdf">Slides</a>
+    a href="{{ site.url }}assets/pdf/tada26/introduction.pdf">Slides</a>
 	<br><br>
-	<h4>2. und 3. Woche: Crashkurs in R</h4>
+	<h4> Week 2 and 3: Basics in R</h4>
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
             <th style="width:33%;">Code</th>
-            <th style="width:33%;">Daten</th>
+            <th style="width:33%;">Data</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/crashkurs.pdf">Slides</a><br>
-			<a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/tutorial.Rmd">Tutorial (Lösungen)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/tutorial_empty.Rmd">Tutorial</a><br>
+            <td>
+                <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides</a><br>
+			    [//]: # <a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
+            <td>
+            [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
+			[//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
+			[//]: # <a href="{{ site.url }}assets/code/qta2425/tutorial.Rmd">Tutorial (Lösungen)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
-            <td><a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
-                <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
-				<a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
-				<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 	<br>			
-				<a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
+            <td>
+            [//]: # <a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
+            [//]: #    <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
+			[//]: # 	<a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
+			[//]: # 	<a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a> 	<br>			
+			[//]: # 	<a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
 
 				</td>
         </tr>
+    <!--- 
     </table><br><br>
 	<h4>4. Woche: Was ist quantitative Textanalyse</h4>
 	In dieser Sitzung beschäftigen wir uns mit Konzepten aus der Inhaltsanalyse. Wir werden einen Text manuell analysieren, bevor wir verschiedene Methoden und Gütekriterien der quantitativen Textanalyse kennenlernen. 

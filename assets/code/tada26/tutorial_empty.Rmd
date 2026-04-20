@@ -1,0 +1,267 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+Welcome to this tutorial, which introduces the basics of R. In the first part of the tutorial, we will learn about the different object types in R and how to create them. The second part of the tutorial works with an existing dataset, imports it, and prepares the data to, among other things, visualize relationships.
+
+Before you start, you should familiarize yourself with the book by Wickham et al. (https://r4ds.hadley.nz). It explains all the fundamental functions used in this tutorial. It is not necessary to read the entire book in advance. Instead, it helps to use the book as a reference depending on the question at hand.
+
+Moreover, you should create a new project in R Studio and then opening this script from within the project (for a "How-to"-tutorial, refer to https://www.youtube.com/watch?v=MdTtTN8PUqU&t=26s). The major advantage of working from within a project is that it sets your working directory, which makes importing and exporting files in R much easier!
+
+Run the code starting in line 1 - this will install and import the package "tidyverse" which is crucial for data wrangling tasks.
+
+Finally, a tip: R has extensive documentation for every function, which can easily be accessed with ?function. This shows the syntax and usually includes an example at the end. Use it before turning to LLMs. For example, to get help on the table function, simply type:
+
+```{r}
+?table
+```
+
+You can either select functions and press "Enter" to execute them — or click the green arrow at the beginning of a code snippet to run the entire snippet.
+
+# Tutorial - First Problem Set
+
+First of all, we will look at the different object types in R and how we can perform operations with them.
+
+## Step 1 - Numeric Vectors
+Generate two vectors. The first should consist of three numbers (choose whichever you like). The second should contain the same numbers multiplied by 2.
+
+```{r}
+
+```
+
+
+## Step 2 - Additions
+Now add both vectors and store them in a third vector.
+
+```{r}
+
+```
+
+## Step 3 - Number Sequences 
+Generate a number sequence from 0 to 10 and store it in a vector.
+
+```{r}
+
+```
+
+Now create a similar number sequence, but one that contains only even numbers.
+
+```{r}
+
+```
+
+
+## Step 4 - String Variables
+
+So far, we have only worked with numeric vectors. However, we can also store letters or words in so-called string variables. Generate such a vector with content of your choice.
+
+```{r}
+
+```
+
+Combine the first numeric vector you created in step one with a string variable of the content char_vect <- "page" into a new object. The result should look as follows: comb_vect <- c("page=1", "page=2", ..., "page=10").
+
+```{r}
+
+```
+
+For many applications in text analysis, we have regular cased text but actually need lower case (more on this later during the seminar). Try to convert your string variable into lower case with tolower() and upper case with (toupper).
+
+```{r}
+
+```
+
+In some applications, we need to cut text (e.g., some LLMs have a limited context window). Before knowing where to cut, we need to count the number of characters a string possesses. Use nchar() to do this. 
+
+```{r}
+
+```
+
+## Step 5 - List Objects
+
+Unlike vectors, which can only contain elements of the same type, lists can store elements of different types and lengths. This makes them very flexible. In text analysis, many functions return lists — for example, when splitting texts into words, each text may produce a different number of words.
+
+Create a list that includes both numeric and character vectors using list():
+
+```{r}
+
+```
+
+You can give each item of a list a name to facilitate accessing the item. Simply write "NAME = " before defining the list item.
+
+```{r}
+
+```
+
+Accessing items of a list (and each other object type is crucial). You can do so either by using two squared brackets with the respective position of an item within the list [[1]] or by refering explicitly to its name [["name"]]
+
+```{r}
+
+```
+
+## Step 6 - Object Types
+Sometimes numeric vectors are stored as string variables. In R, we can always check the type of an object. Do you know how?
+
+```{r}
+
+```
+
+How do we convert data into a different format? Convert your number sequence into a string variable.
+
+```{r}
+
+```
+
+
+# Tutorial - Second Problem Set
+
+Now we will import a dataset, modify some variables, and display descriptive univariate as well as bivariate statistics. Register (for free) at NSD.no (https://sso.nsd.no/send-code?response_type=token&redirect_uri=https%3A%2F%2Fess.sikt.no%2F&client_id=https%3A%2F%2Fess.sikt.no%2F&nonce=OKH6VwjNrDjtfj69Qc_A&client_name=ess-data-portal&email=) to download the 11th wave of the European Social Survey as a .csv file (https://ess.sikt.no/en/datafile/242aaa39-3bbb-40f5-98bf-bfb1ce53d8ef). Save the dataset in the same folder as your script. Run the following code snippet, it should import the data frame and store it as "df" (see on the environment tab on the right).
+
+## Step 1: Import Data 
+
+```{r}
+df <- read.csv(paste0(getwd(), "/ESS11e04_1.csv"))
+```
+
+You can view the content of the dataset using View().
+
+```{r}
+
+```
+
+## Step 2: Data Wrangling with dplyr
+
+### Select Variables
+
+With dplyr, we can prepare data. The basic structure of dplyr looks as follows. We first select the dataset to be processed, then use the pipe symbol %>% (or |>), and then perform an operation. The following code snippet exemplifies the logic of dplyr. In this case, we use select() to choose three variables, which are then displayed.
+
+```{r}
+df %>%
+  select(gndr, cntry, lrscale)
+```
+
+### Generate New Variables
+
+To overwrite the dataset after variable manipulation, we need to assign it back to an object. For example, we can use mutate() to create an id variable that is stored in the dataset.
+
+```{r}
+df <- df %>%
+  mutate(id = 1:nrow(.))
+```
+
+Open the "Codebook" coming with the European Social Survey. Look up the variable name of "Years of full-time education completed". Examine its distribution using table(). What do you notice?
+
+```{r}
+
+```
+
+Some values are very large. If we look at the codebook, we see that "77", "88", "99" are so-called "missing" values, i.e., values that are absent for various reasons.
+
+Using mutate() and ifelse(), we can create a new variable that removes these values. Do you know how? If not, first look into ?mutate and then look up the syntax of ?ifelse.
+
+```{r}
+
+```
+
+The variable provides a lot of detail. Use the summary() command to display the mean and median.
+
+```{r}
+
+```
+
+Sometimes we want to classify variables into different categories. In our case, it makes sense, for example, to convert them into "low" (<10 years of education), "medium" (10–15 years of education), and "high" (over 15 years of education) levels of education. Create a new variable for this. This time, use the logic of case_when() to create the three different groups. Then display the variable using table().
+
+```{r}
+
+```
+
+We can also look at the relationship between two different variables. Use table() to display the distribution of education by migration background (brncntr). Remove any missing values in the variable "brncntr" if necessary.
+
+```{r}
+
+```
+
+### Rename Variables
+
+Some variable names are rather clunky. You can use rename() to overwrite their names.
+
+```{r}
+
+```
+
+### Count Values
+
+The European Social Survey includes many countries. Use count() in a pipe to count the responses by country.
+
+```{r}
+
+```
+
+### Subset Objects
+
+In some applications, we only need a subset of the data. We can subset the data frame by using the filter() function. Create a new object, called df_de, which subsets the European Social Survey to responses from Germany only (using the "cntry" variable). 
+
+```{r}
+
+```
+
+### Sort Objects
+
+Sometimes, we need to sort data.frames by their values. arrange() does exactly that. Use arrange() to sort the data frame by respondents age (variable = agea). If you want to check whether this was successful, add another pipe to your code and select(agea).
+
+```{r}
+
+```
+
+### Merge Objects
+
+!!! Challenge
+
+Often, we are using several data frames in R. With textual data, we might have information on politicians' social media posts alongside their parliamentary speeches. We might want to combine the data based on a common identifier.
+
+Here's an example of another data frame that includes (some of) the country names. Run the following snippet.
+
+```{r}
+country_names <- data.frame(cntry = c("AT", "BE", "BG", "CH", "CY", "DE"),
+                            cntry_n = c("Austria", "Belgium", "Bulgaria", "Switzerland", "Cyprus", "Germany"))
+```
+
+Now, use left_join() to combine both data frames using the common cntry variable. To play it safe, assign it to a new data frame (df2).
+
+```{r}
+
+```
+
+
+### Visualize Variables
+
+With ggplot(), we can graphically model relationships. First, display a histogram that plots the years of education.
+
+```{r}
+
+```
+
+!!! Challenge
+Now try to examine whether the average years of education differ between people with a migration background and those born in the country. Use a combination of group_by(), summarise(), and ggplot(). Use geom_col() as the chart type in ggplot(). 
+
+```{r}
+
+```
+
+### Regression Analyses 
+
+!!! Challenge 
+
+Sometimes we are interested in measuring the effect of one variable on another. We can do this using a regression. Use lm() to estimate a multivariate regression where your dependent variable is the number of years of education and the independent variables are gender (gndr) and migration background. You can display the regression results using summary(). Can you interpret the coefficients?
+
+```{r}
+
+```
+
+Are there other variables that you think could have an influence? Add them to the regression model after removing any missing values.
+
+```{r}
+
+```
