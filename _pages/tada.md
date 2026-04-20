@@ -70,7 +70,7 @@ nav: false
         </tr>
         <tr>
             <td>
-                <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides</a><br>
+                <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides</a><br></td>
             <td>
             <a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial</a><br>
             </td>
