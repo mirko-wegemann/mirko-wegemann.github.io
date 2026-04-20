@@ -56,7 +56,7 @@ nav: false
     <br><br>
     <h3>Materials</h3>
     To run the sample code, the files should first be saved locally and an .Rproj file should be created within the same directory structure. By double-clicking the .Rproj file, RStudio will open, from which the .Rmd file can then be accessed. A short guide can be found, for example, <a href="https://intro2r.com/rsprojs.html">here</a>.
-	<br>
+	<br><br>
 	<h4>Week 1: Introduction</h4>
     In this week, we will talk about the structure of the seminar, its expectations and your intended learning outcomes. We may also install R and RStudio. 
     <a href="{{ site.url }}assets/pdf/tada26/introduction.pdf">Slides</a>
@@ -77,7 +77,8 @@ nav: false
             <td>
 			</td>
         </tr>
-        </table>
+    </table> 
+    <br> <br>
     <!--- 
                     [//]: # <a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
             [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
