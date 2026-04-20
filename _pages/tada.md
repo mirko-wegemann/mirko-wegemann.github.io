@@ -59,7 +59,7 @@ nav: false
 	<br>
 	<h4>Week 1: Introduction</h4>
     In this week, we will talk about the structure of the seminar, its expectations and your intended learning outcomes. We may also install R and RStudio. 
-    a href="{{ site.url }}assets/pdf/tada26/introduction.pdf">Slides</a>
+    <a href="{{ site.url }}assets/pdf/tada26/introduction.pdf">Slides</a>
 	<br><br>
 	<h4> Week 2 and 3: Basics in R</h4>
 	<table class="fancy-table">
