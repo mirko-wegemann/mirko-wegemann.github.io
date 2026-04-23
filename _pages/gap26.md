@@ -59,11 +59,14 @@ nav: false
 	<h4>Week 1: Introduction (15 April 2026)</h4>
 	In this session, we will get to know each other and discuss some logistics about the seminar. Moreover, a brief introduction into the topic is given.  <br>
 	<a href="{{ site.url }}assets/pdf/gap26/introduction.pdf">Slides</a><br><br>
-	<!--- <h4>Week 2: Concepts</h4>
-	We will talk about about comparison in political science. Moreover, we will introduce crucial concepts in the study of gender in politics.  <br>
+	<h4>Week 2: Concepts</h4>
+	We will introduce crucial concepts in the study of gender in politics, and talk about prominent explanations of women's under-representation in politics.  <br>
 	<a href="{{ site.url }}assets/pdf/gap26/concepts.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/img/gap26/good_research.png">Mindmap on good research</a><br><br>
-    <h4>Week 3: Representation</h4>
+    <a href="{{ site.url }}assets/img/gap26/demand_side.jpeg">Demand-side explanations</a><br>
+    <a href="{{ site.url }}assets/img/gap26/supply_side.jpeg">Supply-side explanations</a><br>
+    <a href="{{ site.url }}assets/img/gap26/culture.jpeg">Cultural explanations</a><br>
+    <br><br>
+    <!--- <h4>Week 3: Representation</h4>
 	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. <br>
 	<a href="{{ site.url }}assets/pdf/gap26/representation.pdf">Slides</a><br><br>
     <h4>Week 4: Norms</h4>
