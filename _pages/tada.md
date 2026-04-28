@@ -70,25 +70,31 @@ nav: false
         </tr>
         <tr>
             <td>
-                <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides</a><br></td>
+                <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides (Week 2)</a><br>
+                <a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Week 3)</a></td>
             <td>
-            <a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial</a><br>
+            <a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial (Part 1)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/tutorial2_empty.Rmd">Tutorial (Part 2)</a><br>
+            <a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Introduction (Exercises)</a><br>
             </td>
             <td>
-			</td>
+            <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
+            <a href="{{ site.url }}assets/data/test_set.csv">Test file (.csv)</a> <br>
+            <a href="{{ site.url }}assets/data/unemployment_1222.xlsx">Test file (.xlsx)</a>  <br>            
+            <a href="{{ site.url }}assets/data/mdb_data.RDS">Data MPs German Bundestag</a> <br>
+            <a href="{{ site.url }}assets/data/parlamint_gb_sub">Data ParlaMint (UK)</a></td>
         </tr>
     </table> 
     <br> <br>
     <!--- 
-                    [//]: # <a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Woche 2)</a></td>
             [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
-            [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Einführung (Übungen)</a><br>
+            [//]: # 
             [//]: # <a href="{{ site.url }}assets/code/qta2425/tutorial.Rmd">Tutorial (Lösungen)</a><br>
             [//]: # <a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
-            [//]: #    <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
-            [//]: #     <a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
-            [//]: #     <a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a>  <br>            
-            [//]: #     <a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
+            <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
+            <a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
+            <a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a>  <br>            
+            <a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
     <br><br>
 	<h4>4. Woche: Was ist quantitative Textanalyse</h4>
 	In dieser Sitzung beschäftigen wir uns mit Konzepten aus der Inhaltsanalyse. Wir werden einen Text manuell analysieren, bevor wir verschiedene Methoden und Gütekriterien der quantitativen Textanalyse kennenlernen. 
