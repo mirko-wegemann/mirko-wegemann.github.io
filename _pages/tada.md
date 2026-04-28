@@ -82,7 +82,7 @@ nav: false
             <a href="{{ site.url }}assets/data/test_set.csv">Test file (.csv)</a> <br>
             <a href="{{ site.url }}assets/data/unemployment_1222.xlsx">Test file (.xlsx)</a>  <br>            
             <a href="{{ site.url }}assets/data/mdb_data.RDS">Data MPs German Bundestag</a> <br>
-            <a href="{{ site.url }}assets/data/parlamint_gb_sub.RDS">Data ParlaMint (UK)</a></td>
+            <a href="{{ site.url }}assets/data/parlamint_gb_sub.rds">Data ParlaMint (UK)</a></td>
         </tr>
     </table> 
     <br> <br>
