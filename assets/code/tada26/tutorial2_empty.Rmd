@@ -1,0 +1,111 @@
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE) 
+library(tidyverse) 
+``` 
+
+# Tutorial - 2. Task Set 
+
+## Part 1 of the Task Set 
+
+### Step 1 
+
+Download the file "mdb_data.RDS" from my website, save it in the correct directory, and import it. 
+```{r} 
+
+``` 
+
+### Step 2 
+
+How many Members of Parliament have at least one "x" in their surname? 
+
+```{r} 
+
+``` 
+
+### Step 3 
+
+What is the most common first name in the German Parliament (Bundestag)? 
+```{r} 
+
+``` 
+
+### Step 4 
+
+Were there more men with the names Wolfgang and Hans in Parliament than women in total? 
+```{r} 
+
+``` 
+
+Thank goodness not. 
+
+```{r} 
+
+``` 
+
+### Step 5 
+
+Create a variable containing the year of birth of the Members of Parliament. Which MP was born first? 
+
+```{r} 
+
+
+``` 
+
+## Part 2 of the Task Set 
+### Step 6 - Import of the Text File 
+
+Download the (reduced) corpus of British parliamentary speeches from my website, save it correctly, and import it into the R environment. 
+```{r} 
+
+``` 
+
+### Step 7 - Data Insight 
+
+How often did which party speak in the British House of Commons in recent years? Display the number of speech contributions tabularly. 
+```{r} 
+
+``` 
+
+...and is there a Gender Gap? 
+
+```{r} 
+
+``` 
+
+### Step 8 - Descriptive Insight into the Text 
+
+Now search for the word "Brexit" and display how often it was used in speeches about Brexit in recent years. 
+
+```{r} 
+
+``` 
+
+!!! CHALLENGE 
+Is there a temporal trend? 
+Display the development in the frequency of speeches on Brexit graphically. 
+
+```{r} 
+
+``` 
+
+Which party speaks most frequently about Brexit? 
+```{r} 
+
+``` 
+
+The graphic distorts a little how significant Brexit is in the parliamentary debate. Calculate a proportional share of Brexit speeches relative to the total volume of parliamentary speeches per party. 
+
+```{r} 
+
+``` 
+
+Compare the frequency of the Brexit debate with the frequency of speeches on Migration. 
+
+```{r} 
+
+``` 
+
+What are the speeches revolving around Brexit about? 
+```{r} 
+
+```

@@ -71,11 +71,11 @@ nav: false
         <tr>
             <td>
                 <a href="{{ site.url }}assets/pdf/tada26/basics_p1.pdf">Slides (Week 2)</a><br>
-                <a href="{{ site.url }}assets/pdf/qta/crashkurs2.pdf">Slides (Week 3)</a></td>
+                <a href="{{ site.url }}assets/pdf/tada26/basics_p2.pdf">Slides (Week 3)</a></td>
             <td>
             <a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial (Part 1)</a><br>
             <a href="{{ site.url }}assets/code/tada26/tutorial2_empty.Rmd">Tutorial (Part 2)</a><br>
-            <a href="{{ site.url }}assets/code/qta2425/einfuehrung_empty.RMD">Introduction (Exercises)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/introduction_empty.Rmd">Introduction</a><br>
             </td>
             <td>
             <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
