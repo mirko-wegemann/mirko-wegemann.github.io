@@ -74,8 +74,11 @@ nav: false
                 <a href="{{ site.url }}assets/pdf/tada26/basics_p2.pdf">Slides (Week 3)</a></td>
             <td>
             <a href="{{ site.url }}assets/code/tada26/tutorial_empty.Rmd">Tutorial (Part 1)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/tutorial_solutions.Rmd">Tutorial (Part 1, Solutions)</a><br>
             <a href="{{ site.url }}assets/code/tada26/tutorial2_empty.Rmd">Tutorial (Part 2)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/tutorial2_solutions.Rmd">Tutorial (Part 2, Solutions)</a><br>
             <a href="{{ site.url }}assets/code/tada26/introduction_empty.Rmd">Introduction</a><br>
+            <a href="{{ site.url }}assets/code/tada26/introduction_solutions.Rmd">Introduction (Solutions)</a><br>
             </td>
             <td>
             <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
