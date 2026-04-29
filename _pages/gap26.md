@@ -66,10 +66,10 @@ nav: false
     <a href="{{ site.url }}assets/img/gap26/supply_side.jpeg">Supply-side explanations</a><br>
     <a href="{{ site.url }}assets/img/gap26/culture.jpeg">Cultural explanations</a><br>
     <br><br>
-    <!--- <h4>Week 3: Representation</h4>
+    <h4>Week 3: Representation</h4>
 	This week, we deal with different conceptualizations of representation and debate whether descriptive representation can foster gender equality in politics. <br>
 	<a href="{{ site.url }}assets/pdf/gap26/representation.pdf">Slides</a><br><br>
-    <h4>Week 4: Norms</h4>
+    <!--- <h4>Week 4: Norms</h4>
     Norms are essential for social order. They shape how we think and behave. In this week, we'll discuss what norms are, how they evolve and how they are transmitted to the next generation while discussing their significance in the context of gender. <br> 
     <a href="{{ site.url }}assets/pdf/gap26/norms.pdf">Slides</a><br><br>
      <h4>Week 5: Legacies</h4>
