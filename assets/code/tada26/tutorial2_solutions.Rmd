@@ -1,0 +1,165 @@
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = TRUE) 
+library(tidyverse) 
+``` 
+
+# Tutorial - 2. Task Set 
+
+## Part 1 of the Task Set 
+
+### Step 1 
+
+Download the file "mdb_data.RDS" from my website, save it in the correct directory, and import it. 
+```{r} 
+mdb_data <- readRDS("./mdb_data.RDS") 
+``` 
+
+### Step 2 
+
+How many Members of Parliament have at least one "x" in their surname? 
+
+```{r} 
+mdb_data %>% 
+  mutate(names_with_x = str_count(last_name, "x")) %>% 
+  summarise(names_with_x = sum(names_with_x>0, na.rm=T)) 
+``` 
+
+### Step 3 
+
+What is the most common first name in the German Parliament (Bundestag)? 
+```{r} 
+mdb_data %>% 
+  group_by(first_name) %>% 
+  summarise(occurence = n()) %>% 
+  arrange(desc(occurence)) 
+``` 
+
+### Step 4 
+
+Were there more men with the names Wolfgang and Hans in Parliament than women in total? 
+```{r} 
+mdb_data %>% 
+  mutate(hans_wolfgang = str_count(first_name, "Hans|Wolfgang")) %>% 
+  summarise(number=sum(hans_wolfgang>0,na.rm=T)) 
+
+table(mdb_data$gender) 
+``` 
+
+Thank goodness not. 
+
+```{r} 
+hw <- mdb_data %>% 
+  mutate(hans_wolfgang = str_count(first_name, "Hans|Wolfgang")) %>% 
+  summarise(number=sum(hans_wolfgang>0,na.rm=T)) %>% 
+  mutate(group="Hans/Wolfgang") 
+
+female <- mdb_data %>%
+  filter(gender=="weiblich") %>%
+  count(gender) %>%
+  rename(group = gender,
+         number = n)
+
+data <- rbind(hw, female) 
+data %>% 
+  ggplot(aes(group, number)) + 
+  geom_col() + 
+  theme_light() 
+
+ggsave("hw_women.png", units="cm", width=20, height=16) 
+``` 
+
+### Step 5 
+
+Create a variable containing the year of birth of the Members of Parliament. Which MP was born first? 
+
+```{r} 
+mdb_data %>% 
+  mutate(yob = str_extract(date_birth, "\\d{4}")) %>% 
+  select(yob, full_name) %>% 
+  arrange(-desc(yob)) 
+
+``` 
+
+## Part 2 of the Task Set 
+### Step 6 - Import of the Text File 
+
+Download the (reduced) corpus of British parliamentary speeches from my website, save it correctly, and import it into the R environment. 
+```{r} 
+df <- readRDS("./parlamint_gb_sub.RDS") 
+``` 
+
+### Step 7 - Data Insight 
+
+How often did which party speak in the British House of Commons in recent years? Display the number of speech contributions tabularly. 
+```{r} 
+table(df$org_name) 
+``` 
+
+...and is there a Gender Gap? 
+
+```{r} 
+table(df$sex)
+``` 
+
+### Step 8 - Descriptive Insight into the Text 
+
+Now search for the word "Brexit" and display how often it was used in speeches about Brexit in recent years. 
+
+```{r} 
+df <- df %>% 
+  mutate(brexit = str_detect(speeches, "brexit|Brexit")) 
+table(df$brexit) 
+``` 
+
+!!! CHALLENGE 
+Is there a temporal trend? 
+Display the development in the frequency of speeches on Brexit graphically. 
+
+```{r} 
+df %>% 
+  mutate(year = str_extract(date, "\\d{4}")) %>% 
+  group_by(year) %>% 
+  summarise(brexit_n = sum(brexit==TRUE, na.rm=T)) %>% 
+  ggplot(aes(year, brexit_n)) + geom_col() + 
+  xlab("Year") + ylab("Count of speeches on Brexit") + theme_light() 
+``` 
+
+Which party speaks most frequently about Brexit? 
+```{r} 
+df %>% mutate(year = str_extract(date, "\\d{4}")) %>% 
+  filter(org_name %in% c("Conservative", "Labour", "Liberal Democrat", "Scottish National Party")) %>% 
+  group_by(org_name) %>% 
+  summarise(brexit_n = sum(brexit==TRUE, na.rm=T)) %>% 
+  ggplot(aes(org_name, brexit_n)) + geom_col() + xlab("Party") + ylab("Count of speeches on Brexit") + theme_light() 
+``` 
+
+The graphic distorts a little how significant Brexit is in the parliamentary debate. Calculate a proportional share of Brexit speeches relative to the total volume of parliamentary speeches per party. 
+
+```{r} 
+df %>% 
+  filter(org_name %in% c("Conservative", "Labour", "Liberal Democrat", "Scottish National Party")) %>% 
+  mutate(year = str_extract(date, "\\d{4}")) %>% group_by(org_name) %>% 
+  summarise(n_speeches = n(), brexit_speeches = sum(brexit==TRUE, na.rm=T), brexit_prop = brexit_speeches / n_speeches) %>% 
+  ggplot(aes(org_name, brexit_prop)) + geom_col() + xlab("Party") + ylab("Proportion of speeches mentioning Brexit") + theme_light() 
+``` 
+
+Compare the frequency of the Brexit debate with the frequency of speeches on Migration. 
+
+```{r} 
+df %>% 
+  ungroup() %>% 
+  mutate(migr = str_detect(speeches, "migr|asylum|refuge")) %>% 
+  count(migr, brexit) 
+``` 
+
+What are the speeches revolving around Brexit about? 
+```{r} 
+# either: 
+df %>% 
+  filter(brexit == T) %>% 
+  select(speeches) 
+
+# or: (more on this in the coming weeks) 
+library(quanteda) 
+kwic(tokens(df$speeches), "brexit") 
+```
