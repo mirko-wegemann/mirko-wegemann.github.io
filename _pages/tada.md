@@ -88,7 +88,7 @@ nav: false
             <a href="{{ site.url }}assets/data/parlamint_gb_sub.rds">Data ParlaMint (UK)</a></td>
         </tr>
     </table> 
-    <br> <br>
+    For the "introduction.Rmd"-tutorial, the "Allbus 2018" is needed. You can download the Allbus data for free after registration at <a href="https://search.gesis.org/research_data/ZA5270">GESIS</a>.    <br> <br>
     <!--- 
             [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
             [//]: # 
