@@ -89,30 +89,10 @@ nav: false
         </tr>
     </table> 
     For the "introduction.Rmd"-tutorial, the "Allbus 2018" is needed. You can download the Allbus data for free after registration at <a href="https://search.gesis.org/research_data/ZA5270">GESIS</a>.    <br> <br>
-    <!--- 
-            [//]: # <a href="{{ site.url }}assets/code/qta2425/einfuehrung.RMD">Einführung (Lösungen)</a><br>
-            [//]: # 
-            [//]: # <a href="{{ site.url }}assets/code/qta2425/tutorial.Rmd">Tutorial (Lösungen)</a><br>
-            [//]: # <a href="{{ site.url }}assets/data/allb18.dta">Allbus 2018</a> <br>
-            <a href="{{ site.url }}assets/data/SnowballStopwordsGerman_utf8.txt">Stopwords</a> <br>
-            <a href="{{ site.url }}assets/data/test_set.csv">.csv-Testdatei</a> <br>
-            <a href="{{ site.url }}assets/data/unemployment_1222.xlsx">.xlsx-Testdatei</a>  <br>            
-            <a href="{{ site.url }}assets/data/mdb_data.RDS">Daten zu Abgeordneten des Deutschen Bundestags</a> 
-    <br><br>
-	<h4>4. Woche: Was ist quantitative Textanalyse</h4>
-	In dieser Sitzung beschäftigen wir uns mit Konzepten aus der Inhaltsanalyse. Wir werden einen Text manuell analysieren, bevor wir verschiedene Methoden und Gütekriterien der quantitativen Textanalyse kennenlernen. 
-	<table class="fancy-table">
-        <tr>
-            <th style="width:33%;">Slides</th>
-            <th style="width:33%;">Code</th>
-        </tr>
-        <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/qta.pdf">Einführung in die quantitative Textanalyse</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/inauguration.Rmd">Code (US Inauguration Speeches)</a>
-            </td>
-        </tr>
-    </table><br><br>
-	<h4>5. Woche: Web-Scraping statischer Webseiten</h4>
+	<h4>Week 4: Basics of Text Analysis</h4>
+	This week, we'll discuss what to keep in mind when doing content analysis, and introduce the different steps involved in research projects using text-as-data.
+    <a href="{{ site.url }}assets/pdf/tada26/cta.pdf">Slides</a><br><br>
+	<!--- <h4>5. Woche: Web-Scraping statischer Webseiten</h4>
 	In dieser Woche versuchen wir, Daten von einfachen Webseiten herunterzuladen und in ein für uns nutzbares Dateiformat zu überführen. Bitte installiert im Vorfeld das <a href="https://selectorgadget.com/">SelectorGadget</a> für den Browser, welchen ihr normalerweise nutzt. Überlegt euch, welche Website für euch von Interesse sein könnte.  <br>
 	<table class="fancy-table">
         <tr>
