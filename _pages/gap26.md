@@ -72,10 +72,13 @@ nav: false
     <h4>Week 5: Norms and their Legacies</h4>
     Norms are essential for social order. They shape how we think and behave. In this week, we'll discuss what norms are and apply them to an empirical case. Specifically, we will discuss how an agricultural reform -- the emergence of the plough -- has reinforced gendered household division with lasting effects up until today. <br> 
     <a href="{{ site.url }}assets/pdf/gap26/legacies.pdf">Slides</a><br><br>
-    <!--- <h4>Week 6: Institutions</h4>
-    This week, we discuss the role of political institutions, such as the electoral system and the candidate selection process, for the participation and representation of women in politics. <br> 
-    <a href="{{ site.url }}assets/pdf/gap26/institutions.pdf">Slides</a><br><br>
-    <h4>Week 7: Demand-side biases</h4>
+    <h4>Week 6: Institutions</h4>
+    This week, we discuss the role of political institutions, such as the electoral system, for the representation of women in politics. <br> 
+    <a href="{{ site.url }}assets/pdf/gap26/institutions.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/img/gap26/board.jpeg">Comparison (board)</a><br>
+    <a href="{{ site.url }}assets/img/gap26/flinga_smith.png">Summary (Smith et al. 2025)</a><br>
+    <a href="{{ site.url }}assets/img/gap26/flinga_thesen.png">Summary (Thesen, Yildirim 2023)</a><br><br>
+    <!--- <h4>Week 7: Demand-side biases</h4>
     Do voters discriminate against female candidates? In this session, we will discuss, based on different survey experiment on voters' perceptions of political candidates, whether voters attach different levels of competency and expertise to female candidates than to male candidates, and how this shapes their political persuasion.  <br>
     <a href="{{ site.url }}assets/pdf/gap26/demand.pdf">Slides</a><br><br>
     <h4>Week 8: Candidates</h4>

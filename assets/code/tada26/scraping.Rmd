@@ -1,0 +1,510 @@
+---
+title: "Scraping (Introduction)"
+author: "Mirko Wegemann"
+date: "20 May 2026"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# if output is truncated, do this:
+options(max.print=1000000)
+
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+
+# Browsing the web
+
+Let's start with something simple, browsing, just in a different fashion. Let's open the robots.txt file of the website we'll later scrape, to check if crawling is allowed or prohibited.
+
+```{r,eval=F}
+browseURL("https://www.amnesty.org/robots.txt")
+```
+
+That worked well enough. Now, let's find out more about the Amnesty's activities. But wouldn't we have to click on each link individually? No, that would be too much work. So, let's try to automate this process.
+
+There are some useful tools for static webpages like those of the Amnesty International. What does "static" mean? We'll find that out next week when we discuss dynamic webpages.
+
+For our task, we can simply use the very powerful package rvest, which we have already installed and loaded into our environment.
+
+All the information we access on the web is stored in a format known as HyperText Markup Language (HTML). On the frontend, it looks like a beautiful webpage. But on the backend, it's just a data structure. Let's try to access this source code.
+
+```{r}
+url <- "https://www.amnesty.org/en/latest/"
+html <- read_html(url)
+html
+```
+
+HTML normally consists of various parts, such as a "Header" and a "Body". We usually focus on the "Body", as that's 
+where most of the information is stored. The "header" stores only metadata, which only interests us occasionally.
+
+# Extract Elements from HTML
+
+Good, we know how HTML looks and we have downloaded the HTML of our target website. But that's only the first step. We 
+actually want to control only specific elements of the HTML.
+
+## Extract text
+Assuming, we want to retrieve the headlines of press releases from Amnesty International That would give us a glimpse of what Amnesty International does. As we've learned, headlines are typically stored in <h1>, <h2>, <h3> usw. gespeichert. Let's try!
+
+1. Download the HTML file (read_html, as we have previously done)
+2. Access the element that interests us with html_elements("h1")
+3. Retrieve only the text, not the surrounding tags, using html_text() or similar.
+
+```{r}
+(top_level_headline <- html %>% html_elements("h2") %>% html_text())
+```
+
+The main heading is not very informative. Download the headlines of the press releases with the correct tag.
+
+```{r}
+(pr_headline <- html %>% html_elements(".wp-block-post-title a") %>% html_text())
+```
+
+Nice, that worked well!
+
+
+### Extract the date
+
+Do you have any idea how we can download all date timestamps from the website?
+
+```{r}
+(pr_content <- html %>% html_elements("time") %>% html_text())
+```
+
+Now that we have scraped some data from the main page, we are often interested in the subpages, in this case the specific press releases. How can we do this?
+
+## Download urls
+
+Actually, accessing links is not much different from accessing text. The pipeline is very similar.
+
+However, there is a significant difference that becomes apparent in the following example.
+
+```{r}
+(pr_headlines <- read_html(url) %>% html_elements(".wp-block-post-title a") %>% html_text())
+```
+
+Now we have downloaded the titles of the press releases again.
+
+To change this, we simply need to modify the last part of our pipeline. As we discussed earlier, in the HTML architecture, we not only have elements but also attributes. The attribute we need to access to reach other URLs is normally href (hyperlink).
+
+Of course, rvest has the corresponding predefined function ready for us.
+
+```{r}
+(pr_urls <- read_html(url) %>% html_elements(".wp-block-post-title a") %>% html_attr("href"))
+```
+
+That looks great. Sometimes URLs are stored as complete links (as in this case), but other times they are just relative paths. In the latter case, we would need to concatenate them with the root URL. For this, we can use the paste0() function from base R
+
+```{r}
+root_url <- "https://www.amnesty.org/en"
+child_url <- "/campaigns/2026/05/chief-dstahyl-on-land-climate-change-and-our-collective-future/"
+(full_url <- paste0(root_url, child_url))
+```
+
+A small addition:
+
+You might have noticed that we sometimes use `html_elements*` and sometimes just the singular `html_attr`. The reason for this is simple. On our main page, we are looking for multiple elements that contain our link. However, these elements each have only one attribute, "href".
+
+***Your Turn***
+
+Let's identify the tags of the press releases on one of the subpages.
+ 
+```{r}
+(date <- read_html("https://www.amnesty.org/en/latest/campaigns/2026/05/chief-dstahyl-on-land-climate-change-and-our-collective-future/") %>% html_elements(".wp-block-list-item a") %>% html_text())
+```
+
+
+
+
+
+
+
+
+
+Let's scrape the text of the publication together. This should be no problem for us, as we have everything we need.
+
+```{r}
+(text_pr1 <- read_html(pr_urls[1]) %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+
+# if you want to display the whole text 
+# writeLines(text_pr1)
+```
+
+**Tune your code**
+
+As you can see, there’s a lot of information on the subpages. Let’s say you want to collect the title, date, text, and ID number of a text. You can speed up the query and reduce the load on Amnesty International's servers by fetching the HTML just once and parsing its components on your local hard drive. Let’s do that and create a dataset with the collected information.
+
+```{r}
+# retrieve source code
+html <- read_html(pr_urls[1])
+
+# access information in html object
+(date_pr1 <- html %>% html_elements("time") %>% html_text())
+(headline_pr1 <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+(text_pr1 <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+(related_pr1 <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+
+
+# combine into one data frame
+df <- data.frame(date=date_pr1, headline=headline_pr1, text=text_pr1, related_posts=related_pr1, url = pr_urls[1])
+View(df)
+```
+
+
+# Automatization
+
+We’ve downloaded all the information we need for our future text analyses—but only for a single page! 
+In practice, we want to automate this task; after all, we want all the press releases, not just one. 
+
+A first step is to download all the relevant data for the URLs we accessed on the first page of the press releases.
+We can do this in several ways:
+
+  - You can use a `for()` loop that iterates over a defined vector of links and retrieves each one.
+  - You can write a function that retrieves the content of all links. The function can then be applied to a vector using `apply()`—this is the fastest option, but it requires some practice.
+
+Let’s start with the for loop; it’s usually easier to understand.
+In a for loop, you iterate through all elements (k) of a vector x. In our case, we’ll go through our list of URLs and download the required information.
+
+# Beispiel für die Automatisierung einer for-Schleife:
+```{r}
+urls <- c("https://www.uni-muenster.de/de/", "https://www.uni-osnabrueck.de/startseite/")
+links <- c()
+for(i in 1:length(urls)){
+    html <- read_html(urls[[i]])
+    links[i] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+links
+```
+
+Before we automate anything, we should make sure that each part of our loop works. So: first write down the individual parts, then put them into a for-loop. 
+
+```{r}
+# let's use the code from above
+# first HTML
+html <- read_html(pr_urls[1])
+
+# then elements
+(date_pr1 <- html %>% html_elements("time") %>% html_text())
+(headline_pr1 <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+(text_pr1 <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+(related_pr1 <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+```
+
+
+## Automatization with a for-loop
+
+The only change is that we're using a placeholder for the URL we insert into `read_html`. Previously, we always used the first one.
+Now we're writing a loop to iterate through all the links and store the information in empty vectors that were defined before the loop.
+
+```{r}
+date <- headline <- text <- related <-  c()
+
+start <- Sys.time()
+# loop through all the links we have collected, this may take some time
+for(link in 1:length(pr_urls)){        # define the index (here, we've got ten links, so we will go through link 1 to 10).
+  html <- read_html(pr_urls[link])     # instead of the number, we put the variable defined in the line above (here <url>)
+
+  (date[link] <- html %>% html_elements("time") %>% html_text())
+  (headline[link] <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+  (text[link] <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+  (related[link] <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+}
+
+end <- Sys.time()
+end-start
+
+
+df2 <- data.frame(date, headline, text, related, pr_urls)
+```
+
+Here we get an error message. Why? A press release doesn't seem to have an HTML field for the date.
+
+For loops, it therefore makes sense to define so-called “exceptions” that specify what should happen if something goes wrong.
+
+```{r}
+date <- headline <- text <- related <-  c()
+
+start <- Sys.time()
+# loop through all the links we have collected, this may take some time
+for(link in 1:length(pr_urls)){        # define the index (here, we've got ten links, so we will go through link 1 to 10).
+  html <- read_html(pr_urls[link])     # instead of the number, we put the variable defined in the line above (here <url>)
+  tryCatch({
+      (date[link] <- html %>% html_elements("time") %>% html_text())
+      (headline[link] <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+      (text[link] <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+      (related[link] <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+  }, warning = function(w) {
+      print(paste0("Warning with link ", link))
+    }, error = function(e) {
+      print(paste0("Error with link ", link))
+  })  
+}
+
+end <- Sys.time()
+end-start
+
+
+df2 <- data.frame(date, headline, text, related, pr_urls)
+View(df2)
+```
+
+That's better!
+
+In this case, however, we lose the entire message. We could also define the try-catch block for each variable individually. 
+
+```{r}
+date <- headline <- text <- related <-  c()
+
+start <- Sys.time()
+# loop through all the links we have collected, this may take some time
+for(link in 1:length(pr_urls)){        # define the index (here, we've got ten links, so we will go through link 1 to 10).
+  html <- read_html(pr_urls[link])     # instead of the number, we put the variable defined in the line above (here <url>)
+  tryCatch({
+      (date[link] <- html %>% html_elements("time") %>% html_text())
+  }, warning = function(w) {
+      print(paste0("Warning with date for link ", link))
+    }, error = function(e) {
+      print(paste0("Error with date for link ", link))
+  })
+  tryCatch({
+      (headline[link] <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+  }, warning = function(w) {
+      print(paste0("Warning with headline for link ", link))
+    }, error = function(e) {
+      print(paste0("Error with headline for link ", link))
+  })
+  tryCatch({
+      (text[link] <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+  }, warning = function(w) {
+      print(paste0("Warning with text for link ", link))
+    }, error = function(e) {
+      print(paste0("Error with text for link ", link))
+  })
+  tryCatch({
+      (related[link] <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+  }, warning = function(w) {
+      print(paste0("Warning with related posts for link ", link))
+    }, error = function(e) {
+      print(paste0("Error with related posts for link ", link))
+  })
+}
+
+end <- Sys.time()
+end-start
+
+
+df2 <- data.frame(date, headline, text, related, pr_urls)
+View(df2)
+```
+
+Fantastic. The text content of the message that triggered an error was successfully recovered. 
+
+
+## Automation Using a Function
+
+A function might look a little more complex. 
+
+```{r}
+urls <- c("https://www.uni-muenster.de/de/", "https://www.uni-osnabrueck.de/startseite/")
+
+h1_scrape <- function(url){
+  html <- read_html(urls[[url]])
+    links[url] <- html %>%
+        html_node("h1") %>%
+        html_text()
+}
+
+(headlines <- lapply(1:length(urls), h1_scrape))
+```
+
+Well, here's the for loop from above as a function: 
+
+```{r}
+start <- Sys.time()
+scrape_amnesty <- function(urls){
+  results <- c()
+  html <- read_html(urls)     # instead of the number, we put the variable defined in the line above (here <url>)
+
+  (date <- html %>% html_elements("time") %>% html_text())
+  (headline <- html %>% html_elements(".wp-block-post-title") %>% html_text())
+  (text <- html %>% html_elements(".wp-block-post-content-is-layout-flow") %>% html_text())
+  (related <- html %>% html_elements(".grid-itemTitle a") %>% html_text() %>% paste0(., collapse="; "))
+  
+  date <- ifelse(is_empty(date), "NA", date)
+  headline <- ifelse(is_empty(headline), "NA", headline)
+  text <- ifelse(is_empty(text), "NA", text)
+  related <- ifelse(is_empty(related), "NA", related)
+  
+  contents <- cbind(date, headline, text, related, urls)
+  results <- append(results, contents)
+}
+
+results2 <- lapply(pr_urls, scrape_amnesty)
+end <- Sys.time()
+end-start
+
+# transpose matrix and store as data frame
+results3 <- data.frame(do.call(rbind, results2))
+rownames(results3) <- 1:nrow(results3)
+colnames(results3) <- c("date", "headline", "text", "related_posts", "url")
+```
+
+There’s really no difference here. But for very large tasks, functions are usually faster. Plus, functions are easier to parallelize. Parallelization means splitting up the URLs and running multiple processes simultaneously to fetch data. This is super fast and can be done using *furrr* and future_map() instead of sapply(). But be careful: The faster you download data, the greater the risk that you’ll be detected and blocked by the web administrator!
+
+# Automatization: Gimme more!
+
+So far, we've only collected the links to the first 10 press releases. But Amnesty International has many more press releases! If we visit the website again, we can see how to access the other links.
+
+```{r}
+browseURL(url)
+```
+
+
+In the case of Amnesty International, all pages containing press releases follow a similar “root path” (“https://www.amnesty.org/en/latest/page/”). So if we want to access the first 60 press releases, we need to scrape the first five pages.
+
+```{r}
+urls_amnesty <- paste0("https://www.amnesty.org/en/latest/page/", 1:5)
+urls_amnesty
+```
+
+
+
+***Your Turn***
+
+Try to access all the links to the press releases on the first five pages of the Amnesty website.
+No cheating! We’ll go over the code together in a moment.
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+***Solution***
+
+We will proceed in much the same way as before and create a function that automatically scans the five URL pages and then collects the links to the individual press releases.
+
+```{r}
+# define function
+press_url <- function(n){
+  url_list <- c()     
+  url <- read_html(urls_amnesty[n]) %>% html_nodes(".wp-block-post-title a") %>% html_attr("href")     # refer to each of the five links with index n
+  url_list <- append(url_list, url)                                                       # append links to url list
+        
+}
+press_urls <- sapply(1:length(urls_amnesty), press_url)                                        # execute function
+
+(press_urls2 <- unlist(as.list(press_urls)))                                                # the output format is not really helpful for us, we need to first transform to a list before we unlist again to get a character vector
+``` 
+
+Now let's try to retrieve all the information for each of our 50 web pages. We can use the function defined above and simply change the object in the apply function.
+
+That could take a while...
+```{r}
+start <- Sys.time()
+results_comp <- lapply(press_urls2, scrape_amnesty)
+end <- Sys.time()
+end-start
+
+# change format to df 
+results_comp2 <- data.frame(do.call(rbind, results_comp))
+```
+
+Congratulations! You can now download static websites!
+
+
+
+# A Few Additional Tips
+
+We've already covered a lot, but there are a few more features that might come in handy depending on your use case. Maybe you want to download tables or images?
+
+## Tables
+Let's start with the basics: tables.
+
+We’ll use Wikipedia as an example. 
+```{r}
+url2 <- "https://de.wikipedia.org/wiki/Liste_der_Mitglieder_des_Deutschen_Bundestages_(21._Wahlperiode)"
+html <- read_html(url2)
+table <- html %>% html_elements("table") %>% html_table() 
+table
+``` 
+
+A disclaimer: Tables are sometimes poorly coded. The worse they are written in the HTML code, the worse the result will naturally be. 
+
+## Images
+
+In our seminar, we focus on text analysis. But perhaps you’d like to work on image analysis in the future? 
+
+Here, too, you often start by downloading images. 
+
+We can stick with the original example (Amnesty press releases); their website does have graphics. 
+
+First, we check if there are images on the main page
+```{r}
+images <- read_html(url) %>% html_nodes("img")
+```
+
+
+Yes, there are. But how can we download them?
+Apparently, it’s similar to how we handle links.
+
+First, we access the source of an image (source attribute).
+```{r}
+(images_src <- read_html(url) %>% html_nodes("img") %>% html_attr("src"))
+```
+
+Let's try to get the link to the image source.
+
+```{r}
+browseURL(images_src[[1]])
+```
+
+...and download it into our directory.
+
+```{r}
+download.file(images_src[[1]], destfile = "./session4/")
+```
+
+Oops, access denied! That won't work.
+
+Instead, things get a bit more complicated here (we'll learn more about this next week). We actually need to start a real browser session before we can begin downloading images. The R package *httr2* (hitter) is useful for this. The package is frequently used to access an API.
+
+```{r}
+session <- session(url)
+```
+
+```{r}
+#Access links for image sources
+imgsrc <- session %>% read_html() %>% html_nodes("img") %>% html_attr("src")
+
+# Access the image source page (here, retrieve only the first image)
+img <- session_jump_to(session, imgsrc[[1]])
+
+# Save to our directory
+writeBin(img$response$content, con = "./session4/image_download_amnesty.png")
+```

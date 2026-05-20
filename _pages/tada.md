@@ -92,23 +92,23 @@ nav: false
 	<h4>Week 4: Basics of Text Analysis</h4>
 	This week, we'll discuss what to keep in mind when doing content analysis, and introduce the different steps involved in research projects using text-as-data.
     <a href="{{ site.url }}assets/pdf/tada26/cta.pdf">Slides</a><br><br>
-	<!--- <h4>5. Woche: Web-Scraping statischer Webseiten</h4>
-	In dieser Woche versuchen wir, Daten von einfachen Webseiten herunterzuladen und in ein für uns nutzbares Dateiformat zu überführen. Bitte installiert im Vorfeld das <a href="https://selectorgadget.com/">SelectorGadget</a> für den Browser, welchen ihr normalerweise nutzt. Überlegt euch, welche Website für euch von Interesse sein könnte.  <br>
+	<h4>Week 5: Web scraping (Part 1)</h4>
+	This week, we'll download data from basic HTML-structured webpages, and translate them into a structured data format. Please install <a href="https://selectorgadget.com/">SelectorGadget</a> for your browser of choice (either as bookmark or add-on).  <br>
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
             <th style="width:33%;">Code</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/scraping.pdf">Scraping statischer Webseiten</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/scraping.Rmd">Code (Scraping Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/scraping_exercises_empty.Rmd">Übungen (Scraping)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/scraping_exercises.Rmd">Übungen - Lösungen</a>
-
+            <td><a href="{{ site.url }}assets/pdf/tada26/scraping.pdf">Scraping (Part 1)</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/scraping.Rmd">Code (Introduction to Scraping)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/scraping_exercises_empty.Rmd">Exercise (Scraping)</a><br>
             </td>
         </tr>
     </table><br><br>
-	<h4>6. Woche: Web-Scraping dynamischer Webseiten</h4>
+	<!---              <a href="{{ site.url }}assets/code/tada26/scraping_exercises.Rmd">Übungen - Lösungen</a>
+
+    <h4>6. Woche: Web-Scraping dynamischer Webseiten</h4>
 	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>).  <br>
 	<table class="fancy-table">
         <tr>
