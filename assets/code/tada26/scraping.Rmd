@@ -1,11 +1,3 @@
----
-title: "Scraping (Introduction)"
-author: "Mirko Wegemann"
-date: "20 May 2026"
-output: html_document
----
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # if output is truncated, do this:
