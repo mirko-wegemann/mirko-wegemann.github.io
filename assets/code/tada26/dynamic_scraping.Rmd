@@ -1,0 +1,233 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('RSelenium')) install.packages("RSelenium") # we know it, we love it
+if (!require('wdman')) install.packages("wdman") # selenium server config
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+if (!require('usethis')) install.packages("usethis") # open environment files (for secret API keys)
+#edit_r_environ()
+```
+
+
+# Dynamic Web Pages
+
+Automation works well with *rvest* as long as the web pages we want to scrape are static. What does that mean? Last week, we were able to access the content of web pages without actually opening them. This allowed us to identify all links that followed a specific pattern (last week, that was: <page=>).
+
+## The European Parliament
+
+That's not always the case. Let's imagine we're done with the UN press releases and want to collect data from the European Parliament.
+
+```{r}
+browseURL("https://www.europarl.europa.eu/news/de")
+```
+
+What becomes clear is that there is no element containing the page count, but simply a <Load More> ("Mehr anzeigen") button. Furthermore, the link does not change when we click the button. If we were to use *rvest*, we would never be able to get all the links, only the first few.
+
+Therefore, we need to follow a different strategy. We actually have to open a browser and click the “Load More” button. But since we don’t want to do all of this manually, we need the developer tool called *Rselenium*.
+
+### 1. Configuring the Browser
+
+*Rselenium* was designed for testing websites. We're using it for a slightly different purpose. To use it, we need to have Java installed.
+First, let's create a new browser window (it should open automatically).
+
+```{r}
+# Setup (configuration of connection)
+rd <- rsDriver(browser = "firefox",
+               chromever = NULL, 
+               port = sample(1:65535, 1), # each port number can be used once, so we use a random number every time we access a port
+               phantomver = NULL,
+               verbose = T)  
+
+# Define browser
+browser <- rd$client
+```
+
+
+### 2. Navigation zur Ziel-URL
+
+Der Browser hat sich geöffnet. 
+Nun navigieren wir zur EuroParl-URL navigieren. Machen wir einen Screenshot davon, um uns zu vergewissern, dass alles wie gewünscht klappt.
+ 
+```{r}
+url <- "https://www.europarl.europa.eu/news/de"
+
+# Zu einer URL navigieren
+browser$navigate(url)
+
+# Einen Screenshot machen
+browser$screenshot(TRUE)
+```
+
+
+### 3. Klicken von Buttons
+
+Nun poppt unter anderem ein Cookie-Fenster auf. 
+
+Um mit dem Browser zu interagieren, müssen wir lernen, wie man auf Buttons klickt. Das ist nicht schwer, RSelenium hat die Funktion *clickElement()*. Aber zuerst müssen wir wissen, worauf wir klicken müssen. Dafür können wir wieder das Selector Gadget verwenden, um das interessierende Objekt zu identifizieren. Lasst uns die Cookies so ablehnen.
+
+```{r}
+cookies <- browser$findElement(using = 'css selector', value='.epjs_agree:nth-child(1) span') # Zustimmung/Ablehnung zu Cookies
+cookies$clickElement() # und klick
+```
+
+So jetzt können wir tatsächlich tun, was wir geplant hatten. Klickt auf den <Mehr laden>-Button, um alle Links zu sammeln.
+
+***Your Turn***
+Versucht es einmal selbst (es folgt der gleichen Logik wie beim Cookies-Button oben).
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+
+*Lösung*
+```{r}
+more <- browser$findElement(using = 'css selector', value="#continuesLoading_button .ep_name") 
+more$clickElement()
+```
+
+
+### 4. Wiederholen eines Vorgangs
+
+Das hat schon einmal funktioniert, aber wir müssen den Schritt natürlich mehrfach daswiederholen. Wie oft wir den Schritt wiederholen, hängt an uns.
+```{r}
+n_times <- 5
+n <- 0
+repeat {
+  more$clickElement()
+  n <- n+1
+  Sys.sleep(1) # Delay um eine Sekunde, um das vollständige Laden der Seite zu ermöglichen (der Button muss wieder unten aufpoppen)
+  if(n >= n_times){
+    break
+  }
+}
+```
+
+
+### 5. Extraktion von Informationen
+
+Wenn wir genug auf <Mehr laden> geklickt haben, beginnen wir, auf die Elemente auf der Seite zuzugreifen. Wir können *rvest* immer noch nicht verwenden, da wir direkt auf den HTML-Code im Browser, den wir in RSelenium() geöffnet haben, zugreifen müssen.
+RSelenium hat aber ähnliche Funktionen wie rvest.
+
+```{r}
+urls_euparl <- browser$findElements(using = 'css selector', value='.ep_title > a') 
+urls_euparl2 <- c()
+for(i in 1:length(urls_euparl)){
+      urls_euparl2[i] <- urls_euparl[[i]]$getElementAttribute('href')[[1]]
+}
+```
+
+Jetzt, da wir diese Links haben, können wir tatsächlich zu *rvest* zurückkehren und auf weitere Daten (auf den Unterseiten für die einzelnen Pressemeldungen) zugreifen, ohne eine virtuelle Umgebung zu öffnen.
+
+***Your Turn:*** 
+Greift auf den Titel, Text und das Datum der Pressemitteilungen zu.
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+***Lösung***
+So kann es beispielsweise mit einer Funktion gehen. 
+```{r}
+start <- Sys.time()
+scrape_euparl <- function(urls){
+  results <- c()
+  tryCatch({
+  html <- read_html(urls)   
+
+  date <- html %>% html_elements("time") %>% html_attr("datetime") %>% str_extract("\\d{4}-\\d{2}-\\d{2}")
+  headline <- html %>% html_elements("h1") %>% html_text()
+  text <- html %>% html_elements("p") %>% html_text() %>% paste0(collapse=" ")
+  
+  contents <- cbind(date, headline, text)
+  results <- rbind(results, contents)
+  }, warning = function(w) {
+      print(paste0("Warning with link ", link))
+    }, error = function(e) {
+      print(paste0("Error with link ", link))
+  })  
+}
+
+results_euparl <- sapply(urls_euparl2, scrape_euparl)
+end <- Sys.time()
+end-start
+
+df_euparl <- do.call(rbind, results_euparl) %>% data.frame()
+```
+
+...und so mit einem for-Loop()
+
+```{r}
+start <- Sys.time()
+
+df_euparl <- data.frame(date=NA, headline=NA, text=NA)
+for(i in 1:5){
+  tryCatch({
+  html <- read_html(urls_euparl2[i])
+
+  date <- html %>% html_elements("time") %>% html_attr("datetime") %>% str_extract("\\d{4}-\\d{2}-\\d{2}")
+  headline <- html %>% html_elements("h1") %>% html_text()
+  text <- html %>% html_elements("p") %>% html_text() %>% paste0(collapse=" ")
+  
+  contents <- cbind(date, headline, text)
+  df_euparl <- rbind(df_euparl, contents)}, warning = function(w) {
+      print(paste0("Warning with link ", link))
+    }, error = function(e) {
+      print(paste0("Error with link ", link))
+  })  
+}
+
+end <- Sys.time()
+end-start
+```
+
+
+Auf einigen Seiten ist es nicht möglich, einfach auf *rvest* umzusteigen. Auf diesen Seiten müssen wir alle Daten über RSelenium scrapen. 
+So würde das beispielsweise für die ersten fünf Seiten in unserer Anwendung ausschauen.
+
+```{r}
+for(i in 1:5){
+  browser$navigate(urls_euparl2[i])
+  date <- browser$findElements("css selector", value="time") 
+  date <- date[[1]]$getElementText() %>% as.character()
+  headline <- browser$findElements("css selector", value="h1") 
+  headline <- headline[[1]]$getElementText() %>% as.character()
+  text <- browser$findElements("css selector", value="p")
+  text <- text[[1]]$getElementText() %>% as.character()
+  
+  contents <- cbind(date, headline, text)
+  df_euparl <- rbind(df_euparl, contents)
+}
+```
+
+
+#### 6. Noch eine hilfreiche Anwendung
+
+Wir können mit RSelenium nicht nur auf Objekte klicken, sondern auch Formulare ausfüllen, bspw., etwas auf Webseiten zu suchen.
+
+```{r}
+browser$navigate(url)
+search <- browser$findElement(using = 'css selector', value="#search-field")
+search$clearElement
+search$sendKeysToElement(list("economy",key="enter"))
+```

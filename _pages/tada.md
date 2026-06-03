@@ -103,26 +103,25 @@ nav: false
             <td><a href="{{ site.url }}assets/pdf/tada26/scraping.pdf">Scraping (Part 1)</a></td>
             <td><a href="{{ site.url }}assets/code/tada26/scraping.Rmd">Code (Introduction to Scraping)</a><br>
 			<a href="{{ site.url }}assets/code/tada26/scraping_exercises_empty.Rmd">Exercise (Scraping)</a><br>
+             <a href="{{ site.url }}assets/code/tada26/scraping_exercises.Rmd">Solutions</a>
             </td>
         </tr>
     </table><br><br>
-	<!---              <a href="{{ site.url }}assets/code/tada26/scraping_exercises.Rmd">Übungen - Lösungen</a>
-
-    <h4>6. Woche: Web-Scraping dynamischer Webseiten</h4>
-	In dieser Woche widmen wir uns komplexeren Webseiten, von denen wir überhaupt nicht oder nur teilweise auf den HTML-Code zugreifen können. Bitte stellt hierzu im Vorfeld der Sitzung sicher, dass ihr <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> installiert habt und es als Pfad-Variable definiert habt (s. <a href="https://www.java.com/en/download/help/path.html">folgende Anleitung</a>).  <br>
+    <h4>Week 6: Web scraping (Part 2)</h4>
+	This week, we'll deal with web pages which are not or only partly accessible through their HTML code. Please download and install <a href="https://www.java.com/en/download/help/windows_offline_download.html">Java</a> and define it as path variable (follow these <a href="https://www.java.com/en/download/help/path.html">instructions</a>).  <br>
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
             <th style="width:33%;">Code</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/dynamic_scraping.pdf">Scraping dynamischer Webseiten und APIs</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/dynamic_scraping.Rmd">Code (Scraping dynamischer Webseiten)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/apis.Rmd">Code (APIs)</a>
+            <td><a href="{{ site.url }}assets/pdf/tada26/dynamic_scraping.pdf">Scraping (Part 2)</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/dynamic_scraping.Rmd">Code (Dynamic Scraping)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/apis26.Rmd">Code (APIs)</a>
             </td>
         </tr>
     </table><br><br>
-	<h4>7. Woche: Datenaufbereitung und Vorbereitung für Analysen </h4>
+	   <!---     <h4>7. Woche: Datenaufbereitung und Vorbereitung für Analysen </h4>
 	Diese Woche widmet sich der Vorbereitung von einem Datensatz für die Textanalyse. Wir wandeln den Datensatz über verschiedene Schritte in eine Document-Frequency-Matrix um, mithilfe derer wir viele 'bags-of-words'-Analysen in R umsetzen können. Wir lernen dabei auch, welche Tokens wir entfernen können und wie wir wichtige Meta-Informationen zu den Daten in die neuen Datenformate konvertieren können. 
 	
 	<table class="fancy-table">

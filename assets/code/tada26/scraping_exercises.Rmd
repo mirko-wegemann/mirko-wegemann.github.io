@@ -1,0 +1,105 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse") # wrangling
+if (!require('rvest')) install.packages("rvest") # retrieve HTML objects 
+if (!require('httr2')) install.packages("httr2") # start a browser session
+if (!require('httpcache')) install.packages("httpcache") # clears cache
+if (!require('openxlsx')) install.packages("openxlsx") # excel creation and manipulation 
+```
+
+## Exercise
+
+Here, we download the press releases from the CDU parliamentary group in NRW (https://www.cdu-nrw-fraktion.de/presseinformationen). 
+
+Visit the website, parse the HTML, and store it in an object named "html".
+
+```{r}
+url <- "https://www.cdu-nrw-fraktion.de/presseinformationen?"
+html <- read_html(url)
+html
+```
+
+Use SelectorGadget or manually select the CSS selector to retrieve the link to all press releases on the first page.
+
+```{r}
+urls <- html %>% html_elements(".title a") %>% html_attr("href")
+```
+
+Do you notice anything about the links? 
+
+Add the root url if necessary.
+
+```{r}
+root_url <- "https://www.cdu-nrw-fraktion.de"
+urls2 <- paste0(root_url, urls)
+```
+
+
+We now have the first 10 links. Now, create a loop to scrape the links to the first 100 press releases.
+
+```{r}
+pages <- seq(0, 10, 1)
+links <- c()
+for (i in pages) {
+  url <- paste0("https://www.cdu-nrw-fraktion.de/presse?page=", pages[i])
+  html <- read_html(url)
+  urls <- html %>% html_elements(".title a") %>% html_attr("href") 
+  links <- append(links, urls)
+}
+
+links2 <- paste0(root_url, links)
+```
+
+
+*Challenge*
+
+Can you do the same thing in a function?
+
+```{r}
+url_scrape <- function(i) {
+  url <- paste0("https://www.cdu-nrw-fraktion.de/presse?page=", i)
+  html <- read_html(url)
+  urls <- html %>% html_elements(".title a") %>% html_attr("href")
+  return(urls)
+}
+
+links <- lapply(pages, url_scrape) %>% unlist()
+links2 <- paste0(root_url, links)
+```
+
+Now navigate to each page, scrape the title, the text, the author and the date. Save all this information, along with the link to the press release, in a suitable format.
+
+```{r}
+content_scrape <- function(link) {
+  tryCatch({
+  html <- read_html(link)
+  title <- html %>% html_element(".page-title") %>% html_text()
+  date <- html %>% html_element(".date span") %>% html_text() 
+  text <- html %>% html_elements("p") %>% html_text() %>% paste0(., collapse=" ")
+  author <- html %>% html_element(".field--name-field-autor a") %>% html_text()
+  res <- cbind(title, date, text, author, link)
+  return(res)
+  }, warning = function(w) {
+      print(paste0("Warning with link ", link))
+    }, error = function(e) {
+      print(paste0("Error with link ", link))
+  })  
+}
+
+results <- lapply(links2, content_scrape) 
+df <- data.frame(do.call(rbind, results))
+colnames(df) <- c("title", "date", "text", "author", "urls")
+
+saveRDS(df, "./press_cdu.RDS")
+```
+
+Great job, you did it!
+
+*Bonus* 
+
+Take a look at the 100 most common words in the press releases. Quanteda has a command for this. Can you figure out what it is?
+
+```{r}
+if (!require('quanteda')) install.packages("quanteda") 
+tokens(df$text) %>% dfm %>% topfeatures(n=100)
+```
