@@ -125,6 +125,7 @@ urls_euparl2 <- c()
 for(i in 1:length(urls_euparl)){
       urls_euparl2[i] <- urls_euparl[[i]]$getElementAttribute('href')[[1]]
 }
+urls_euparl2
 ```
 
 Jetzt, da wir diese Links haben, können wir tatsächlich zu *rvest* zurückkehren und auf weitere Daten (auf den Unterseiten für die einzelnen Pressemeldungen) zugreifen, ohne eine virtuelle Umgebung zu öffnen.
@@ -217,6 +218,7 @@ for(i in 1:5){
   
   contents <- cbind(date, headline, text)
   df_euparl <- rbind(df_euparl, contents)
+  Sys.sleep(2)
 }
 ```
 
