@@ -121,8 +121,8 @@ nav: false
             </td>
         </tr>
     </table><br><br>
-	   <!---     <h4>7. Woche: Datenaufbereitung und Vorbereitung für Analysen </h4>
-	Diese Woche widmet sich der Vorbereitung von einem Datensatz für die Textanalyse. Wir wandeln den Datensatz über verschiedene Schritte in eine Document-Frequency-Matrix um, mithilfe derer wir viele 'bags-of-words'-Analysen in R umsetzen können. Wir lernen dabei auch, welche Tokens wir entfernen können und wie wir wichtige Meta-Informationen zu den Daten in die neuen Datenformate konvertieren können. 
+	<h4>Week 7: Data preparation</h4>
+	From a data frame to a document frequency matrix. This week, we'll learn how to convert text into a readable format to conduct bags-of-words analyses. Moreover, we will discuss how pre-processing affects the results of our analyses. 
 	
 	<table class="fancy-table">
         <tr>
@@ -131,13 +131,17 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/preparation.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/data_preparation.RMD">Code</a></td>
-            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Manifesto Data</a>
+            <td><a href="{{ site.url }}assets/pdf/tada26/preparation.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/data_preparation.RMD">Code</a><br>
+            <a href="{{ site.url }}assets/code/tada26/exercise_preparation_empty.rmd">Exercises (Empty)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/exercise_preparation.rmd">Solutions</a>
+            </td>
+            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Manifesto Data</a> <br>
+                <a href="{{ site.url }}assets/data/measuring_hate_speech_sub.csv">Hate speech data (<a href="https://huggingface.co/datasets/ucberkeley-dlab/measuring-hate-speech?library=datasets">Source</a>)</a>
 				</td>
         </tr>
     </table><br><br>
-	<h4>8. Woche: Unsupervised Topic Models </h4>
+	<!---     <h4>8. Woche: Unsupervised Topic Models </h4>
 	In dieser Sitzung schauen wir uns an, wie wir ohne Input von Forscher*innen Dokumente in verschiedene Themen clustern können. Dabei greifen wir auf das stm-Package von Roberts et al. (2019) zurück.
 	
 	<table class="fancy-table">

@@ -1,0 +1,87 @@
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('lexicon')) install.packages("lexicon")                          # lemmatization lexicon
+```
+
+# 1. Import data 
+```{r}
+
+```
+
+
+## 1.1 What's the average hate speech score? 
+```{r}
+
+```
+
+# 2. Convert the data frame into a corpus object
+```{r}
+corp <- corpus(df, text_field = "text")
+
+# take a look:
+summary(corp, n = 5)
+```
+
+
+## 2.1 Calculate the readability score of the hate speech
+```{r}
+
+```
+
+
+# 4. Convert to a token object: remove punctuation, numbers and symbols
+```{r}
+
+```
+
+## 4.1 Remove stopwords and lower case the text 
+```{r}
+
+```
+
+
+# 5. Convert to a dfm
+
+```{r}
+
+```
+
+## 5.1 Add document variables (target_origin_immigrant and target_gender_women)
+
+```{r}
+
+```
+
+## 5.2 List the most common terms in that dataset
+
+```{r}
+
+```
+
+## 5.3 Create a keyness statistic based on one of the document variables
+```{r}
+
+```
+
+## 5.4 Change parameters, remove (in)frequent words and re-run keyness statistics
+
+```{r}
+
+```
+
+# 6. Create a dictionary specifying different categories of hate speech
+
+```{r}
+
+```
+
+
+### 6.1 Run the dictionary on the dfm object
+```{r}
+
+```
