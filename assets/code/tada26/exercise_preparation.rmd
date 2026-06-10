@@ -1,0 +1,130 @@
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('lexicon')) install.packages("lexicon")                          # lemmatization lexicon
+install.packages("devtools")
+devtools::install_github("matthewjdenny/preText")
+library(preText)
+```
+
+# 1. Import data 
+```{r}
+df <- read_csv("./session7/measuring_hate_speech_sub.csv")
+
+# inspect the data
+summary(df)
+```
+
+
+## 1.1 What's the average hate speech score? 
+```{r}
+mean(df$hate_speech_score, na.rm = TRUE)
+
+# or 
+summary(df$hate_speech_score)
+```
+
+# 2. Convert the data frame into a corpus object
+```{r}
+corp <- corpus(df, text_field = "text")
+
+# take a look:
+summary(corp, n = 5)
+```
+
+
+## 2.1 Calculate the readability score of the hate speech
+```{r}
+readability <- textstat_readability(corp, measure = "Flesch")
+head(readability)
+head(df$text)
+```
+
+
+# 4. Convert to a token object: remove punctuation, numbers and symbols
+```{r}
+toks <- tokens(corp,
+               remove_punct   = TRUE,
+               remove_numbers = TRUE,
+               remove_symbols = TRUE)
+```
+
+## 4.1 Remove stopwords and lower case the text 
+```{r}
+toks <- tokens_tolower(toks)
+toks <- tokens_remove(toks, pattern = stopwords("en"))
+```
+
+
+# 5. Convert to a dfm
+
+```{r}
+dfmat <- dfm(toks)
+```
+
+## 5.1 Add document variables (target_origin_immigrant and target_gender_women)
+
+```{r}
+docvars(dfmat, "target_origin_immigrant") <- df$target_origin_immigrant
+docvars(dfmat, "target_gender_women")     <- df$target_gender_women
+```
+
+## 5.2 List the most common terms in that dataset
+
+```{r}
+topfeatures(dfmat, 20)
+```
+
+## 5.3 Create a keyness statistic based on one of the document variables
+```{r}
+keyness_result <- textstat_keyness(dfmat,
+                                   target = docvars(dfmat, "target_gender_women") == 1)
+
+textplot_keyness(keyness_result,
+                 n = 20,
+                 labelsize = 3,
+                 color = c("darkred", "gray"))
+```
+
+## 5.4 Change parameters, remove (in)frequent words and re-run keyness statistics
+
+```{r}
+dfmat2 <- dfm(toks) %>% dfm_trim(min_termfreq = 10,
+                                 termfreq_type = "count",
+                                 max_docfreq = 0.3,
+                                 docfreq_type = "prop")
+
+docvars(dfmat2, "target_origin_immigrant") <- df$target_origin_immigrant
+docvars(dfmat2, "target_gender_women")     <- df$target_gender_women
+
+keyness_result2 <- textstat_keyness(dfmat2,
+                                   target = docvars(dfmat2, "target_gender_women") == 1)
+
+textplot_keyness(keyness_result2,
+                 n = 20,
+                 labelsize = 3,
+                 color = c("darkred", "gray"))
+```
+
+# 6. Create a dictionary specifying different categories of hate speech
+
+```{r}
+hate_dict <- dictionary(list(
+  racism = c("race*", "ethnic*", "immigrant*", "foreigner*"),
+  sexism = c("woman*", "women", "girl*", "feminis*", "gender*"),
+  religion = c("muslim*", "christian*", "jew*", "religio*", "islam*"),
+  homophobia = c("gay*", "lesbian*", "homosexual*", "queer*", "trans*"),
+  violence = c("kill*", "attack*", "destroy*", "hurt*", "threat*")
+))
+```
+
+
+### 6.1 Run the dictionary on the dfm object
+```{r}
+dict_dfm <- dfm_lookup(dfmat, dictionary = hate_dict)
+dict_dfm
+```
