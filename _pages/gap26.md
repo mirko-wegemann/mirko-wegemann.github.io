@@ -81,10 +81,10 @@ nav: false
     <h4>Week 7: Demand-side biases</h4>
     Is their backlash or bias against women's representation? In this session, we will discuss, based on different survey experiment on voters' perceptions of political candidates, whether voters attach different levels of competency and expertise to female candidates than to male candidates, and how this shapes their political persuasion.  <br>
     <a href="{{ site.url }}assets/pdf/gap26/demand.pdf">Slides</a><br><br>
-    <!--- <h4>Week 8: Candidates</h4>
+    <h4>Week 8: Candidates</h4>
     Prior to this week, we have assumed that women are actually considering running for office. This week, we will analyse how structural factors reduce women's expressive ambition to run for office.  <br>
     <a href="{{ site.url }}assets/pdf/gap26/elite.pdf">Slides</a><br><br>
-     <h4>Week 9: Institutional Fixes</h4>
+    <!---  <h4>Week 9: Institutional Fixes</h4>
     From this week onwards, we evaluate different tweaks that are (un)intentionally designed to improve women's representation. This week, we'll focus on institutions.  <br>
     <a href="{{ site.url }}assets/pdf/gap26/solutions_inst.pdf">Slides</a><br><br>
      <h4>Week 10: Role Models</h4>
