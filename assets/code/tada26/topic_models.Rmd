@@ -1,0 +1,397 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # wrangling
+if (!require('readstata13')) install.packages("readstata13")                  # import stata
+if (!require('quanteda')) install.packages("quanteda")                        # quanteda basic functions
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # textstats
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # textplots
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # textmodels
+if (!require('stm')) install.packages("stm")                                  # structural topic models
+
+#install.packages("devtools")
+#devtools::install_github("matthewjdenny/preText")
+library(preText)
+```
+
+In this introduction, we attempt to replicate the study by Bauer et al. (2017). For this, we need the ALLBUS 2008 dataset.
+
+# Import of the dataset
+The open information is stored in a separate data set, which must be merged with the main data set via the ID variable (V2).
+
+In the same step, we prepare some meta-variables for analysis. 
+
+```{r}
+df1 <- read.dta13("./session8/allb08.dta", convert.factors = F, nonint.factors = T)
+df2 <- read.dta13("./session8/allb08_offen.dta", convert.factors = F, nonint.factors = T)
+df2 <- df2[, c("v2", "f29", "f30")]
+colnames(df2) <- c("V2", "t_left", "t_right")
+
+df <- left_join(df1, df2, by="V2")
+
+df <- df %>%
+  mutate(age = ifelse(V154!=999, V154, NA),
+         sex = V151,
+         eastwest = ifelse(V3==1, "West", "Ost"),
+         polint = V100*-1+6,
+         inc = ifelse(!V388 %in% c(99997, 99999), V388, NA),
+         party_pref = case_when(V70==0 ~ "Keine", 
+                                V70==1 ~ "CDU/CSU",
+                                V70==2 ~ "SPD",
+                                V70==3 ~ "FDP",
+                                V70==4 ~ "B90",
+                                V70==5 ~ "NPD",
+                                V70==6 ~ "REP",
+                                V70==7 ~ "Linke",
+                                V70==8 ~ "Andere"),
+         rile_self = ifelse(V106!=99, V106, NA)) 
+
+df <- df[,c("V2", "age", "sex", "eastwest", "polint", "inc", "party_pref", "t_left", "t_right", "rile_self")]
+```
+
+Now we need to convert the data set into the necessary format. 
+
+Try it yourself first. What steps do you need to take? 
+*Tip*: The text variables are "t_left" and "t_right". For now, only use "t_left". 
+
+```{r}
+
+```
+
+
+
+
+
+
+**Solution**
+```{r}
+corp <- corpus(df$t_left)
+corp
+```
+We see: very short texts, very little information. 
+
+
+**Additional Information**
+Here we briefly evaluate with preText() which pre-processing steps are useful.
+```{r}
+start <- Sys.time()
+set.seed(141)
+random_number2 <- sample(1:nrow(df), 500)
+
+docs <- corp[random_number2,]
+
+docs_preprocessed <- factorial_preprocessing(
+    docs,
+    use_ngrams = TRUE,
+    infrequent_term_threshold = 0.2)
+
+preText_results <- preText(
+    docs_preprocessed,
+    dataset_name = "Links-Rechts-Angaben",
+    distance_method = "cosine",
+    num_comparisons = 50,
+    verbose = FALSE)
+
+regression_coefficient_plot(preText_results,
+                            remove_intercept = TRUE)
+ggsave("valid_preprocessing_left.png", device="png", units="in", width=6, height=4, dpi=600)
+```
+
+We follow the replication here in accordance with the decisions of Bauer et al. (2017). 
+
+``Only words used by five or more respondents are included in this analysis. Stopwords are excluded''
+
+```{r}
+toks <- tokens(corp,
+               remove_punct = T)
+toks <- tokens_remove(toks, c(quanteda::stopwords(language="de"), "dass"))
+
+dfm_left <- dfm(toks, tolower=T) %>% dfm_trim(min_docfreq = 5,
+                                              docfreq_type = "count")
+```
+
+We'll add some more meta information.
+
+```{r}
+docvars(dfm_left, "text_id") <- df$V2
+docvars(dfm_left, "party") <- df$party
+docvars(dfm_left, "sex") <- df$sex
+docvars(dfm_left, "eastwest") <- df$eastwest
+
+# same for the corpus 
+docvars(corp, "text_id") <- df$V2
+docvars(corp, "party") <- df$party
+docvars(corp, "sex") <- df$sex
+docvars(corp, "eastwest") <- df$eastwest
+```
+
+
+We have deleted some features. As we learned last week, we should also delete these from the dataset and dfm.
+
+```{r}
+# drop ids 
+drop_ids <- dfm_left@docvars$docname_[ntoken(dfm_left)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# remove from data.frame
+df <- df[!row.names(df) %in% drop_ids, ]
+
+# remove from dfm
+dfm_left <- dfm_subset(dfm_left, ntoken(dfm_left)>0)
+dfm_left
+
+# remove from corpus
+corp <- corpus_subset(corp, !text_id %in% drop_ids)
+```
+
+
+
+# Topic Models
+
+Now we can already input our prepared DFM into a topic model. We don't need to define much, except for the number of topics, which Bauer et al. (2017) have set at four. 
+
+```{r}
+stm_left <- stm(dfm_left, K = 4, seed=421, init.type = "Spectral")
+
+labelTopics(stm_left)
+```
+
+The results are mixed. Potentially, however, we could say that T1 encompasses policies, T2 ideology, T3 political parties, and T4 extremism.
+
+Bauer et al. (2017) used a specification, a so-called SAGE model, which is specifically designed for short sentences. 
+
+We can replicate this.
+```{r}
+stm_left_sage <- stm(dfm_left, K = 4, LDAbeta=F, seed=421, init.type = "Spectral")
+
+labelTopics(stm_left_sage, n=10)
+```
+
+The keywords are somewhat clearer. Overall, however, the results are similar.
+
+
+Sometimes it helps to have examples displayed. We can do this as follows.
+
+```{r}
+findThoughts(stm_left_sage,
+             df$t_left,topics=1, n=5)
+
+findThoughts(stm_left_sage,
+             df$t_left,topics=2,n=5)
+
+findThoughts(stm_left_sage,
+             df$t_left,topics=3,n=5)
+
+findThoughts(stm_left_sage,
+             df$t_left,topics=4,n=5)
+```
+
+Furthermore, we can compare topics. How often are which words used?
+
+```{r}
+plot(stm_left_sage, 
+     type="perspectives", 
+     topics=c(1,2), 
+     plabels = c("Policies","Ideology"))
+```
+
+
+## Merging stm and data.frame
+
+For further analyses (such as the regression models in Bauer et al. 2017), it is often advisable to reconnect the results of the stm model with the data.frame. 
+
+Each text has been assigned Theta scores, which reflect the probability that a text corresponds to topic k. 
+
+```{r}
+df_topic <- bind_cols(df, stm_left_sage$theta)
+
+# use meaningful names!
+colnames(df_topic)[11:14] <- tolower(c("policies", "ideology", "party", "extreme"))
+```
+
+We now have four topics for each text. However, we're often interested in which topic a text is most likely about. Determining this is particularly time-consuming with large datasets. Therefore, we'll exceptionally use a more efficient *data.table* solution instead of *dplyr*.
+
+```{r}
+library(data.table)
+# convert to data table
+df_topic <- data.table(df_topic)
+
+# return the column name which has the highest number in column 11-14 (our columns with topic probabilities)
+df_topic[, topic := names(.SD)[max.col(.SD)], .SDcols = 11:14]
+
+# convert back to data frame
+df_topic <- data.frame(df_topic)
+
+# dplyr code: takes ages!
+#df_topic <- df_topic %>%
+#  rowwise() %>%
+#  mutate(topic = names(.)[which.max(c_across(climate:trash2))])
+```
+
+
+Now we have a more universal data structure. 
+This allows us to easily plot the frequency of each topic. 
+
+```{r}
+df_topic %>%
+  ggplot(aes(topic))+ 
+  geom_bar()  + theme_light()+ theme(axis.text.x=element_text(angle=90))
+```
+
+We see that the proportions vary greatly depending on the topic. Overall, the analysis cannot be directly replicated using the information from the text. 
+
+
+But let's return to further analysis first. 
+
+As Bauer et al. (2017) did, we can estimate a regression model that shows us the frequency of a topic depending on socioeconomic background. 
+
+```{r}
+summary(m1 <- lm(ideology ~ age + sex + eastwest + inc, df_topic))
+
+
+summary(m1 <- lm(rile_self ~ age + sex + eastwest + extreme + ideology + policies, df_topic))
+
+```
+The more a person surveyed associates "left" with extremism and ideologies, the more right-wing they consider themselves. The more they associate "left" with policies, the more left-wing they consider themselves.
+
+
+
+## Extensions of the simple Topic Model
+
+Sometimes we suspect that a topic is discussed differently in different groups. We can use the "content" covariates option of stm to estimate how a topic is perceived by different groups. 
+
+*Caution*: The estimate often takes quite a long time and is often not very informative. 
+
+Do party supporters have different views on "left"?
+
+```{r}
+dfm_left_sub <- dfm_subset(dfm_left, !is.na(party)) # we need to remove NAs to define a variable as covariate
+
+stm_left_sage2 <- stm(dfm_left_sub, K = 4, seed=421, emtol=0.001, init.type = "Spectral", LDAbeta = F, content=~party)
+saveRDS(stm_left_sage2, "./stm_left_party.RDS")
+stm_left_sage2 <- readRDS("./stm_left_party.RDS")
+labelTopics(stm_left_sage2)
+```
+
+In this case, it works quite well (for the general covariate words). We tend to see more positive connotations based on values ​​and policies among supporters of parties on the left of the political spectrum, while negative, ideology-based connotations are associated with supporters of right-wing parties. 
+
+
+Often, the "prevalence" covariate option works better. This shows us how often different actors talk about a topic.
+```{r}
+stm_left_sage3 <- stm(dfm_left_sub, K = 4, seed=421, emtol=0.001, init.type = "Spectral", LDAbeta = F, prevalence=~party)
+labelTopics(stm_left_sage3)
+```
+
+We can use the function estimateEffect() to estimate the frequencies by party.
+
+```{r}
+party_prev <- estimateEffect(c(3) ~ party, stm_left_sage3, docvars(dfm_left_sub))
+plot(party_prev,topics=3,covariate="party")
+```
+
+Here too, we see that left-wing party supporters more frequently associate "left" with policies. 
+
+
+## Validation
+
+For technical validation, we could try different values for the number of topics (k) to evaluate which number produces the statistically best model (lowest error).
+For this, we can use the `searchK` function from the `stm` package. However, this requires the `stm` format, in which documents and vocabulary are treated separately as inputs. We can easily convert our `dfm` object to this format.
+
+```{r}
+start <- Sys.time()
+# transform dfm object into stm object
+stm_left <- convert(dfm_left, "stm")
+
+# use vector with different number of values for topics
+K <- c(5, 10, 15) 
+
+# initiate validation
+best_k <- searchK(stm_left$documents, stm_left$vocab, K, seed=421, emtol=0.001, init.type = "Spectral", LDAbeta = F)
+end <- Sys.time()
+end - start
+saveRDS(best_k, "./searchK.RDS")
+```
+
+Now we can create a diagram to see which number of topics causes the fewest errors.
+```{r}
+readRDS(best_k, "./searchK.RDS")
+plot(best_k)
+```
+
+
+We can also specify a number k and have different models estimated (each with a different initialization, i.e., not the spectral initialization) in order to then select the best one. This can be done with selectModel().
+
+```{r}
+best_m <- selectModel(stm_left$documents, stm_left$vocab, 4, runs=50, seed=421, emtol=0.001, LDAbeta = F)
+plotModels(best_m)
+```
+On average, the Model 3 is the best. 
+
+```{r}
+selectedmodel <- best_m$runout[[3]]
+labelTopics(selectedmodel)
+```
+In this model, T1 represents values, T2 party, T3 policies, and T4 ideology. 
+
+
+### Additional material 
+
+Bauer et al (2017) uploaded their replication files to this link (https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/ERNXOP). A closer look reveals that the authors performed significantly more pre-processing than previously thought. 
+
+
+```{r}
+df_sub <- df %>%
+  filter(t_left != "")
+
+
+# Entfernen von DK
+dk_pattern <- c("gar nichts", "garnichts", "ich kann dazu nichts sagen",
+                 "ich kann es nicht beschreiben", "ich verstehe das nicht",
+                 "ich weiss es nicht", "kann dazu nichts sagen",
+                 "kann ich nicht erklären", "kann ich nicht genau sagen",
+                 "kann ich nicht sagen", "keine ahnung", "keine angabe",
+                 "keine antwort", "keine meinung", "kenne ich mich nicht aus",
+                 "nichts bestimmtes", "weiss nicht",
+                 "weiss ich nicht", "weis nicht")
+
+intro_pattern <- c("links ist", "links sind")
+gen_pattern <- paste0(dk_pattern, intro_pattern, collapse=" |")
+
+
+df_sub$t_left_dk <- str_detect(df_sub$t_left, gen_pattern)
+df_sub <- df_sub %>%
+  filter(t_left_dk!=T)
+
+corp2 <- df_sub$t_left
+toks2 <- tokens(corp2,
+               remove_punct = T)
+
+
+toks2 <- tokens_remove(toks2, gen_pattern)
+toks2 <- tokens_remove(toks2, quanteda::stopwords(language="de"))
+
+dfm_left2 <- dfm(toks2, tolower=T) %>% dfm_trim(min_docfreq = 5,
+                                              docfreq_type = "count")
+
+docvars(dfm_left2, "text_id") <- df_sub$V2
+docvars(dfm_left2, "party") <- df_sub$party
+docvars(dfm_left2, "sex") <- df_sub$sex
+docvars(dfm_left2, "eastwest") <- df_sub$eastwest
+
+# drop ids 
+drop_ids <- dfm_left2@docvars$docname_[ntoken(dfm_left2)==0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# remove from data.frame
+df_sub <- df_sub[!row.names(df_sub) %in% drop_ids, ]
+
+# remove from dfm 
+dfm_left2 <- dfm_subset(dfm_left2, ntoken(dfm_left2)>0)
+dfm_left2
+
+
+stm_left_sage2 <- stm(dfm_left2, K = 4, max.em.its=100,
+                                    seed=12345, LDAbeta=FALSE,
+                                    sigma.prior=1)
+
+labelTopics(stm_left_sage2, n=10)
+```
+
+The output is still different. However, we haven't implemented all the pre-processing steps. 

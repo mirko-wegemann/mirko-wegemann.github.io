@@ -123,7 +123,6 @@ nav: false
     </table><br><br>
 	<h4>Week 7: Data preparation</h4>
 	From a data frame to a document frequency matrix. This week, we'll learn how to convert text into a readable format to conduct bags-of-words analyses. Moreover, we will discuss how pre-processing affects the results of our analyses. 
-	
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
@@ -141,8 +140,8 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
-	<!---     <h4>8. Woche: Unsupervised Topic Models </h4>
-	In dieser Sitzung schauen wir uns an, wie wir ohne Input von Forscher*innen Dokumente in verschiedene Themen clustern können. Dabei greifen wir auf das stm-Package von Roberts et al. (2019) zurück.
+	<h4>8. Woche: Unsupervised Topic Models </h4>
+	This week, we'll learn how to cluster data. We will prepare data into the dfm format, apply an unsupervised topic analysis with stm, and run diagnostics tool to assess topic quality.
 	
 	<table class="fancy-table">
         <tr>
@@ -151,18 +150,19 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/topic_models.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/topic_models.Rmd">Code (Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen_empty.Rmd">Code (Übungen)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
-            <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Hauptdatensatz)</a><br>
+            <td><a href="{{ site.url }}assets/pdf/tada26/topic_models.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/topic_models.Rmd">Code (Introduction)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/topic_models_uebungen_empty.Rmd">Code (Exercises)</a><br>
+            <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Main data)</a><br>
 			<a href="{{ site.url }}assets/data/allb08_cb.pdf">Allbus 2008 (Codebook)</a><br>
-			<a href="{{ site.url }}assets/data/allb08_offen.dta">Allbus 2008 (Offene Angaben)</a><br>
-			<a href="{{ site.url }}assets/data/allb08_offen_cb.pdf">Allbus 2008 (Codebook Offene Angaben)</a><br>
-			<a href="{{ site.url }}assets/data/guardian_corp.RDS">Guardian (Media-Corpus)</a>			
+			<a href="{{ site.url }}assets/data/allb08_offen.dta">Allbus 2008 (Open-ended responses)</a><br>
+			<a href="{{ site.url }}assets/data/allb08_offen_cb.pdf">Allbus 2008 (Codebook open-ended responses)</a><br>
+			<a href="{{ site.url }}assets/data/guardian_corp.RDS">Guardian (Media corpus)</a>			
 				</td>
         </tr>
     </table><br><br>
+    <!---               <a href="{{ site.url }}assets/code/tada26/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
+
 	<h4>9. Woche: Scaling</h4>
 	In dieser Woche beschäftigen wir uns mit der Möglichkeit, Texte auf einer eindimensionalen Skala sogenannte Polarity Scores zuzuordnen.	
 	<table class="fancy-table">
@@ -172,8 +172,8 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/scaling.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/scaling.Rmd">Code (Einführung)</a></td>
+            <td><a href="{{ site.url }}assets/pdf/tada26/scaling.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/scaling.Rmd">Code (Einführung)</a></td>
             <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a><br>
 			<a href="{{ site.url }}assets/data/lss_model1.RDS">LSS-Model</a></td>
         </tr>
@@ -187,10 +187,10 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/supervised_intro.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/supervised.RMD">Code (Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
-			<a href="{{ site.url }}assets/code/qta2425/classification_uebung.Rmd">Übung (Lösungen)</a></td>
+            <td><a href="{{ site.url }}assets/pdf/tada26/supervised_intro.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/supervised.RMD">Code (Einführung)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
+			<a href="{{ site.url }}assets/code/tada26/classification_uebung.Rmd">Übung (Lösungen)</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a><br>
 			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
         </tr>
@@ -207,8 +207,8 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/embeddings.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part1.RMD">Code</a></td>
+            <td><a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/embeddings_part1.RMD">Code</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
         </tr>
 		<tr>
@@ -224,8 +224,8 @@ nav: false
             <th style="width:33%;">Daten</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/qta/neural_networks.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/qta2425/embeddings_part2.RMD">Code</a></td>
+            <td><a href="{{ site.url }}assets/pdf/tada26/neural_networks.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/embeddings_part2.RMD">Code</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
         </tr>
 		<tr>
