@@ -1,0 +1,106 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # quanteda basic functions
+if (!require('stm')) install.packages("stm")                                  # structural topic models
+
+#install.packages("devtools")
+#devtools::install_github("matthewjdenny/preText")
+library(preText)
+```
+
+Now you have the opportunity to create a Topic Model yourself using a dataset from "The Guardian". 
+
+```{r}
+df <- readRDS("./guardian_corp.RDS")
+df$id <- 1:nrow(df)
+```
+
+
+## Step 1: Preparation
+
+Take a closer look at the data set. Which column is of interest to you? 
+View some sample texts to get a feel for the data set.
+
+```{r}
+
+```
+
+
+Now convert the text column into a dfm object step by step. Take any preparatory steps you deem necessary.
+
+```{r}
+
+```
+
+
+In the next step, define meta variables as docvars that might be of interest to you.
+
+```{r}
+
+```
+
+
+This dataset is already quite large. For teaching purposes, we can randomly select 15% of the documents to shorten the processing time somewhat. 
+
+```{r}
+
+```
+
+Delete documents that are now empty from the dataset and from the dfm.
+
+```{r}
+# define ids to keep 
+keep <- dfm_guardian_sub@docvars$docname_[ntoken(dfm_guardian_sub)>0] %>% str_extract(., "\\d{1,}") %>% as.numeric()
+
+# keep ids
+df_sub <- df[row.names(df) %in% keep, ]
+
+# keep in dfm 
+dfm_guardian_sub <- dfm_subset(dfm_guardian_sub, ntoken(dfm_guardian_sub)>0)
+dfm_guardian_sub
+```
+
+## 2. Analysis
+
+Statistically speaking, how many topics are ideal?
+
+```{r}
+
+```
+
+
+Estimate a Topic Model with the statistically ideal number of topics *or* the number you think is best. 
+
+```{r}
+
+```
+
+
+## 3. Interpretation
+
+Have the system generate important keywords for each topic.
+
+```{r}
+
+```
+
+Are the themes easy to interpret? Look at the related texts if you are unsure. 
+
+```{r}
+
+```
+
+## 4. Feedback with data set
+
+Adds the topics to the existing dataset.
+
+```{r}
+
+```
+
+
+Plot a theme of your choice over time.
+```{r}
+
+``` 
