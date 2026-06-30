@@ -140,7 +140,7 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
-	<h4>8. Woche: Unsupervised Topic Models </h4>
+	<h4>Week 8: Unsupervised Topic Models </h4>
 	This week, we'll learn how to cluster data. We will prepare data into the dfm format, apply an unsupervised topic analysis with stm, and run diagnostics tool to assess topic quality.
 	
 	<table class="fancy-table">
@@ -161,23 +161,26 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
-    <!---               <a href="{{ site.url }}assets/code/tada26/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
-
-	<h4>9. Woche: Scaling</h4>
-	In dieser Woche beschäftigen wir uns mit der Möglichkeit, Texte auf einer eindimensionalen Skala sogenannte Polarity Scores zuzuordnen.	
-	<table class="fancy-table">
+    <h4>Week 9: Scaling</h4>
+    In this session, we'll learn the basics of machine learning and how to train our own classifier.
+    <table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
             <th style="width:33%;">Code</th>
-            <th style="width:33%;">Daten</th>
+            <th style="width:33%;">Data</th>
         </tr>
         <tr>
-            <td><a href="{{ site.url }}assets/pdf/tada26/scaling.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/tada26/scaling.Rmd">Code (Einführung)</a></td>
-            <td><a href="{{ site.url }}assets/data/swiss_parl_sent_sample.RDS">Datensatz (Sample)</a><br>
-			<a href="{{ site.url }}assets/data/lss_model1.RDS">LSS-Model</a></td>
+            <td><a href="{{ site.url }}assets/pdf/tada26/supervised_intro.pdf">Slides</a></td>
+            <td><a href="{{ site.url }}assets/code/tada26/supervised.RMD">Code (Introduction)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/classification_exercises_empty.Rmd">Exercises (Classification)</a><br>
+            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Data (Manifesto Data)</a><br>
+            <a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Data for the exercise</a></td>
         </tr>
     </table><br><br>
+    <!---               <a href="{{ site.url }}assets/code/tada26/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
+            <a href="{{ site.url }}assets/code/tada26/classification_uebung.Rmd">Übung (Lösungen)</a></td>
+
+	
 	<h4>10. Woche: Supervised Classification</h4>
 	In dieser Sitzung widmen wir uns zunächst Grundkonzepten des Maschinellen Lernen, bevor wir diese auf einen Textcorpus (vom Manifesto-Project) anwenden.
 	<table class="fancy-table">
