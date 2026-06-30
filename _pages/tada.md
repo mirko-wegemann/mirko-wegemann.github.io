@@ -161,7 +161,7 @@ nav: false
 				</td>
         </tr>
     </table><br><br>
-    <h4>Week 9: Scaling</h4>
+    <h4>Week 9: Supervised Classification</h4>
     In this session, we'll learn the basics of machine learning and how to train our own classifier.
     <table class="fancy-table">
         <tr>
@@ -172,7 +172,7 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/tada26/supervised_intro.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/tada26/supervised.RMD">Code (Introduction)</a><br>
-            <a href="{{ site.url }}assets/code/tada26/classification_exercises_empty.Rmd">Exercises (Classification)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/classification_exercises_empty.Rmd">Exercises (Classification)</a><br></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Data (Manifesto Data)</a><br>
             <a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Data for the exercise</a></td>
         </tr>

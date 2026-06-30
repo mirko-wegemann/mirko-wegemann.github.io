@@ -84,10 +84,14 @@ nav: false
     <h4>Week 8: Candidates</h4>
     Prior to this week, we have assumed that women are actually considering running for office. This week, we will analyse how structural factors reduce women's expressive ambition to run for office.  <br>
     <a href="{{ site.url }}assets/pdf/gap26/elite.pdf">Slides</a><br><br>
-    <!---  <h4>Week 9: Institutional Fixes</h4>
+    <h4>Week 9: Institutional Fixes</h4>
     From this week onwards, we evaluate different tweaks that are (un)intentionally designed to improve women's representation. This week, we'll focus on institutions.  <br>
-    <a href="{{ site.url }}assets/pdf/gap26/solutions_inst.pdf">Slides</a><br><br>
-     <h4>Week 10: Role Models</h4>
+    <a href="{{ site.url }}assets/pdf/gap26/solutions_inst.pdf">Slides</a><br>
+    <a href="{{ site.url }}assets/img/gap26/questions.png">Questions (next week)</a><br><br>
+    <h4>Week 10: Visit by Simone Wendland</h4>
+    This week, Simone Wendland, MP for the CDU in the state parliament of North-Rhine Westphalia will visit our seminar to engage in a discussion on women's experiences in politics. <br>
+    <!---  
+    <h4>Week 11: Role Models</h4>
     Do women in office serve as role models for potential future female candidates? In this session, we will assess the idea of "critical masses", and how they (might) contribute to women's decision of pursuing a political career. <br>
     <a href="{{ site.url }}assets/pdf/gap26/role_models.pdf">Slides</a><br><br>
      <h4>Week 11: Language</h4>
