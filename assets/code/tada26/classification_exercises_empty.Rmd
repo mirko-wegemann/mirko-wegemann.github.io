@@ -1,0 +1,79 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require('tidyverse')) install.packages("tidyverse")                      # data wrangling
+if (!require('quanteda')) install.packages("quanteda")                        # preprocessing to dfm
+if (!require('quanteda.textstats')) install.packages("quanteda.textstats")    # statistics about text
+if (!require('quanteda.textplots')) install.packages("quanteda.textplots")    # plots visualizing texts
+if (!require('quanteda.textmodels')) install.packages("quanteda.textmodels")  # text models
+if (!require('caret')) install.packages("caret")                              # for advanced machine learning
+```
+
+
+# Step 1: Import and preparation of the corpus
+In the first step, we import our data set. In this case, we use a sentiment dataset that has classified tweets into "positive", "neutral" and "negative" (https://huggingface.co/datasets/mteb/tweet_sentiment_extraction).
+
+For now, we'll limit ourselves to a binary classification task. This is usually easier. 
+
+```{r}
+data <- readRDS("./sentiment_tweets.RDS")
+data <- data %>%
+  filter(label_text!="neutral")
+```
+
+# Step 2: Conversion to dfm object
+
+In the next step, you have to convert the data back into a dfm object.
+
+```{r}
+
+```
+
+
+# 3. Training and Test Dataset
+
+Now you have to split your datasets into a training and a test dataset. Ensures that both dfm have the same features.
+
+```{r}
+
+```
+
+
+# 4. Modeling 
+
+Now you can already estimate a model. Start with a Naïve Bayesian classifier.
+
+```{r}
+
+```
+
+# 5. Validation 
+
+Discuss below how well the model performed. Is it better at predicting positive or negative tweets?
+
+```{r}
+
+```
+
+# 6. Out-of-sample prediction
+
+Now create your own small dataset of texts that have not yet been seen by your model. Try to predict the sentiment of these texts. How do you rate the performance?
+
+```{r}
+
+```
+
+
+# Improving our prediction
+
+In the following, you should try to improve your prediction. First of all, use logistic regression to see if it predicts the test dataset better.
+
+```{r}
+
+```
+
+
+Now remove some features from the dfm and run the analysis again with this dfm. Does this improve prediction? 
+
+```{r}
+
+```
