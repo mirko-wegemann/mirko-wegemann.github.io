@@ -89,11 +89,12 @@ nav: false
     <a href="{{ site.url }}assets/pdf/gap26/solutions_inst.pdf">Slides</a><br>
     <a href="{{ site.url }}assets/img/gap26/questions.png">Questions (next week)</a><br><br>
     <h4>Week 10: Visit by Simone Wendland</h4>
-    This week, Simone Wendland, MP for the CDU in the state parliament of North-Rhine Westphalia will visit our seminar to engage in a discussion on women's experiences in politics. <br>
-    <!---  
+    This week, Simone Wendland, MP for the CDU in the state parliament of North-Rhine Westphalia will visit our seminar to engage in a discussion on women's experiences in politics. <br><br>
     <h4>Week 11: Role Models</h4>
     Do women in office serve as role models for potential future female candidates? In this session, we will assess the idea of "critical masses", and how they (might) contribute to women's decision of pursuing a political career. <br>
     <a href="{{ site.url }}assets/pdf/gap26/role_models.pdf">Slides</a><br><br>
+    <!---  
+    
      <h4>Week 11: Language</h4>
     How does language affect our thinking, and does gender-inclusive language change mental representations about gendered stereotypes? This week, we will assess the current prevalence of gender-inclusive language in the public discourse and its effect on the masses. <br>         
     <a href="{{ site.url }}assets/pdf/gap26/language.pdf">Slides</a><br><br>

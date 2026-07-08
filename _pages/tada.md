@@ -142,7 +142,6 @@ nav: false
     </table><br><br>
 	<h4>Week 8: Unsupervised Topic Models </h4>
 	This week, we'll learn how to cluster data. We will prepare data into the dfm format, apply an unsupervised topic analysis with stm, and run diagnostics tool to assess topic quality.
-	
 	<table class="fancy-table">
         <tr>
             <th style="width:33%;">Slides</th>
@@ -153,6 +152,7 @@ nav: false
             <td><a href="{{ site.url }}assets/pdf/tada26/topic_models.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/tada26/topic_models.Rmd">Code (Introduction)</a><br>
 			<a href="{{ site.url }}assets/code/tada26/topic_models_uebungen_empty.Rmd">Code (Exercises)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
             <td><a href="{{ site.url }}assets/data/allb08.dta">Allbus 2008 (Main data)</a><br>
 			<a href="{{ site.url }}assets/data/allb08_cb.pdf">Allbus 2008 (Codebook)</a><br>
 			<a href="{{ site.url }}assets/data/allb08_offen.dta">Allbus 2008 (Open-ended responses)</a><br>
@@ -172,13 +172,30 @@ nav: false
         <tr>
             <td><a href="{{ site.url }}assets/pdf/tada26/supervised_intro.pdf">Slides</a></td>
             <td><a href="{{ site.url }}assets/code/tada26/supervised.RMD">Code (Introduction)</a><br>
-            <a href="{{ site.url }}assets/code/tada26/classification_exercises_empty.Rmd">Exercises (Classification)</a><br></td>
+            <a href="{{ site.url }}assets/code/tada26/classification_exercises_empty.Rmd">Exercises (Classification)</a><br>
+            <a href="{{ site.url }}assets/code/tada26/classification_uebung.Rmd">Übung (Lösungen)</a></td>
             <td><a href="{{ site.url }}assets/data/data_prep.RDS">Data (Manifesto Data)</a><br>
             <a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Data for the exercise</a></td>
         </tr>
     </table><br><br>
-    <!---               <a href="{{ site.url }}assets/code/tada26/topic_models_uebungen.Rmd">Code (Lösungen)</a></td>
-            <a href="{{ site.url }}assets/code/tada26/classification_uebung.Rmd">Übung (Lösungen)</a></td>
+    <h4>Week 10: Embedding Regression</h4>
+        We learn a new representation structure: "embeddings". In this week, we'll use conText to look into descriptive statistics (such as nearest neighbors) and embedding regression.
+        <table class="fancy-table">
+            <tr>
+                <th style="width:33%;">Slides</th>
+                <th style="width:33%;">Code</th>
+                <th style="width:33%;">Data</th>
+            </tr>
+            <tr>
+                <td><a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a></td>
+                <td><a href="{{ site.url }}assets/code/tada26/embeddings_part1.RMD">Code</a></td>
+                <td><a href="{{ site.url }}assets/data/data_prep.RDS">Data (Manifesto Data)</a></td>
+            </tr>
+            <tr>
+                <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings to download</a></td>
+            </tr>
+        </table><br><br>
+    <!---               
 
 	
 	<h4>10. Woche: Supervised Classification</h4>
@@ -198,26 +215,27 @@ nav: false
 			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
         </tr>
     </table><br><br>
+    
 	<h4>11. Woche: Lab Session</h4>
 	Diese Woche ist eine Lab-Session. Zunächst wird kurz über die Erwartungen der Hausarbeit gesprochen, bevor individuelle Probleme (konzeptueller Natur, bzgl. Code, etc.) besprochen werden können. <br><br>
 	<a href="https://github.com/danbischof/danbischof.github.io/blob/master/assets/pdf/Bischof_howtopaper.pdf">Formalitäten und Word-Vorlage für die Hausarbeit</a><br> <br>
-	<h4>12. Woche: Embedding Regression</h4>
-	Wir lernen mit "Embeddings" eine komplexere Art der Repräsentation von Text kennen. Mithilfe des "conText"-Packages in R führen wir einfache deskriptive Analysen sowie eine Embedding-Regression durch. 
-	<table class="fancy-table">
-        <tr>
-            <th style="width:33%;">Slides</th>
-            <th style="width:33%;">Code</th>
-            <th style="width:33%;">Daten</th>
-        </tr>
-        <tr>
-            <td><a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/tada26/embeddings_part1.RMD">Code</a></td>
-            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
-        </tr>
-		<tr>
-		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
-		</tr>
-    </table><br><br>
+    	<h4>12. Woche: Embedding Regression</h4>
+    	Wir lernen mit "Embeddings" eine komplexere Art der Repräsentation von Text kennen. Mithilfe des "conText"-Packages in R führen wir einfache deskriptive Analysen sowie eine Embedding-Regression durch. 
+    	<table class="fancy-table">
+            <tr>
+                <th style="width:33%;">Slides</th>
+                <th style="width:33%;">Code</th>
+                <th style="width:33%;">Daten</th>
+            </tr>
+            <tr>
+                <td><a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a></td>
+                <td><a href="{{ site.url }}assets/code/tada26/embeddings_part1.RMD">Code</a></td>
+                <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
+            </tr>
+    		<tr>
+    		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
+    		</tr>
+        </table><br><br>
 	<h4>13. Woche: Embeddings und Deep Neural Networks</h4>
 	In unserer letzten inhaltlichen Sitzung des Seminars beschäftigen wir uns mit der instrumentellen Funktion von Embeddings für Downstream-Tasks. Wir nutzen Embeddings hierbei, um ein neural network zur Klassifikation von politischem Text zu trainieren. 
 		<table class="fancy-table">
