@@ -195,6 +195,7 @@ nav: false
                 <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings to download</a></td>
             </tr>
         </table><br><br>
+    <a href="{{ site.url }}assets/code/tada26/ollama.rmd">Code</a>
     <!---               
 
 	
