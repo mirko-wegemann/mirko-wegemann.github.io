@@ -1,0 +1,328 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("ollamar")
+library("ollamar")          # using our LLM
+library("tidyverse")        # data wrangling
+library("httr2")             # parallelization
+```
+
+The following script shows how to use Ollama, a software that brings together different LLMs, in R. It's a combination of the GitHub documentation by Ollamar and the tutorial provided by Ladal (https://ladal.edu.au/tutorials/ollamar/ollamar.html)
+
+# Connect with Ollama
+To connect with Ollama, make sure you execute the program on your device. 
+
+```{r}
+test_connection()  # this should give you status 200 (OK)
+```
+
+# Download a model
+If you have not downloaded a model yet, you can do that directly from R. Be aware, LLMs are very large, so ensure you have enough available space on your drive. 
+
+```{r}
+# list available models (which you have already downloaded)
+list_models() # will be empty if you have not downloaded a model yet
+
+pull("qwen2.5:7b")  
+```
+# Store model name
+
+Not to write down the model name every time, let's set it here.
+
+```{r}
+model <- "gemma3:4b"
+```
+
+# Send a prompt
+
+```{r}
+(resp <- generate(model, "Tell me a dad joke."))
+resp_process(resp, "text")
+
+# you can write everything into one command by using output="text"
+(resp <- generate(model, "Tell me a dad joke.", output = "text"))
+```
+
+# Chat mode
+
+When using *generate*, each request is treated independently. If we want to simulate a chat that remembers history, we can use the *chat* function. 
+
+```{r}
+# first, learn how to delete messages (in case we have initiated a chat conversation already)
+messages <- c()
+
+# define the system prompt
+messages <- create_message(
+  "You are a dad responding to each serious question with a dad joke.",
+  "system"
+)
+
+# add a user request
+messages <- append_message(
+  "Why are bananas curved?",
+  "user",
+  messages
+)
+
+# receive a reply
+(resp1 <- chat(model, messages, output = "text"))
+
+# if you want the model to remember its reply, you need to append it, too.
+messages <- append_message(
+  resp1,
+  "assistant",
+  messages
+)
+
+
+# send another request
+messages <- append_message(
+  "What do political scientists do?",
+  "user",
+  messages
+)
+
+(resp2 <- ollamar::chat(model, messages, output = "text"))
+```
+
+# Simulate the chat experience from GPT and other genAI-chats
+
+Make the user experience more realistic!
+
+```{r}
+# Simple interactive chat loop — run in RStudio console, not knitted document
+chat_with_model <- function(model = "gemma3:4b") {
+  messages <- ollamar::create_message(
+    "You are a helpful R programming and text as data assistant.",
+    "system"
+  )
+  cat("Chat started. Type 'exit' to exit.\n\n")
+  repeat {
+    user_input <- readline("You: ")
+    if (trimws(user_input) == "exit") { cat("Goodbye! Talk to you next time!"); break }
+    messages  <- append_message(user_input, "user", messages)
+    resp  <- chat(model, messages, output = "df")
+    reply <- resp$content
+    messages  <- append_message(reply, "assistant", messages)
+    cat("Model:", reply, "\n\n")
+  }
+}
+
+chat_with_model()
+```
+
+
+# Text classification
+
+The most realistic scenario is that you use a LLM to classify text. Let's import our manifesto data again. 
+
+```{r}
+df <- readRDS("./session11/data_prep.RDS") 
+df$id <- 1:nrow(df)
+
+# Subset to text on migration and welfare policy only
+df_sub <- df %>%
+  filter(issue %in% c("504", "505", "601", "602"))
+```
+
+## Define prompt
+```{r}
+classification <- NA
+classification <- create_message(
+  paste(
+  "You are a political scientist working on party competition.",
+  "Your task is to classify whether a political statement is about the 'national way of life' or welfare policy.",
+  "There are three categories: 1. national way of life, 2. welfare, 3. unclear",
+  "Only return the category.",
+  "Treat every statement independently."
+  ),
+  "system"
+)
+
+# add statement
+classification <- append_message(
+  df_sub$sentence_context[1],
+  "user",
+  classification
+)
+
+# classification return
+(class1 <- chat(model, classification, output = "text"))
+
+# add to classification object
+classification <- append_message(
+  class1,
+  "assistant",
+  classification
+)
+```
+
+This is a bit tedious, let's automatize with a loop
+
+```{r}
+# We don't need to adjust the first part
+system_prompt <- NA
+system_prompt <- create_message(
+  paste(
+  "You are a political scientist working on party competition.",
+  "Your task is to classify whether a political statement is about the 'national way of life' or welfare policy.",
+  "There are three categories: 1. national way of life, 2. welfare, 3. unclear",
+  "Only return the category.",
+  "Treat every statement independently."
+  ),
+  "system"
+)
+
+# Now, we are replacing the code with a loop
+df_sub$classification <- c()
+
+# Start the loop (let's start with 50 examples first)
+start <- Sys.time()
+
+for (i in 1:50) {
+  # send request
+  classification <- append_message(
+    df_sub$sentence_context[i],
+    "user",
+    system_prompt
+  )
+  
+  # obtain result
+  result <- chat(model, classification, output = "text")
+
+  # store result
+  df_sub$classification[i] <- result
+
+  # show progress with each run
+  message("Classified row ", i, " of ", nrow(df_sub), ": ", result)
+}
+end <- Sys.time()
+end - start
+```
+
+## Adjust parameters
+
+There are a few parameters you can set with ollamar. 
+Among others is the "temperature". The lower you set the temperature, the more determined the output. The higher the value, the more "creative" the model. 
+
+Let's get back to our dad joke example.
+
+```{r}
+# define prompts
+messages <- c()
+messages <- create_message(
+  "You are a dad responding to each serious question with a dad joke.",
+  "system"
+)
+
+# add a user request
+messages <- append_message(
+  "Why are bananas curved?",
+  "user",
+  messages
+)
+
+# set the temperature to 0
+(response_temp0 <- chat(model, messages, output = "text", temperature=0))
+
+# now set the temperature to 10
+(response_temp10 <- chat(model, messages, output = "text", temperature = 10))
+```
+
+We can achieve similar things with the diversity parameter *top_p* (that varies between 0 and 1)
+
+```{r}
+(response_top01 <- chat(model, messages, output = "text", top_p = 0.1))
+
+(response_top09 <- chat(model, messages, output = "text", top_p = 0.9))
+```
+
+
+With both temperatures, results may change slightly (less likely for temperature=0 though). To avoid that, we could (and probably should) set a seed.
+
+```{r}
+(response_seed <- chat(model, messages, output = "text", seed=312))
+```
+
+We can also limit the output to a set of pre-defined tokens. It's helpful to save tokens but the model will just cut the rest of the output.
+
+```{r}
+# define prompts
+historian <- c()
+historian <- create_message(
+  "You are a historian with an expertise on the Thirty Years' War.",
+  "system"
+)
+
+# add a user request
+historian <- append_message(
+  "Summarize the Thirty Years' War to me.",
+  "user",
+  historian
+)
+
+# set number of predicted words to 300
+(response_pred300 <- chat(model, historian, output = "text", num_predict = 300))
+
+# set number of predicted words to 100
+(response_pred100 <- chat(model, historian, output = "text", num_predict = 100))
+
+# a better approach? specify the length in the system prompt
+historian <- c()
+historian <- create_message(
+  paste(
+  "You are a historian with an expertise on the Thirty Years' War.",
+  "Limit yourself to 100 tokens."
+  ),
+  "system"
+)
+
+# add a user request
+historian <- append_message(
+  "Summarize the Thirty Years' War to me.",
+  "user",
+  historian
+)
+
+# set number of predicted words to 300
+(response_short <- chat(model, historian, output = "text"))
+```
+
+## Parallelization
+
+You will realize that this approach takes quite some time. To improve speed, we can take use of parallelizing. Please note: How much you can parallelize on your local machine depends on its hardware. Don't overdo it, otherwise, it will slow down your laptop. 
+
+```{r}
+texts_to_classify <- df_sub$sentence_context[1:50]
+
+# again, define the system prompt
+system_prompt <- NA
+system_prompt <- create_message(
+  paste(
+  "You are a political scientist working on party competition.",
+  "Your task is to classify whether a political statement is about the 'national way of life' or welfare policy.",
+  "There are three categories: 1. national way of life, 2. welfare, 3. unclear",
+  "Only return the category.",
+  "Treat every statement independently."
+  ),
+  "system"
+)
+
+# Now, there's no way around a function
+requests <- lapply(texts_to_classify, function(text) {
+  messages <- append_message(text, "user", system_prompt)
+  chat(model, messages, output = "req") # "req" is an output format explicitly compatible with httr2
+})
+
+# Run the function in parallel
+start <- Sys.time()
+
+responses <- req_perform_parallel(requests, max_active = 25)
+
+end <- Sys.time()
+end - start
+
+# Obtain results
+results <- bind_rows(lapply(responses, resp_process, "df"))
+```
+
+If you need more parallelization (with large corpora), consider Google Colab or other cloud solutions. 
