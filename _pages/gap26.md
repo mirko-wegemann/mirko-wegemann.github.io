@@ -93,13 +93,9 @@ nav: false
     <h4>Week 11: Role Models</h4>
     Do women in office serve as role models for potential future female candidates? In this session, we will assess the idea of "critical masses", and how they (might) contribute to women's decision of pursuing a political career. <br>
     <a href="{{ site.url }}assets/pdf/gap26/role_models.pdf">Slides</a><br><br>
-    <!---  
-    
-     <h4>Week 11: Language</h4>
-    How does language affect our thinking, and does gender-inclusive language change mental representations about gendered stereotypes? This week, we will assess the current prevalence of gender-inclusive language in the public discourse and its effect on the masses. <br>         
-    <a href="{{ site.url }}assets/pdf/gap26/language.pdf">Slides</a><br><br>
-    <h4>Week 12: Wrap-Up</h4>
-    In our final session, we discuss students' term paper ideas. Moreover, we'll take time to reflect on our learning outcomes. <br>         
+    <h4>Week 12: Culture</h4>
+    We've already talked about how the plough introduced a gendered division of the household. This week, we switch to matrilineal societies in Mali and study how they helped to bolster female participation in politics. Moreover, we will learn how to be a (fair) reviewer of political science articles. <br>         
+    <a href="{{ site.url }}assets/pdf/gap26/culture.pdf">Slides</a><br><br>
+    <h4>Week 13: Wrap-Up</h4>
+    In our final session, we reflect on our learning outcomes, and discuss common challenges in writing papers in political science. <br>         
     <a href="{{ site.url }}assets/pdf/gap26/wrapup.pdf">Slides</a><br>
-    <a href="{{ site.url }}assets/pdf/gap26/reflection.pdf">Reflection</a><br><br>
-    --->

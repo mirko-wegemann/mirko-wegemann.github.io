@@ -178,9 +178,14 @@ nav: false
             <a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Data for the exercise</a></td>
         </tr>
     </table><br><br>
-    <h4>Week 10: Embedding Regression</h4>
-        We learn a new representation structure: "embeddings". In this week, we'll use conText to look into descriptive statistics (such as nearest neighbors) and embedding regression.
-        <table class="fancy-table">
+    <h4>Week 10: Embeddings</h4>
+        We learn a new representation structure: "embeddings". We will introduce the idea of embeddings before applying them in R next week. 
+        <a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a>
+        <br><br>
+    <h4>Week 11: Embedding Regression and LLMs</h4>
+    This week, we'll use conText to look into descriptive statistics (such as nearest neighbors) and embedding regression. Moreover, we will talk about how we can integrate "ollama", a software platform to use LLMs on your local machine, into our classification workflow. 
+    <a href="{{ site.url }}assets/code/tada26/ollama.rmd">Code</a>
+    <table class="fancy-table">
             <tr>
                 <th style="width:33%;">Slides</th>
                 <th style="width:33%;">Code</th>
@@ -195,67 +200,21 @@ nav: false
                 <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings to download</a></td>
             </tr>
         </table><br><br>
-    <a href="{{ site.url }}assets/code/tada26/ollama.rmd">Code</a>
-    <!---               
-
-	
-	<h4>10. Woche: Supervised Classification</h4>
-	In dieser Sitzung widmen wir uns zunächst Grundkonzepten des Maschinellen Lernen, bevor wir diese auf einen Textcorpus (vom Manifesto-Project) anwenden.
-	<table class="fancy-table">
-        <tr>
-            <th style="width:33%;">Slides</th>
-            <th style="width:33%;">Code</th>
-            <th style="width:33%;">Daten</th>
-        </tr>
-        <tr>
-            <td><a href="{{ site.url }}assets/pdf/tada26/supervised_intro.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/tada26/supervised.RMD">Code (Einführung)</a><br>
-			<a href="{{ site.url }}assets/code/tada26/classification_uebung_empty.Rmd">Übung (Classification)</a><br>
-			<a href="{{ site.url }}assets/code/tada26/classification_uebung.Rmd">Übung (Lösungen)</a></td>
-            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a><br>
-			<a href="{{ site.url }}assets/data/sentiment_tweets.RDS">Datensatz für die Übung</a></td>
-        </tr>
-    </table><br><br>
-    
-	<h4>11. Woche: Lab Session</h4>
-	Diese Woche ist eine Lab-Session. Zunächst wird kurz über die Erwartungen der Hausarbeit gesprochen, bevor individuelle Probleme (konzeptueller Natur, bzgl. Code, etc.) besprochen werden können. <br><br>
-	<a href="https://github.com/danbischof/danbischof.github.io/blob/master/assets/pdf/Bischof_howtopaper.pdf">Formalitäten und Word-Vorlage für die Hausarbeit</a><br> <br>
-    	<h4>12. Woche: Embedding Regression</h4>
-    	Wir lernen mit "Embeddings" eine komplexere Art der Repräsentation von Text kennen. Mithilfe des "conText"-Packages in R führen wir einfache deskriptive Analysen sowie eine Embedding-Regression durch. 
-    	<table class="fancy-table">
+    <h4>Week 12: Wrap-Up and Deep Neural Networks</h4>
+    In our final session, we will reflect on your learning outcomes and learn how to use embeddings as input structures for text classification.
+    <table class="fancy-table">
             <tr>
                 <th style="width:33%;">Slides</th>
                 <th style="width:33%;">Code</th>
-                <th style="width:33%;">Daten</th>
+                <th style="width:33%;">Data</th>
             </tr>
             <tr>
-                <td><a href="{{ site.url }}assets/pdf/tada26/embeddings.pdf">Slides</a></td>
-                <td><a href="{{ site.url }}assets/code/tada26/embeddings_part1.RMD">Code</a></td>
-                <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
+                <td><a href="{{ site.url }}assets/pdf/tada26/wrap_up.pdf">Slides (Wrap-Up)</a></td>
+                <td><a href="{{ site.url }}assets/pdf/tada26/neural_networks.pdf">Slides (Neural networks)</a></td>
+                <td><a href="{{ site.url }}assets/code/tada26/embeddings_part2.RMD">Code</a></td>
+                <td><a href="{{ site.url }}assets/data/data_prep.RDS">Data (Manifesto Data)</a></td>
             </tr>
-    		<tr>
-    		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
-    		</tr>
+            <tr>
+                <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings to download</a></td>
+            </tr>
         </table><br><br>
-	<h4>13. Woche: Embeddings und Deep Neural Networks</h4>
-	In unserer letzten inhaltlichen Sitzung des Seminars beschäftigen wir uns mit der instrumentellen Funktion von Embeddings für Downstream-Tasks. Wir nutzen Embeddings hierbei, um ein neural network zur Klassifikation von politischem Text zu trainieren. 
-		<table class="fancy-table">
-        <tr>
-            <th style="width:33%;">Slides</th>
-            <th style="width:33%;">Code</th>
-            <th style="width:33%;">Daten</th>
-        </tr>
-        <tr>
-            <td><a href="{{ site.url }}assets/pdf/tada26/neural_networks.pdf">Slides</a></td>
-            <td><a href="{{ site.url }}assets/code/tada26/embeddings_part2.RMD">Code</a></td>
-            <td><a href="{{ site.url }}assets/data/data_prep.RDS">Datensatz (Manifesto Data)</a></td>
-        </tr>
-		<tr>
-		    <td><a href="https://nlp.stanford.edu/projects/glove/">Embeddings zum Download</a></td>
-		</tr>
-    </table><br><br>
-	<h4>14. Woche: Abschlusssitzung</h4>
-	In unserer letzten Sitzung tauschen wir uns über eure Hausarbeitsideen aus und besprechen Bewertungskriterien der Arbeit. Darüber hinaus evaluieren wir den Lernfortschritt, den wir im Seminar gemacht haben.  <br><br>
-	<a href="{{ site.url }}assets/pdf/qta/wrap_up.pdf">Slides</a><br>
-	<a href="{{ site.url }}assets/pdf/qta/anforderungen_hausarbeit.pdf">Überblick zu den Anforderungen der Hausarbeit</a><br>
-	--->
