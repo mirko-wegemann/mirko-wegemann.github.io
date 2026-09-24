@@ -5,6 +5,22 @@ title: Previous courses
 description: 
 nav: false
 ---
+<strong>Political Parties in a Comparative Perspective</strong><br>
+Undergraduate course, University of Münster, 2025/26 <br>
+Lecturer, Winter Term 2025/26 <br>
+<a href="{{ site.url }}teaching/ppcp2526">Materials</a> <br>
+[Teaching Evaluation][8]
+
+[8]:{{ site.url }}assets/pdf/ppcp2526/evaluation_ppcp2526.pdf
+
+<strong>Challenges to Democracy</strong><br>
+Undergraduate course, University of Münster, 2025/26 <br>
+Lecturer, Winter Term 2025/26 <br>
+<a href="{{ site.url }}teaching/ctd2526">Materials</a> <br>
+[Teaching Evaluation][7]
+
+[7]:{{ site.url }}assets/pdf/ctd2526/evaluation_ctd2526.pdf
+
 
 <strong>Party Competition in Western Europe</strong><br>
 Graduate course, University of Münster, 2025 <br>
